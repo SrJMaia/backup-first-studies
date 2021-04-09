@@ -1,0 +1,159 @@
+def preprocess_mt5_2(symbol,mt5, start=0,end=70_000, time_frame=mt5.TIMEFRAME_H1):
+    df_rates = pd.DataFrame(mt5.copy_rates_from_pos(symbol, time_frame , start, end))
+    df_rates['time'] = pd.to_datetime(df_rates['time'], unit='s',utc=True)
+    df_rates["symbol"]=symbol
+    return(df_rates)
+
+
+def preprocess_mt5(symbol,mt5, init= dt.datetime(2018, 1, 28, 13),end=dt.datetime.now(dt.timezone.utc), time_frame=mt5.TIMEFRAME_H1):
+    df_rates = pd.DataFrame(mt5.copy_rates_range(symbol, time_frame ,init, end))
+    df_rates['time'] = pd.to_datetime(df_rates['time'], unit='s',utc=True)
+    df_rates["symbol"]=symbol
+    return(df_rates)
+   
+def diff_data(list_symbol,start_pos,end_pos,sma_diff_period,time_frame,data_type='close'):
+    if data_type == 'close':
+        df2 = pd.DataFrame()
+        for i in range(len(list_symbol)):
+            df=preprocess_mt5_2(symbol=list_symbol[i],mt5=mt5,start=start_pos,end=end_pos,time_frame=time_frame)
+            df2[list_symbol[i]] = df['close'].pct_change()
+        df2['sum'] = df2.sum(axis=1)
+        df2['sma'] = df2['sum'].rolling(sma_diff_period).sum()*100
+        return df2['sma']
+    elif data_type == 'high':
+        df2 = pd.DataFrame()
+        for i in range(len(list_symbol)):
+            df=preprocess_mt5_2(symbol=list_symbol[i],mt5=mt5,start=start_pos,end=end_pos,time_frame=time_frame)
+            df2[list_symbol[i]] = df['high'].pct_change()
+        df2['sum'] = df2.sum(axis=1)
+        df2['sma'] = df2['sum'].rolling(sma_diff_period).sum()*100
+        return df2['sma']
+    
+
+def diff_data_high(list_symbol,sma_diff_period):
+    df2 = pd.DataFrame()
+    for i in range(len(list_symbol)):
+        #df=preprocess_mt5(symbol=list_symbol[i], mt5=mt5, init= dt.datetime(2010,1,1),time_frame=mt5.TIMEFRAME_H1)
+        df=preprocess_mt5_2(symbol=list_symbol[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)
+        df2[list_symbol[i]] = df['close'].pct_change()
+        del df
+    df2['sum'] = df2.sum(axis=1)
+    df2['sma'] = df2['sum'].rolling(sma_diff_period).sum()*100
+    return df2['sma']
+
+
+def diff_data_low(list_symbol,sma_diff_period):
+    df2 = pd.DataFrame()
+    for i in range(len(list_symbol)):
+        #df=preprocess_mt5(symbol=list_symbol[i], mt5=mt5, init= dt.datetime(2010,1,1),time_frame=mt5.TIMEFRAME_H1)
+        df=preprocess_mt5_2(symbol=list_symbol[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)
+        df2[list_symbol[i]] = df['low'].pct_change()
+        del df
+    df2['sum'] = df2.sum(axis=1)
+    df2['sma'] = df2['sum'].rolling(sma_diff_period).sum()*100
+    return df2['sma']
+
+def account_balance(balance,risk,leverage,initial_price,final_price,jpy=False):
+
+    div = 2
+    adjusted_lot = 0
+    profit = 0
+    
+    if jpy:
+        adjusted_lot = balance*risk*leverage/100
+        profit = (initial_price * adjusted_lot) - (final_price * adjusted_lot)
+        return balance + profit
+    else:
+        adjusted_lot = balance*risk*leverage
+        profit = (initial_price * adjusted_lot) - (final_price * adjusted_lot)
+        return balance + profit
+    
+    if initial_price < 1 and final_price > 1:
+        adjusted_lot = balance*risk*leverage
+        profit = (initial_price / adjusted_lot) - (final_price * adjusted_lot)
+        return balance + profit
+    elif final_price < 1 and initial_price > 1:
+        adjusted_lot = balance*risk*leverage
+        profit = (initial_price * adjusted_lot) - (final_price / adjusted_lot)
+        return balance + profit
+    elif initial_price < 1 and final_price <1:
+        adjusted_lot = balance*risk*leverage
+        profit = (initial_price / adjusted_lot) - (final_price / adjusted_lot)
+        return balance + profit
+    
+    
+def finance_calculation(balance, saldo_inicial, saldo_final, eur=True, preco_eur=0, compra=False, jpy=False):
+    risco = 0.01
+    alavancagem = 100
+    lot = 1000
+    if eur:
+        if jpy:
+            tot = (saldo_inicial - saldo_final) * 1000
+            tot2 = lot * 0.00001 / saldo_final
+            tot3 = tot * tot2
+            return tot3 + balance            
+        if not jpy:
+            tot = (saldo_inicial - saldo_final) * 100_000
+            tot2 = lot * 0.00001 / saldo_final
+            tot3 = tot * tot2
+            return tot3 + balance
+    if not eur:
+        if jpy:
+            tot = (saldo_inicial - saldo_final) * 1000
+            tot2 = lot * 0.001 / saldo_final
+            tot3 = (tot * tot2) / preco_eur
+            return tot3 + balance
+        if not jpy:
+            tot = (saldo_inicial - saldo_final) * 100_000
+            tot2 = lot * 0.001 / saldo_final
+            tot3 = (tot * tot2) / preco_eur
+            return tot3 + balance
+        
+
+def pip_calculation(pip_balance,preco_inicial, preco_final):
+    pip = preco_inicial - preco_final
+    return pip + pip_balance
+       
+    
+def backtest_analysis(series,test_number=0):
+    series.dropna(inplace=True)
+    gross_profit, gross_loss = 0.0, 0.0
+    total_profit_trades, total_loss_trades, total_trades = 0, 0, 0
+    for i in series.diff():
+        if i < 0:
+            gross_loss += i
+            total_loss_trades += 1
+        elif i > 0:
+            gross_profit += i
+            total_profit_trades += 1
+    initial_balance = series.iloc[0]
+    total_trades = total_profit_trades + total_loss_trades
+    per_win = round(total_profit_trades/total_trades*100,2)
+    per_loss = round(total_loss_trades/total_trades*100,2)
+    net_profit = round(series.iloc[-1]-1000,2)
+    gross_profit = round(gross_profit,2)
+    gross_loss = round(gross_loss,2)
+    equity_drawdown_maximal = round(series.min()-series.iloc[0],2)
+    equity_drawdown_relative = round((1-(series.min()/series.iloc[0]))*100,2)
+    profit_factor = abs(round(gross_profit/gross_loss,2))
+    recovery_factor = 0
+    if equity_drawdown_maximal == 0:
+        recovery_factor = round(net_profit/1,2)
+    else:
+        recovery_factor = round(net_profit/abs(equity_drawdown_maximal),2)
+    print(f'''
+    Test: {test_number}
+    Initial Balance: {initial_balance}€
+    Total Trades: {total_trades}
+    Total Won Trades: {total_profit_trades}
+    Percentage Won: {per_win}%
+    Total Loss Trades: {total_loss_trades}
+    Percentage Loss: {per_loss}%
+    Net Profit: {net_profit}€
+    Gross Profit: {gross_profit}€
+    Gross Loss: {gross_loss}€
+    Equity Drawdown Maximal: {equity_drawdown_maximal}€
+    Equity Drawdown Relative: {equity_drawdown_relative}%
+    Profit Factor: {profit_factor}
+    Recovery Factor: {recovery_factor}
+    ''')
