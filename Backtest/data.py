@@ -113,11 +113,11 @@ class Data(MetaTrader, Pairs):
 
         array = np.array(
                 [
-                    np.transpose(np.array(data[['EURUSD_Open','EURUSD_buy','EURUSD_sell','EURUSD_Open','EURUSD_High','EURUSD_Low']])),
                     np.transpose(np.array(data[['EURCHF_Open','EURCHF_buy','EURCHF_sell','EURCHF_Open','EURCHF_High','EURCHF_Low']])),
                     np.transpose(np.array(data[['EURGBP_Open','EURGBP_buy','EURGBP_sell','EURGBP_Open','EURGBP_High','EURGBP_Low']])),
                     np.transpose(np.array(data[['EURJPY_Open','EURJPY_buy','EURJPY_sell','EURJPY_Open','EURJPY_High','EURJPY_Low']])),
                     np.transpose(np.array(data[['EURNZD_Open','EURNZD_buy','EURNZD_sell','EURNZD_Open','EURNZD_High','EURNZD_Low']])),
+                    np.transpose(np.array(data[['EURUSD_Open','EURUSD_buy','EURUSD_sell','EURUSD_Open','EURUSD_High','EURUSD_Low']])),
                     np.transpose(np.array(data[['EURAUD_Open','EURAUD_buy','EURAUD_sell','EURAUD_Open','EURAUD_High','EURAUD_Low']])),
                     np.transpose(np.array(data[['EURCAD_Open','EURCAD_buy','EURCAD_sell','EURCAD_Open','EURCAD_High','EURCAD_Low']])),
                     np.transpose(np.array(data[['GBPAUD_Open','GBPAUD_buy','GBPAUD_sell','EURGBP_Open','GBPAUD_High','GBPAUD_Low']])),

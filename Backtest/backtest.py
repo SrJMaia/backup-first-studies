@@ -59,7 +59,7 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                3 = SL Venda
                4 = TP Compra
                5 = SL Compra
-    check_eur: 0 = eur
+    check_eur_jpy: 0 = eur
                    1 = jpy
     """
 
@@ -67,9 +67,14 @@ def otimizado_tpsl(series, tpsl, balance=1000):
 
     each_pair = np.zeros((28,50_000), dtype='float64')
 
-    check_eur = np.append(np.full((7,1), True, dtype = np.bool_), np.full((21,1), False, dtype = np.bool_), axis=0)
+    check_eur_jpy = np.array([
+                        [1, 0],[1, 0],[1, 1],[1, 0],[1, 0],[1, 0],[1, 0],
+                        [0, 0],[0, 0],[0, 1],[0, 0],[0, 0],[0, 0],[0, 0],
+                        [0, 1],[0, 0],[0, 0],[0, 0],[0, 1],[0, 1],[0, 1],
+                        [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
+                        ], dtype=np.bool_)
 
-    operacoes = np.zeros((28,2),dtype='float64')
+    operacoes = np.zeros((28,6),dtype='float64')
     buy_sell = np.ones((28,2),dtype=np.bool_)
 
     buy_ind, sell_ind, list_backtest_indi = 0, 0, 1
@@ -93,10 +98,11 @@ def otimizado_tpsl(series, tpsl, balance=1000):
 
         for h in range(len(series)): # 28
 
+
             if series[h][1][i] and buy_sell[h][0]:
                 operacoes[h][0] = series[h][0][i]
                 buy_sell[h][0] = False
-                if check_eur[h][1]:
+                if check_eur_jpy[h][1]:
                     operacoes[h][4] = series[h][0][i] + tk_jpy
                     operacoes[h][5] = series[h][0][i] - sl_jpy
                 else:
@@ -107,11 +113,11 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                 balance_backtest, buy_result = finance_calculation(balance=balance_backtest,
                                                                    saldo_inicial=operacoes[h][5],
                                                                    saldo_final=operacoes[h][0],
-                                                                   eur = check_eur[h][0],
+                                                                   eur = check_eur_jpy[h][0],
                                                                    preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 buy_orders[buy_ind] = buy_result
-                each_pair[h][each_pair_index[h]] = balance_backtest
+                each_pair[h][each_pair_index[h]] = buy_result
                 each_pair_index[h] += 1
                 buy_sell[h][0] = True
                 list_backtest_indi += 1
@@ -120,11 +126,11 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                 balance_backtest, buy_result = finance_calculation(balance=balance_backtest,
                                                                    saldo_inicial=operacoes[h][4],
                                                                    saldo_final=operacoes[h][0],
-                                                                   eur = check_eur[h][0],
+                                                                   eur = check_eur_jpy[h][0],
                                                                    preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 buy_orders[buy_ind] = buy_result
-                each_pair[h][each_pair_index[h]] = balance_backtest
+                each_pair[h][each_pair_index[h]] = buy_result
                 each_pair_index[h] += 1
                 buy_sell[h][0] = True
                 list_backtest_indi += 1
@@ -133,7 +139,7 @@ def otimizado_tpsl(series, tpsl, balance=1000):
             if series[h][2][i] and buy_sell[h][1]:
                 operacoes[h][1] = series[h][0][i]
                 buy_sell[h][1] = False
-                if check_eur[h][1]:
+                if check_eur_jpy[h][1]:
                     operacoes[h][2] = series[h][0][i] - tk_jpy
                     operacoes[h][3] = series[h][0][i] + sl_jpy
                 else:
@@ -144,11 +150,11 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                 balance_backtest, sell_result = finance_calculation(balance=balance_backtest,
                                                                     saldo_inicial=operacoes[h][1],
                                                                     saldo_final=operacoes[h][3],
-                                                                    eur = check_eur[h][0],
+                                                                    eur = check_eur_jpy[h][0],
                                                                     preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 sell_orders[sell_ind] = sell_result
-                each_pair[h][each_pair_index[h]] = balance_backtest
+                each_pair[h][each_pair_index[h]] = sell_result
                 each_pair_index[h] += 1
                 buy_sell[h][1] = True
                 list_backtest_indi += 1
@@ -157,15 +163,18 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                 balance_backtest, sell_result = finance_calculation(balance=balance_backtest,
                                                                     saldo_inicial=operacoes[h][1],
                                                                     saldo_final=operacoes[h][2],
-                                                                    eur = check_eur[h][0],
+                                                                    eur = check_eur_jpy[h][0],
                                                                     preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 sell_orders[sell_ind] = sell_result
-                each_pair[h][each_pair_index[h]] = balance_backtest
+                each_pair[h][each_pair_index[h]] = sell_result
                 each_pair_index[h] += 1
                 buy_sell[h][1] = True
                 list_backtest_indi += 1
                 sell_ind += 1
+
+        if i < 10:
+            print(balance_backtest)
 
     return list_backtest, sell_orders, buy_orders, each_pair
 
@@ -177,11 +186,17 @@ def otimizado_no_tpsl(series, balance=1000):
               1 = Venda
     operacoes: 0 = Preço de Compra
                1 = Preço de Venda
-    check_eur: 0 = eur
+    check_eur_jpy: 0 = eur
                    1 = jpy
     """
 
-    check_eur = np.append(np.full((7,1), True, dtype = np.bool_), np.full((21,1), False, dtype = np.bool_), axis=0)
+    check_eur_jpy = np.array([
+                        [1, 0],[1, 0],[1, 1],[1, 0],[1, 0],[1, 0],[1, 0],
+                        [0, 0],[0, 0],[0, 1],[0, 0],[0, 0],[0, 0],[0, 0],
+                        [0, 1],[0, 0],[0, 0],[0, 0],[0, 1],[0, 1],[0, 1],
+                        [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
+                        ], dtype=np.bool_)
+
     operacoes = np.zeros((28,2),dtype='float64')
     buy_sell = np.ones((28,2),dtype=np.bool_)
 
@@ -209,7 +224,7 @@ def otimizado_no_tpsl(series, balance=1000):
                     balance_backtest, sell_result = finance_calculation(balance=balance_backtest,
                                                                         saldo_inicial=operacoes[h][1],
                                                                         saldo_final=series[h][0][i],
-                                                                        eur=check_eur[h][0],
+                                                                        eur=check_eur_jpy[h][0],
                                                                         preco_eur=series[h][3][i])
                     list_backtest[list_backtest_indi] = balance_backtest
                     sell_orders[sell_ind] = sell_result
@@ -227,7 +242,7 @@ def otimizado_no_tpsl(series, balance=1000):
                     balance_backtest, buy_result = finance_calculation(balance=balance_backtest,
                                                                        saldo_inicial=series[h][0][i],
                                                                        saldo_final=operacoes[h][0],
-                                                                       eur=check_eur[h][0],
+                                                                       eur=check_eur_jpy[h][0],
                                                                        preco_eur=series[h][3][i])
                     list_backtest[list_backtest_indi] = balance_backtest
                     buy_orders[buy_ind] = buy_result
@@ -251,12 +266,18 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
                3 = SL Venda
                4 = TP Compra
                5 = SL Compra
-    check_eur: 0 = eur
+    check_eur_jpy: 0 = eur
                    1 = jpy
     """
 
-    check_eur = np.append(np.full((7,1), True, dtype = np.bool_), np.full((21,1), False, dtype = np.bool_), axis=0)
-    operacoes = np.zeros((28,2),dtype='float64')
+    check_eur_jpy = np.array([
+                        [1, 0],[1, 0],[1, 1],[1, 0],[1, 0],[1, 0],[1, 0],
+                        [0, 0],[0, 0],[0, 1],[0, 0],[0, 0],[0, 0],[0, 0],
+                        [0, 1],[0, 0],[0, 0],[0, 0],[0, 1],[0, 1],[0, 1],
+                        [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
+                        ], dtype=np.bool_)
+                        
+    operacoes = np.zeros((28,6),dtype='float64')
     buy_sell = np.ones((28,2),dtype=np.bool_)
 
     buy_ind, sell_ind, list_backtest_indi = 0, 0, 1
@@ -283,7 +304,7 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
             if series[h][1][i] and buy_sell[h][0]:
                 operacoes[h][0] = series[h][0][i]
                 buy_sell[h][0] = False
-                if check_eur[h][1]:
+                if check_eur_jpy[h][1]:
                     operacoes[h][4] = series[h][0][i] + tk_jpy
                     operacoes[h][5] = series[h][0][i] - sl_jpy
                 else:
@@ -292,7 +313,7 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
 
             if buy_sell[h][0] == False and (series[h][0][i] >= operacoes[h][4] or series[h][4][i] >= operacoes[h][4]):
                 balance_backtest, buy_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacoes[h][4],
-                                                                   saldo_final=operacoes[h][0], eur = check_eur[h][0],
+                                                                   saldo_final=operacoes[h][0], eur = check_eur_jpy[h][0],
                                                                    preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 buy_orders[buy_ind] = buy_result
@@ -301,7 +322,7 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
                 buy_ind += 1
             elif buy_sell[h][0] == False and (series[h][0][i] <= operacoes[h][5] or series[h][5][i] <= operacoes[h][5]):
                 balance_backtest, buy_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacoes[h][5],
-                                                                   saldo_final=operacoes[h][0], eur = check_eur[h][0],
+                                                                   saldo_final=operacoes[h][0], eur = check_eur_jpy[h][0],
                                                                    preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 buy_orders[buy_ind] = buy_result
@@ -312,7 +333,7 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
             if series[h][2][i] and buy_sell[h][1]:
                 operacoes[h][1] = series[h][0][i]
                 buy_sell[h][1] = False
-                if check_eur[h][1]:
+                if check_eur_jpy[h][1]:
                     operacoes[h][2] = series[h][0][i] - tk_jpy
                     operacoes[h][3] = series[h][0][i] + sl_jpy
                 else:
@@ -321,7 +342,7 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
 
             if buy_sell[h][1] == False and (series[h][0][i] <= operacoes[h][2] or series[h][5][i] <= operacoes[h][2]):
                 balance_backtest, sell_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacoes[h][1],
-                                                                    saldo_final=operacoes[h][2], eur = check_eur[h][0],
+                                                                    saldo_final=operacoes[h][2], eur = check_eur_jpy[h][0],
                                                                     preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 sell_orders[sell_ind] = sell_result
@@ -330,7 +351,7 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
                 sell_ind += 1
             elif buy_sell[h][1] == False and (series[h][0][i] >= operacoes[h][3] or series[h][4][i] >= operacoes[h][3]):
                 balance_backtest, sell_result = finance_calculation(balance=balance_backtest,saldo_inicial=operacoes[h][1],
-                                                                    saldo_final=operacoes[h][3], eur = check_eur[h][0],
+                                                                    saldo_final=operacoes[h][3], eur = check_eur_jpy[h][0],
                                                                     preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 sell_orders[sell_ind] = sell_result

@@ -101,6 +101,7 @@ class Signals(Pairs, Indicators):
             pair1_1 = self.data[super().SPLIT_PAIRS[i][0]].shift().to_numpy()
             pair2_1 = self.data[super().SPLIT_PAIRS[i][1]].shift().to_numpy()
 
+            teste = super().calc_stochastic(super().ALL_PAIRS_OPEN[i], 20)
             kama = super().calc_kama(super().ALL_PAIRS_OPEN[i], periodo_kama, fast_kama, slow_kama)
             sma = super().calc_sma(super().ALL_PAIRS_OPEN[i], periodo_sma)
             kama_s = pd.Series(kama).shift().to_numpy()

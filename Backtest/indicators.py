@@ -26,14 +26,14 @@ class IndicatorsCalc:
         return all_min, all_max
 
 
-    @staticmethod
-    def STOCHASTIC(array, periodo, k_period=3):
-        mini, maxi = IndicatorsCalc.find_min_max(array, periodo)
+    @classmethod
+    def STOCHASTIC(cls, array, periodo, k_period=3):
+        mini, maxi = cls.find_min_max(array, periodo)
 
         k1 = array-mini
         k2 = maxi-mini
         k = np.where(k2 != 0.0, (k1 / k2) * 100, 0.0)
-        d = IndicatorsCalc.SMA(k, k_period)
+        d = cls.SMA(k, k_period)
 
         return k, d
 
@@ -84,14 +84,14 @@ class IndicatorsCalc:
         return ema
 
 
-    @staticmethod
-    def MACD(series, first_period, second_period, signal_line, act_min_period=False, only_hist = True):
-        first_line = IndicatorsCalc.EMA_NORMAL(series=series, periodo=first_period, coef=True, min_periods_1=act_min_period)
-        second_line = IndicatorsCalc.EMA_NORMAL(series=series, periodo=second_period, coef=True, min_periods_1=act_min_period)
+    @classmethod
+    def MACD(cls, series, first_period, second_period, signal_line, act_min_period=False, only_hist = True):
+        first_line = cls.EMA_NORMAL(series=series, periodo=first_period, coef=True, min_periods_1=act_min_period)
+        second_line = cls.EMA_NORMAL(series=series, periodo=second_period, coef=True, min_periods_1=act_min_period)
 
         macd_line = first_line - second_line
 
-        signal_line = IndicatorsCalc.EMA_NORMAL(series=macd_line, periodo=signal_line, coef=True, min_periods_1=act_min_period)
+        signal_line = cls.EMA_NORMAL(series=macd_line, periodo=signal_line, coef=True, min_periods_1=act_min_period)
 
         macd_hist = macd_line - signal_line
 
@@ -186,22 +186,22 @@ class IndicatorsCalc:
         return sum_array
 
 
-    @staticmethod
-    def PMO(array, periodo1, periodo2, periodo3):
+    @classmethod
+    def PMO(cls, array, periodo1, periodo2, periodo3):
 
         smothing1 = 2/periodo1
         smothing2 = 2/periodo2
         smothing3 = 2/(periodo3+1)
 
-        roc_ma = IndicatorsCalc.EMA_NORMAL(array, periodo1, pmo=True)
+        roc_ma = cls.EMA_NORMAL(array, periodo1, pmo=True)
         roc_ma_shift = np.append(np.nan, np.roll(roc_ma, 1)[1:])
         roc_ma = roc_ma_shift + (array - roc_ma_shift) * smothing1
 
-        pmo = IndicatorsCalc.EMA_NORMAL(roc_ma, periodo2, pmo=True)
+        pmo = cls.EMA_NORMAL(roc_ma, periodo2, pmo=True)
         pmo_shift = np.append(np.nan, np.roll(pmo, 1)[1:])
         pmo = pmo_shift + (roc_ma - pmo_shift) * smothing2
 
-        signal = IndicatorsCalc.EMA_NORMAL(pmo, periodo3)
+        signal = cls.EMA_NORMAL(pmo, periodo3)
         signal_shift = np.append(np.nan, np.roll(signal, 1)[1:])
         signal = smothing3 * (pmo - signal_shift) + signal_shift
 
