@@ -61,6 +61,10 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                5 = SL Compra
     """
 
+    each_pair_index = np.zeros((28,1), dtype='int32')
+
+    each_pair = np.zeros((28,50_000), dtype='float64')
+
     check_eur_jpy = np.array(
             [
                 [1,0],
@@ -135,6 +139,8 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                                                                    preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 buy_orders[buy_ind] = buy_result
+                each_pair[h][each_pair_index[h]] = balance_backtest
+                each_pair_index[h] += 1
                 buy_sell[h][0] = True
                 list_backtest_indi += 1
                 buy_ind += 1
@@ -146,6 +152,8 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                                                                    preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 buy_orders[buy_ind] = buy_result
+                each_pair[h][each_pair_index[h]] = balance_backtest
+                each_pair_index[h] += 1
                 buy_sell[h][0] = True
                 list_backtest_indi += 1
                 buy_ind += 1
@@ -166,6 +174,8 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                                                                     preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 sell_orders[sell_ind] = sell_result
+                each_pair[h][each_pair_index[h]] = balance_backtest
+                each_pair_index[h] += 1
                 buy_sell[h][1] = True
                 list_backtest_indi += 1
                 sell_ind += 1
@@ -175,11 +185,13 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                                                                     preco_eur=series[h][3][i])
                 list_backtest[list_backtest_indi] = balance_backtest
                 sell_orders[sell_ind] = sell_result
+                each_pair[h][each_pair_index[h]] = balance_backtest
+                each_pair_index[h] += 1
                 buy_sell[h][1] = True
                 list_backtest_indi += 1
                 sell_ind += 1
 
-    return list_backtest, sell_orders, buy_orders
+    return list_backtest, sell_orders, buy_orders, each_pair
 
 
 @njit
