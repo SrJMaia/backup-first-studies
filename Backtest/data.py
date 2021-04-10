@@ -10,7 +10,11 @@ class Data(MetaTrader, Pairs):
 
 
     def return_data(self):
-        return self.data
+        return self.__data
+
+
+    def modify_data(self, new_data):
+        self.__data = new_data
 
 
     def get_data_csv(self, path, separator=',', drop=False, drop_list=[]):
@@ -20,10 +24,10 @@ class Data(MetaTrader, Pairs):
         drop = Se True, passar lista de colunas a serem dropadas
         """
         if drop:
-            self.data = pd.read_csv(path, sep=separator).drop(columns=drop_list)
+            self.__data = pd.read_csv(path, sep=separator).drop(columns=drop_list)
             print('Dados Carregados com Sucesso.')
         else:
-            self.data = pd.read_csv(path, sep=separator)
+            self.__data = pd.read_csv(path, sep=separator)
             print('Dados Carregados com Sucesso.')
 
 
@@ -70,10 +74,10 @@ class Data(MetaTrader, Pairs):
 
         super().mt_logoff()
         if monte_carlo:
-            self.data = df.sample(frac=1).reset_index(drop=True)
+            self.__data = df.sample(frac=1).reset_index(drop=True)
             print('Dados Baixados com Sucesso.')
         else:
-            self.data =  df
+            self.__data =  df
             print('Dados Baixados com Sucesso.')
 
 
@@ -81,10 +85,11 @@ class Data(MetaTrader, Pairs):
         """
         No futuro colcoar a soma, subtração de todos os 4
         """
+        new_data = Data.return_data(self)
         for i in super().DIFF_SYMBOLS:
             df = pd.DataFrame()
             for j in i[1]:
-                df[j]=self.data[j+complement].pct_change(periods=period)
+                df[j]=new_data[j+complement].pct_change(periods=period)
                 if i[0] == 'gbp':
                     if j == 'EURGBP':
                         df[j] = df[j] * -1
@@ -105,7 +110,9 @@ class Data(MetaTrader, Pairs):
                 if i[0] == 'cad':
                     if j in ['AUDCAD','USDCAD','EURCAD','GBPCAD','NZDCAD']:
                         df[j] = df[j] * -1
-            self.data[f'{i[0]}'] = df.sum(axis=1)*100
+            new_data[f'{i[0]}'] = df.sum(axis=1)*100
+
+        Data.modify_data(self, new_data)
 
 
     @staticmethod
@@ -146,11 +153,11 @@ class Data(MetaTrader, Pairs):
 
 
     def full_data_array(self):
-        self.full_numpy = Data.pandas_to_array(self.data)
+        self.__full_numpy = Data.pandas_to_array(self.return_data())
 
 
     def return_full(self):
-        return self.full_numpy
+        return self.__full_numpy
 
 
     def walk_forward_split(self):
