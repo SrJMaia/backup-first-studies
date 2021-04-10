@@ -40,10 +40,6 @@ class Data(MetaTrader, Pairs):
         return self.__numpy_big_data
 
 
-    def del_big_data(self):
-        del self.__big_data
-
-
     def get_normal_data_csv(self, path, separator=',', drop=False, drop_list=[]):
         """
         path = str do caminho do arquivo
