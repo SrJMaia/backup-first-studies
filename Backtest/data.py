@@ -9,6 +9,7 @@ class Data(MetaTrader, Pairs):
         super().__init__(login, senha, servidor)
 
 
+    # Normal Data
     def get_normal_data(self):
         return self.__normal_data
 
@@ -23,6 +24,19 @@ class Data(MetaTrader, Pairs):
 
     def get_numpy_normal_data(self):
         return self.__numpy_normal_data
+
+
+    # Big Data
+    def get_big_data(self):
+        return self.__big_data
+
+
+    def big_data_to_array(self):
+        self.__numpy_big_data = self.pandas_to_array_big(self.get_big_data(), len(self.get_normal_data()))
+
+
+    def get_numpy_big_data(self):
+        return self.__numpy_big_data
 
 
     def get_normal_data_csv(self, path, separator=',', drop=False, drop_list=[]):
@@ -138,6 +152,215 @@ class Data(MetaTrader, Pairs):
 
 
     @staticmethod
+    def pandas_to_array_big(data, comp):
+
+        array = np.array(
+                [
+                    np.transpose(np.array(data[['EURCHF_Open','EURCHF_High','EURCHF_Low','EURCHF_Close']])),
+                    np.transpose(np.array(data[['EURGBP_Open','EURGBP_High','EURGBP_Low','EURGBP_Close']])),
+                    np.transpose(np.array(data[['EURJPY_Open','EURJPY_High','EURJPY_Low','EURJPY_Close']])),
+                    np.transpose(np.array(data[['EURNZD_Open','EURNZD_High','EURNZD_Low','EURNZD_Close']])),
+                    np.transpose(np.array(data[['EURUSD_Open','EURUSD_High','EURUSD_Low','EURUSD_Close']])),
+                    np.transpose(np.array(data[['EURAUD_Open','EURAUD_High','EURAUD_Low','EURAUD_Close']])),
+                    np.transpose(np.array(data[['EURCAD_Open','EURCAD_High','EURCAD_Low','EURCAD_Close']])),
+                    np.transpose(np.array(data[['GBPAUD_Open','GBPAUD_High','GBPAUD_Low','EURGBP_Close']])),
+                    np.transpose(np.array(data[['GBPCHF_Open','GBPCHF_High','GBPCHF_Low','EURGBP_Close']])),
+                    np.transpose(np.array(data[['GBPJPY_Open','GBPJPY_High','GBPJPY_Low','EURGBP_Close']])),
+                    np.transpose(np.array(data[['GBPCAD_Open','GBPCAD_High','GBPCAD_Low','EURGBP_Close']])),
+                    np.transpose(np.array(data[['GBPUSD_Open','GBPUSD_High','GBPUSD_Low','EURGBP_Close']])),
+                    np.transpose(np.array(data[['GBPNZD_Open','GBPNZD_High','GBPNZD_Low','EURGBP_Close']])),
+                    np.transpose(np.array(data[['USDCHF_Open','USDCHF_High','USDCHF_Low','EURUSD_Close']])),
+                    np.transpose(np.array(data[['USDJPY_Open','USDJPY_High','USDJPY_Low','EURUSD_Close']])),
+                    np.transpose(np.array(data[['AUDUSD_Open','AUDUSD_High','AUDUSD_Low','EURAUD_Close']])),
+                    np.transpose(np.array(data[['NZDUSD_Open','NZDUSD_High','NZDUSD_Low','EURNZD_Close']])),
+                    np.transpose(np.array(data[['USDCAD_Open','USDCAD_High','USDCAD_Low','EURUSD_Close']])),
+                    np.transpose(np.array(data[['AUDJPY_Open','AUDJPY_High','AUDJPY_Low','EURAUD_Close']])),
+                    np.transpose(np.array(data[['CADJPY_Open','CADJPY_High','CADJPY_Low','EURCAD_Close']])),
+                    np.transpose(np.array(data[['CHFJPY_Open','CHFJPY_High','CHFJPY_Low','EURCHF_Close']])),
+                    np.transpose(np.array(data[['NZDJPY_Open','NZDJPY_High','NZDJPY_Low','EURNZD_Close']])),
+                    np.transpose(np.array(data[['AUDCHF_Open','AUDCHF_High','AUDCHF_Low','EURAUD_Close']])),
+                    np.transpose(np.array(data[['CADCHF_Open','CADCHF_High','CADCHF_Low','EURCAD_Close']])),
+                    np.transpose(np.array(data[['NZDCHF_Open','NZDCHF_High','NZDCHF_Low','EURNZD_Close']])),
+                    np.transpose(np.array(data[['AUDNZD_Open','AUDNZD_High','AUDNZD_Low','EURAUD_Close']])),
+                    np.transpose(np.array(data[['NZDCAD_Open','NZDCAD_High','NZDCAD_Low','EURNZD_Close']])),
+                    np.transpose(np.array(data[['AUDCAD_Open','EURAUD_High','AUDCAD_Low','AUDCAD_Close']])),
+                ], dtype=np.float64)
+
+        massive = np.array([
+                  [
+                   np.array_split(array[0][0], comp),
+                   np.array_split(array[0][1], comp),
+                   np.array_split(array[0][2], comp),
+                   np.array_split(array[0][3], comp)
+                  ],
+                  [
+                   np.array_split(array[1][0], comp),
+                   np.array_split(array[1][1], comp),
+                   np.array_split(array[1][2], comp),
+                   np.array_split(array[1][3], comp)
+                  ],
+                  [
+                   np.array_split(array[2][0], comp),
+                   np.array_split(array[2][1], comp),
+                   np.array_split(array[2][2], comp),
+                   np.array_split(array[2][3], comp)
+                  ],
+                  [
+                   np.array_split(array[3][0], comp),
+                   np.array_split(array[3][1], comp),
+                   np.array_split(array[3][2], comp),
+                   np.array_split(array[3][3], comp)
+                  ],
+                  [
+                   np.array_split(array[4][0], comp),
+                   np.array_split(array[4][1], comp),
+                   np.array_split(array[4][2], comp),
+                   np.array_split(array[4][3], comp)
+                  ],
+                  [
+                   np.array_split(array[5][0], comp),
+                   np.array_split(array[5][1], comp),
+                   np.array_split(array[5][2], comp),
+                   np.array_split(array[5][3], comp)
+                  ],
+                  [
+                   np.array_split(array[6][0], comp),
+                   np.array_split(array[6][1], comp),
+                   np.array_split(array[6][2], comp),
+                   np.array_split(array[6][3], comp)
+                  ],
+                  [
+                   np.array_split(array[7][0], comp),
+                   np.array_split(array[7][1], comp),
+                   np.array_split(array[7][2], comp),
+                   np.array_split(array[7][3], comp)
+                  ],
+                  [
+                   np.array_split(array[8][0], comp),
+                   np.array_split(array[8][1], comp),
+                   np.array_split(array[8][2], comp),
+                   np.array_split(array[8][3], comp)
+                  ],
+                  [
+                   np.array_split(array[9][0], comp),
+                   np.array_split(array[9][1], comp),
+                   np.array_split(array[9][2], comp),
+                   np.array_split(array[9][3], comp)
+                  ],
+                  [
+                   np.array_split(array[10][0], comp),
+                   np.array_split(array[10][1], comp),
+                   np.array_split(array[10][2], comp),
+                   np.array_split(array[10][3], comp)
+                  ],
+                  [
+                   np.array_split(array[11][0], comp),
+                   np.array_split(array[11][1], comp),
+                   np.array_split(array[11][2], comp),
+                   np.array_split(array[11][3], comp)
+                  ],
+                  [
+                   np.array_split(array[12][0], comp),
+                   np.array_split(array[12][1], comp),
+                   np.array_split(array[12][2], comp),
+                   np.array_split(array[12][3], comp)
+                  ],
+                  [
+                   np.array_split(array[13][0], comp),
+                   np.array_split(array[13][1], comp),
+                   np.array_split(array[13][2], comp),
+                   np.array_split(array[13][3], comp)
+                  ],
+                  [
+                   np.array_split(array[14][0], comp),
+                   np.array_split(array[14][1], comp),
+                   np.array_split(array[14][2], comp),
+                   np.array_split(array[14][3], comp)
+                  ],
+                  [
+                   np.array_split(array[15][0], comp),
+                   np.array_split(array[15][1], comp),
+                   np.array_split(array[15][2], comp),
+                   np.array_split(array[15][3], comp)
+                  ],
+                  [
+                   np.array_split(array[16][0], comp),
+                   np.array_split(array[16][1], comp),
+                   np.array_split(array[16][2], comp),
+                   np.array_split(array[16][3], comp)
+                  ],
+                  [
+                   np.array_split(array[17][0], comp),
+                   np.array_split(array[17][1], comp),
+                   np.array_split(array[17][2], comp),
+                   np.array_split(array[17][3], comp)
+                  ],
+                  [
+                   np.array_split(array[18][0], comp),
+                   np.array_split(array[18][1], comp),
+                   np.array_split(array[18][2], comp),
+                   np.array_split(array[18][3], comp)
+                  ],
+                  [
+                   np.array_split(array[19][0], comp),
+                   np.array_split(array[19][1], comp),
+                   np.array_split(array[19][2], comp),
+                   np.array_split(array[19][3], comp)
+                  ],
+                  [
+                   np.array_split(array[20][0], comp),
+                   np.array_split(array[20][1], comp),
+                   np.array_split(array[20][2], comp),
+                   np.array_split(array[20][3], comp)
+                  ],
+                  [
+                   np.array_split(array[21][0], comp),
+                   np.array_split(array[21][1], comp),
+                   np.array_split(array[21][2], comp),
+                   np.array_split(array[21][3], comp)
+                  ],
+                  [
+                   np.array_split(array[22][0], comp),
+                   np.array_split(array[22][1], comp),
+                   np.array_split(array[22][2], comp),
+                   np.array_split(array[22][3], comp)
+                  ],
+                  [
+                   np.array_split(array[23][0], comp),
+                   np.array_split(array[23][1], comp),
+                   np.array_split(array[23][2], comp),
+                   np.array_split(array[23][3], comp)
+                  ],
+                  [
+                   np.array_split(array[24][0], comp),
+                   np.array_split(array[24][1], comp),
+                   np.array_split(array[24][2], comp),
+                   np.array_split(array[24][3], comp)
+                  ],
+                  [
+                   np.array_split(array[25][0], comp),
+                   np.array_split(array[25][1], comp),
+                   np.array_split(array[25][2], comp),
+                   np.array_split(array[25][3], comp)
+                  ],
+                  [
+                   np.array_split(array[26][0], comp),
+                   np.array_split(array[26][1], comp),
+                   np.array_split(array[26][2], comp),
+                   np.array_split(array[26][3], comp)
+                  ],
+                  [
+                   np.array_split(array[27][0], comp),
+                   np.array_split(array[27][1], comp),
+                   np.array_split(array[27][2], comp),
+                   np.array_split(array[27][3], comp)
+                  ]
+        ])
+
+        return massive
+
+
+    @staticmethod
     def pandas_to_array(data):
 
         array = np.array(
@@ -175,6 +398,10 @@ class Data(MetaTrader, Pairs):
 
 
     def walk_forward_split(self):
+        """
+        Futuramente em big_data, dividir antes e depois passar para array
+        dará menos trabalho
+        """
 
         tot_len = len(self.get_normal_data())
 
