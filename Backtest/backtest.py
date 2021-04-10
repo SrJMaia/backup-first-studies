@@ -173,9 +173,6 @@ def otimizado_tpsl(series, tpsl, balance=1000):
                 list_backtest_indi += 1
                 sell_ind += 1
 
-        if i < 10:
-            print(balance_backtest)
-
     return list_backtest, sell_orders, buy_orders, each_pair
 
 
@@ -276,7 +273,7 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
                         [0, 1],[0, 0],[0, 0],[0, 0],[0, 1],[0, 1],[0, 1],
                         [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
                         ], dtype=np.bool_)
-                        
+
     operacoes = np.zeros((28,6),dtype='float64')
     buy_sell = np.ones((28,2),dtype=np.bool_)
 

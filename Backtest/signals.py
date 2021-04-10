@@ -8,7 +8,7 @@ class Signals(Indicators):
 
     def pct_data_signals_std(self, std_lvl=1):
 
-        data = super().return_data()
+        data = super().get_normal_data()
 
         for i in range(len(super().ALL_PAIRS_BUY)):
 
@@ -21,12 +21,12 @@ class Signals(Indicators):
             data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 > std1) & (pair2 < -std2))
             data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 < -std1) & (pair2 > std2))
 
-        super().modify_data(data)
+        super().set_normal_data(data)
 
 
     def pct_data_signals_quantile(self, low, high):
 
-        data = super().return_data()
+        data = super().get_normal_data()
 
         for i in range(len(super().ALL_PAIRS_BUY)):
 
@@ -44,12 +44,12 @@ class Signals(Indicators):
             data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < std1_neg) & (pair2 > std2_pos))
             data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > std1_pos) & (pair2 < std2_neg))
 
-        super().modify_data(data)
+        super().set_normal_data(data)
 
 
     def sma_ema(self, sma_period = 21, ema_period=8):
 
-        data = super().return_data()
+        data = super().get_normal_data()
 
         for i in range(len(super().ALL_PAIRS_BUY)):
 
@@ -61,12 +61,12 @@ class Signals(Indicators):
             data[super().ALL_PAIRS_SELL[i]] = pd.Series((ema < sma) & (ema_1 > sma_1))
             data[super().ALL_PAIRS_BUY[i]] = pd.Series((ema > sma) & (ema_1 < sma_1))
 
-        super().modify_data(data)
+        super().set_normal_data(data)
 
 
     def sma_ema_pct(self, low, high, sma_period = 21, ema_period=8):
 
-        data = super().return_data()
+        data = super().get_normal_data()
 
         for i in range(len(super().ALL_PAIRS_BUY)):
 
@@ -86,12 +86,12 @@ class Signals(Indicators):
             data[super().ALL_PAIRS_SELL[i]] = pd.Series((ema < sma) & (ema_1 > sma_1) & (pair1 < std1_neg) & (pair2 > std2_pos))
             data[super().ALL_PAIRS_BUY[i]] = pd.Series((ema > sma) & (ema_1 < sma_1) & (pair1 > std1_pos) & (pair2 < std2_neg))
 
-        super().modify_data(data)
+        super().set_normal_data(data)
 
 
     def sma_pct(self, high, low, sma_period=50):
 
-        data = super().return_data()
+        data = super().get_normal_data()
 
         for i in range(len(super().ALL_PAIRS_BUY)):
 
@@ -109,12 +109,12 @@ class Signals(Indicators):
             data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < std1_neg) & (pair2 > std2_pos) & (sma < prices))
             data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > std1_pos) & (pair2 < std2_neg) & (sma > prices))
 
-        super().modify_data(data)
+        super().set_normal_data(data)
 
 
     def teste(self, periodo_sma, periodo_kama, fast_kama, slow_kama):
 
-        data = super().return_data()
+        data = super().get_normal_data()
 
         for i in range(len(super().ALL_PAIRS_BUY)):
 
@@ -134,4 +134,4 @@ class Signals(Indicators):
             data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < pair2) & (kama < sma) & (kama_s > sma_s))
             data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > pair2) & (kama > sma) & (kama_s < sma_s))
 
-        super().modify_data(data)
+        super().set_normal_data(data)

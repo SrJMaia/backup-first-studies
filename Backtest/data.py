@@ -9,25 +9,47 @@ class Data(MetaTrader, Pairs):
         super().__init__(login, senha, servidor)
 
 
-    def return_data(self):
-        return self.__data
+    def get_normal_data(self):
+        return self.__normal_data
 
 
-    def modify_data(self, new_data):
-        self.__data = new_data
+    def set_normal_data(self, new_data):
+        self.__normal_data = new_data
 
 
-    def get_data_csv(self, path, separator=',', drop=False, drop_list=[]):
+    def normal_data_to_array(self):
+        self.__numpy_normal_data = self.pandas_to_array(self.get_normal_data())
+
+
+    def get_numpy_normal_data(self):
+        return self.__numpy_normal_data
+
+
+    def get_normal_data_csv(self, path, separator=',', drop=False, drop_list=[]):
         """
         path = str do caminho do arquivo
         sepator = separador do csv
         drop = Se True, passar lista de colunas a serem dropadas
         """
         if drop:
-            self.__data = pd.read_csv(path, sep=separator).drop(columns=drop_list)
+            self.__normal_data = pd.read_csv(path, sep=separator).drop(columns=drop_list)
             print('Dados Carregados com Sucesso.')
         else:
-            self.__data = pd.read_csv(path, sep=separator)
+            self.__normal_data = pd.read_csv(path, sep=separator)
+            print('Dados Carregados com Sucesso.')
+
+
+    def get_big_data_csv(self, path, separator=',', drop=False, drop_list=[]):
+        """
+        path = str do caminho do arquivo
+        sepator = separador do csv
+        drop = Se True, passar lista de colunas a serem dropadas
+        """
+        if drop:
+            self.__big_data = pd.read_csv(path, sep=separator).drop(columns=drop_list)
+            print('Dados Carregados com Sucesso.')
+        else:
+            self.__big_data = pd.read_csv(path, sep=separator)
             print('Dados Carregados com Sucesso.')
 
 
@@ -74,10 +96,10 @@ class Data(MetaTrader, Pairs):
 
         super().mt_logoff()
         if monte_carlo:
-            self.__data = df.sample(frac=1).reset_index(drop=True)
+            self.__normal_data = df.sample(frac=1).reset_index(drop=True)
             print('Dados Baixados com Sucesso.')
         else:
-            self.__data =  df
+            self.__normal_data =  df
             print('Dados Baixados com Sucesso.')
 
 
@@ -85,7 +107,7 @@ class Data(MetaTrader, Pairs):
         """
         No futuro colcoar a soma, subtração de todos os 4
         """
-        new_data = Data.return_data(self)
+        new_data = self.get_normal_data()
         for i in super().DIFF_SYMBOLS:
             df = pd.DataFrame()
             for j in i[1]:
@@ -112,7 +134,7 @@ class Data(MetaTrader, Pairs):
                         df[j] = df[j] * -1
             new_data[f'{i[0]}'] = df.sum(axis=1)*100
 
-        Data.modify_data(self, new_data)
+        self.set_normal_data(new_data)
 
 
     @staticmethod
@@ -152,17 +174,9 @@ class Data(MetaTrader, Pairs):
         return array
 
 
-    def full_data_array(self):
-        self.__full_numpy = Data.pandas_to_array(self.return_data())
-
-
-    def return_full(self):
-        return self.__full_numpy
-
-
     def walk_forward_split(self):
 
-        tot_len = len(self.data)
+        tot_len = len(self.get_normal_data())
 
         split1 = int(round(tot_len * 0.105, 0))
         split2 = int(round(tot_len * 0.14, 0))
@@ -175,32 +189,23 @@ class Data(MetaTrader, Pairs):
         split9 = int(round(tot_len * 0.665, 0))
         split10 = int(round(tot_len * 0.7, 0))
 
-        walk1 = self.data.iloc[:split1]
-        test1 = self.data.iloc[split1:split2]
-        walk2 = self.data.iloc[split2:split3]
-        test2 = self.data.iloc[split3:split4]
-        walk3 = self.data.iloc[split4:split5]
-        test3 = self.data.iloc[split5:split6]
-        walk4 = self.data.iloc[split6:split7]
-        test4 = self.data.iloc[split7:split8]
-        walk5 = self.data.iloc[split8:split9]
-        test5 = self.data.iloc[split9:split10]
-        final = self.data.iloc[split10:]
+        self.walk1 = self.pandas_to_array(self.get_normal_data()[:split1])
+        self.test1 = self.pandas_to_array(self.get_normal_data()[split1:split2])
+        self.walk2 = self.pandas_to_array(self.get_normal_data()[split2:split3])
+        self.test2 = self.pandas_to_array(self.get_normal_data()[split3:split4])
+        self.walk3 = self.pandas_to_array(self.get_normal_data()[split4:split5])
+        self.test3 = self.pandas_to_array(self.get_normal_data()[split5:split6])
+        self.walk4 = self.pandas_to_array(self.get_normal_data()[split6:split7])
+        self.test4 = self.pandas_to_array(self.get_normal_data()[split7:split8])
+        self.walk5 = self.pandas_to_array(self.get_normal_data()[split8:split9])
+        self.test5 = self.pandas_to_array(self.get_normal_data()[split9:split10])
+        self.final = self.pandas_to_array(self.get_normal_data()[split10:])
+        self.data_numpy = self.pandas_to_array(self.get_normal_data())
 
-        x = len(walk1) + len(test1) + len(walk2) + len(test2) + len(walk3) + len(test3) + len(walk4) + len(test4) + len(walk5) + len(test5) + len(final)
+        x = (len(self.walk1) + len(self.test1) + len(self.walk2) +
+            len(self.test2) + len(self.walk3) + len(self.test3) +
+            len(self.walk4) + len(self.test4) + len(self.walk5) +
+            len(self.test5) + len(self.final))
         y = len(self.data)
 
         print(f'Dados tem len de {y} e o split tem len de {x}.')
-
-        self.walk1 = Data.pandas_to_array(walk1)
-        self.test1 = Data.pandas_to_array(test1)
-        self.walk2 = Data.pandas_to_array(walk2)
-        self.test2 = Data.pandas_to_array(test2)
-        self.walk3 = Data.pandas_to_array(walk3)
-        self.test3 = Data.pandas_to_array(test3)
-        self.walk4 = Data.pandas_to_array(walk4)
-        self.test4 = Data.pandas_to_array(test4)
-        self.walk5 = Data.pandas_to_array(walk5)
-        self.test5 = Data.pandas_to_array(test5)
-        self.final = Data.pandas_to_array(final)
-        self.data_numpy = Data.pandas_to_array(self.data)
