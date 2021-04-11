@@ -246,7 +246,7 @@ class Indicators(IndicatorsCalc, Data):
         string = string com o nome da coluna a ser calculada
         periodo = int > 0
         """
-        diff = super().diff_change(super().return_data()[string].to_numpy(), 1)
+        diff = super().diff_change(super().get_normal_data()[string].to_numpy(), 1)
         return super().RSI(diff, periodo)
 
 
@@ -258,10 +258,10 @@ class Indicators(IndicatorsCalc, Data):
         fast_coef_period = int > 0
         slow_coef_period = int > 0
         """
-        change = super().diff_change(super().return_data()[string].to_numpy(), periodo_kama, absolute=True)
-        change_one = super().diff_change(super().return_data()[string].to_numpy(), 1, absolute=True)
+        change = super().diff_change(super().get_normal_data()[string].to_numpy(), periodo_kama, absolute=True)
+        change_one = super().diff_change(super().get_normal_data()[string].to_numpy(), 1, absolute=True)
         sum_period = super().sum_periodo(change_one, periodo_kama)
-        return super().KAMA(super().return_data()[string].to_numpy(),
+        return super().KAMA(super().get_normal_data()[string].to_numpy(),
                             fast_coef_period,
                             slow_coef_period,
                             change,
@@ -278,14 +278,14 @@ class Indicators(IndicatorsCalc, Data):
         return
         k% e d%
         """
-        return super().STOCHASTIC(super().return_data()[string].to_numpy(), periodo, k_period=k_periodo)
+        return super().STOCHASTIC(super().get_normal_data()[string].to_numpy(), periodo, k_period=k_periodo)
 
 
     def calc_pmo(self, string, periodo1, periodo2, periodo3):
         """
         Ao informar a string certificar que ira pegar um ROC
         """
-        return super().PMO(super().return_data()[string].to_numpy(), periodo1, periodo2, periodo3)
+        return super().PMO(super().get_normal_data()[string].to_numpy(), periodo1, periodo2, periodo3)
 
 
     def calc_sma(self, string, periodo):
@@ -293,7 +293,7 @@ class Indicators(IndicatorsCalc, Data):
         string = string com o nome da coluna a ser calculada
         period = int > 0
         """
-        return super().SMA(super().return_data()[string].to_numpy(), periodo=periodo)
+        return super().SMA(super().get_normal_data()[string].to_numpy(), periodo=periodo)
 
 
     def calc_wma(self, string, periodo):
@@ -301,7 +301,7 @@ class Indicators(IndicatorsCalc, Data):
         string = string com o nome da coluna a ser calculada
         period = int > 0
         """
-        return super().WMA(super().return_data()[string].to_numpy(), periodo=periodo)
+        return super().WMA(super().get_normal_data()[string].to_numpy(), periodo=periodo)
 
 
     def calc_ema(self, string, periodo, coef=True, min_periods_1=False, mt=False):
@@ -319,9 +319,9 @@ class Indicators(IndicatorsCalc, Data):
         EWM em np.array()
         """
         if mt:
-            return super().EMA_MT(super().return_data()[string].to_numpy(), periodo=periodo)
+            return super().EMA_MT(super().get_normal_data()[string].to_numpy(), periodo=periodo)
         else:
-            return super().EMA_NORMAL(super().return_data()[string].to_numpy(), periodo=periodo, coef=coef, min_periods_1=min_periods_1)
+            return super().EMA_NORMAL(super().get_normal_data()[string].to_numpy(), periodo=periodo, coef=coef, min_periods_1=min_periods_1)
 
 
     def calc_macd(self, string, first_period, second_period, signal_line, act_min_period=False, only_hist=True):
@@ -339,4 +339,4 @@ class Indicators(IndicatorsCalc, Data):
         Em vez de analsiar o cruzamento dos dois pode ver se o macd_hist esta pos ou neg
         cuidar para caso a primeira media seja maior que a segunda ira inverter
         """
-        return super().MACD(super().return_data()[string].to_numpy(), first_period=first_period, second_period=second_period, signal_line=signal_line, act_min_period=act_min_period, only_hist=only_hist)
+        return super().MACD(super().get_normal_data()[string].to_numpy(), first_period=first_period, second_period=second_period, signal_line=signal_line, act_min_period=act_min_period, only_hist=only_hist)
