@@ -27,6 +27,10 @@ class Data(MetaTrader, Pairs):
         return self.__numpy_normal_data
 
 
+    def get_normal_walk_forward(self):
+        return self.normal_walk_forward
+
+
     # Big Data
     def get_big_data(self):
         return self.__big_data

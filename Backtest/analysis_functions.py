@@ -3,20 +3,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def compare(test_columns):
+    
+    # Futurametne arrumar isso
+    a1 = set(test_columns[0])
+    b2 = set(test_columns[1])
+    c3 = set(test_columns[2])
+    d4 = set(test_columns[3])
+    e5 = set(test_columns[4])
+    f6 = set(test_columns[5])
+    g7 = set(test_columns[6])
+    h8 = set(test_columns[7])
+    j9 = set(test_columns[8])
+    k10 = set(test_columns[9])
+    l11 = set(test_columns[10])
+    m12 = set(test_columns[11])
 
-    a = test_columns[0]
-    b = test_columns[1]
-    c = test_columns[2]
-    d = test_columns[3]
-    e = test_columns[4]
-
-    a = set(a)
-    b = set(b)
-    c = set(c)
-    d = set(d)
-    e = set(e)
-
-    x = set.intersection(a, b, c, d, e)
+    x = set.intersection(a1, b2, c3, d4, e5, f6, g7, h8, j9, k10, l11, m12)
 
     return list(x)
 
