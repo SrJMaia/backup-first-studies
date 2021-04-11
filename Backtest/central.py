@@ -11,7 +11,7 @@ class Central(Signals):
         self.balance = balance
 
 
-    def back_tpsl(self, tpsl):
+    def back_tpsl(self, tpsl, multiply_tpsl):
         """
         Returns
         list_backtest = Todos os trades
@@ -19,7 +19,7 @@ class Central(Signals):
         buy_orders
         each_pair = resultado de cada par
         """
-        tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_numpy_normal_data(), tpsl)
+        tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_numpy_normal_data(), tpsl, multiply_tpsl)
         tot = np.delete(tot, np.where(tot == 0.))
         sell = np.delete(sell, np.where(sell == 0.))
         buy = np.delete(buy, np.where(buy == 0.))
@@ -47,7 +47,7 @@ class Central(Signals):
         return tot, sell, buy, results_df
 
 
-    def back_tpsl_ohl(self, tpsl):
+    def back_tpsl_ohl(self, tpsl, multiply_tpsl):
         """
         Returns
         list_backtest = Todos os trades
@@ -55,7 +55,7 @@ class Central(Signals):
         buy_orders
         each_pair = resultado de cada par
         """
-        tot, sell, buy, each_pair =  bt.otimizado_tpsl_ohl(self.get_numpy_normal_data(), tpsl)
+        tot, sell, buy, each_pair =  bt.otimizado_tpsl_ohl(self.get_numpy_normal_data(), tpsl, multiply_tpsl)
         tot = np.delete(tot, np.where(tot == 0.))
         sell = np.delete(sell, np.where(sell == 0.))
         buy = np.delete(buy, np.where(buy == 0.))
@@ -65,7 +65,7 @@ class Central(Signals):
         return tot, sell, buy, results_df
 
 
-    def back_big_tpsl_ohl(self, tpsl):
+    def back_big_tpsl_ohl(self, tpsl, multiply_tpsl):
         """
         Returns
         list_backtest = Todos os trades
@@ -73,7 +73,7 @@ class Central(Signals):
         buy_orders
         each_pair = resultado de cada par
         """
-        tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_numpy_normal_data(), self.get_numpy_big_data(), tpsl)
+        tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_numpy_normal_data(), self.get_numpy_big_data(), tpsl, multiply_tpsl)
         tot = np.delete(tot, np.where(tot == 0.))
         sell = np.delete(sell, np.where(sell == 0.))
         buy = np.delete(buy, np.where(buy == 0.))

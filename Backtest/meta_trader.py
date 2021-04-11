@@ -1,4 +1,5 @@
-import MetaTrader5 as mt5
+import numpy as mt5
+# Mudar se for usar
 import pandas as pd
 
 class MetaTrader:

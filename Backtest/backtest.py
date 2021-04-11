@@ -49,8 +49,13 @@ def finance_calculation(balance, saldo_inicial, saldo_final, preco_eur, eur):
 
 
 @njit
-def otimizado_tpsl(series, tpsl, balance=1000):
+def otimizado_tpsl(series, tpsl, multiply_tpsl, balance=1000):
     """
+    tpsl = TakeProfit e StopLoss int > 0
+    multiply_tpsl = float > 0
+                    Será o valor que irá dividir SL
+                    Se 1 significa risco 1:1, se 2, 2:1 and so on
+    ---
     buy_sell: 0 = Compra
               1 = Venda
     operacoes: 0 = Preço de Compra
@@ -87,9 +92,9 @@ def otimizado_tpsl(series, tpsl, balance=1000):
     buy_sell_list_indi[2] += 1
 
     tk_normal = tpsl / 10000
-    sl_normal = tpsl / 20000
+    sl_normal = tpsl / 10000 / multiply_tpsl
     tk_jpy = tpsl / 100
-    sl_jpy = tpsl / 200
+    sl_jpy = tpsl / 100 / multiply_tpsl
 
     for i in range(series[0][0].size): # 63k
 
@@ -261,8 +266,13 @@ def otimizado_no_tpsl(series, balance=1000):
 
 
 @njit
-def otimizado_tpsl_ohl(series, tpsl, balance=1000):
+def otimizado_tpsl_ohl(series, multiply_tpsl, tpsl, balance=1000):
     """
+    tpsl = TakeProfit e StopLoss int > 0
+    multiply_tpsl = float > 0
+                    Será o valor que irá dividir SL
+                    Se 1 significa risco 1:1, se 2, 2:1 and so on
+    ---
     buy_sell: 0 = Compra
               1 = Venda
     operacoes: 0 = Preço de Compra
@@ -299,9 +309,9 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
     buy_sell_list_indi[2] += 1
 
     tk_normal = tpsl / 10000
-    sl_normal = tpsl / 20000
+    sl_normal = tpsl / 10000 / multiply_tpsl
     tk_jpy = tpsl / 100
-    sl_jpy = tpsl / 200
+    sl_jpy = tpsl / 100 / multiply_tpsl
 
     for i in range(series[0][0].size): # 63k
 
@@ -380,8 +390,24 @@ def otimizado_tpsl_ohl(series, tpsl, balance=1000):
 
 
 @njit
-def big_backtest_otimizado_tpsl(series, m1, tpsl, balance=1000):
-
+def big_backtest_otimizado_tpsl(series, m1, multiply_tpsl, tpsl, balance=1000):
+    """
+    tpsl = TakeProfit e StopLoss int > 0
+    multiply_tpsl = float > 0
+                    Será o valor que irá dividir SL
+                    Se 1 significa risco 1:1, se 2, 2:1 and so on
+    ---
+    buy_sell: 0 = Compra
+              1 = Venda
+    operacoes: 0 = Preço de Compra
+               1 = Preço de Venda
+               2 = TP Venda
+               3 = SL Venda
+               4 = TP Compra
+               5 = SL Compra
+    check_eur_jpy: 0 = eur
+                   1 = jpy
+    """
     check_eur_jpy = np.array([
                         [1, 0],[1, 0],[1, 1],[1, 0],[1, 0],[1, 0],[1, 0],
                         [0, 0],[0, 0],[0, 1],[0, 0],[0, 0],[0, 0],[0, 0],
@@ -398,17 +424,18 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl, balance=1000):
     buy_orders = np.zeros((800_000), dtype=np.float64)
     sell_orders = np.zeros((800_000), dtype=np.float64)
 
+    each_pair_index = np.zeros((28,1), dtype='int32')
+    each_pair = np.zeros((28,50_000), dtype='float64')
+
     balance_backtest = balance
     list_backtest = np.zeros((1_600_000), dtype=np.float64)
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
-    # Talvez arrumar? Esta muito feio
-
     tk_normal = tpsl / 10000
-    sl_normal = tpsl / 20000
+    sl_normal = tpsl / 10000 / multiply_tpsl
     tk_jpy = tpsl / 100
-    sl_jpy = tpsl / 200
+    sl_jpy = tpsl / 100 / multiply_tpsl
 
     for i in range(series[0][0].size): # 63k
 
