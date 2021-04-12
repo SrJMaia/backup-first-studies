@@ -80,7 +80,7 @@ class Central(Signals):
                             print('Apenas prejuízos')
 
         else:
-            tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_numpy_normal_data(), tpsl, multiply_tpsl)
+            tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_numpy_normal_data(), tpsl=tpsl, multiply_tpsl=multiply_tpsl)
             tot = np.delete(tot, np.where(tot == 0.))
             sell = np.delete(sell, np.where(sell == 0.))
             buy = np.delete(buy, np.where(buy == 0.))
@@ -116,7 +116,7 @@ class Central(Signals):
         buy_orders
         each_pair = resultado de cada par
         """
-        tot, sell, buy, each_pair =  bt.otimizado_tpsl_ohl(self.get_numpy_normal_data(), tpsl, multiply_tpsl)
+        tot, sell, buy, each_pair =  bt.otimizado_tpsl_ohl(self.get_numpy_normal_data(), tpsl=tpsl, multiply_tpsl=multiply_tpsl)
         tot = np.delete(tot, np.where(tot == 0.))
         sell = np.delete(sell, np.where(sell == 0.))
         buy = np.delete(buy, np.where(buy == 0.))
@@ -134,7 +134,7 @@ class Central(Signals):
         buy_orders
         each_pair = resultado de cada par
         """
-        tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_numpy_normal_data(), self.get_numpy_big_data(), tpsl, multiply_tpsl)
+        tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_numpy_normal_data(), self.get_numpy_big_data(), tpsl=tpsl, multiply_tpsl=multiply_tpsl)
         tot = np.delete(tot, np.where(tot == 0.))
         sell = np.delete(sell, np.where(sell == 0.))
         buy = np.delete(buy, np.where(buy == 0.))

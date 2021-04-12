@@ -75,19 +75,19 @@ def otimizado_tpsl(series, tpsl, multiply_tpsl, balance=1000):
                         [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
                         ], dtype=np.bool_)
 
-    operacoes = np.zeros((28,6),dtype='float64')
+    operacoes = np.zeros((28,6),dtype=np.float64)
     buy_sell = np.ones((28,2),dtype=np.bool_)
 
-    buy_sell_list_indi = np.zeros(3, dtype='int32')
+    buy_sell_list_indi = np.zeros(3, dtype=np.int32)
 
-    buy_orders = np.zeros((500_000), dtype='float64')
-    sell_orders = np.zeros((500_000), dtype='float64')
+    buy_orders = np.zeros((500_000), dtype=np.float64)
+    sell_orders = np.zeros((500_000), dtype=np.float64)
 
-    each_pair_index = np.zeros((28,1), dtype='int32')
-    each_pair = np.zeros((28,50_000), dtype='float64')
+    each_pair_index = np.zeros((28,1), dtype=np.int32)
+    each_pair = np.zeros((28,50_000), dtype=np.float64)
 
     balance_backtest = balance
-    list_backtest = np.zeros((1_000_000), dtype='float64')
+    list_backtest = np.zeros((1_000_000), dtype=np.float64)
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
@@ -199,19 +199,19 @@ def otimizado_no_tpsl(series, balance=1000):
                         [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
                         ], dtype=np.bool_)
 
-    operacoes = np.zeros((28,2),dtype='float64')
+    operacoes = np.zeros((28,2),dtype=np.float64)
     buy_sell = np.ones((28,2),dtype=np.bool_)
 
-    buy_sell_list_indi = np.zeros(3, dtype='int32')
+    buy_sell_list_indi = np.zeros(3, dtype=np.int32)
 
-    buy_orders = np.zeros((500_000), dtype='float64')
-    sell_orders = np.zeros((500_000), dtype='float64')
+    buy_orders = np.zeros((500_000), dtype=np.float64)
+    sell_orders = np.zeros((500_000), dtype=np.float64)
 
-    each_pair_index = np.zeros((28,1), dtype='int32')
-    each_pair = np.zeros((28,50_000), dtype='float64')
+    each_pair_index = np.zeros((28,1), dtype=np.int32)
+    each_pair = np.zeros((28,50_000), dtype=np.float64)
 
     balance_backtest = balance
-    list_backtest = np.zeros((1_000_000), dtype='float64')
+    list_backtest = np.zeros((1_000_000), dtype=np.float64)
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
@@ -292,19 +292,19 @@ def otimizado_tpsl_ohl(series, multiply_tpsl, tpsl, balance=1000):
                         [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
                         ], dtype=np.bool_)
 
-    operacoes = np.zeros((28,6),dtype='float64')
+    operacoes = np.zeros((28,6),dtype=np.float64)
     buy_sell = np.ones((28,2),dtype=np.bool_)
 
-    buy_sell_list_indi = np.zeros(3, dtype='int32')
+    buy_sell_list_indi = np.zeros(3, dtype=np.int32)
 
-    buy_orders = np.zeros((500_000), dtype='float64')
-    sell_orders = np.zeros((500_000), dtype='float64')
+    buy_orders = np.zeros((500_000), dtype=np.float64)
+    sell_orders = np.zeros((500_000), dtype=np.float64)
 
-    each_pair_index = np.zeros((28,1), dtype='int32')
-    each_pair = np.zeros((28,50_000), dtype='float64')
+    each_pair_index = np.zeros((28,1), dtype=np.int32)
+    each_pair = np.zeros((28,50_000), dtype=np.float64)
 
     balance_backtest = balance
-    list_backtest = np.zeros((1_000_000), dtype='float64')
+    list_backtest = np.zeros((1_000_000), dtype=np.float64)
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
@@ -419,13 +419,13 @@ def big_backtest_otimizado_tpsl(series, m1, multiply_tpsl, tpsl, balance=1000):
     buy_sell = np.ones((28,2),dtype=np.bool_)
     #history = TRADE_HISTORY
 
-    buy_sell_list_indi = np.zeros(3, dtype='int32')
+    buy_sell_list_indi = np.zeros(3, dtype=np.int32)
 
     buy_orders = np.zeros((800_000), dtype=np.float64)
     sell_orders = np.zeros((800_000), dtype=np.float64)
 
-    each_pair_index = np.zeros((28,1), dtype='int32')
-    each_pair = np.zeros((28,50_000), dtype='float64')
+    each_pair_index = np.zeros((28,1), dtype=np.int32)
+    each_pair = np.zeros((28,50_000), dtype=np.float64)
 
     balance_backtest = balance
     list_backtest = np.zeros((1_600_000), dtype=np.float64)
@@ -535,11 +535,11 @@ def single_backtest(series, tpsl, balance=1000):
 
 
 
-    buy_orders = np.zeros((100_000), dtype='float64')
-    sell_orders = np.zeros((100_000), dtype='float64')
+    buy_orders = np.zeros((100_000), dtype=np.float64)
+    sell_orders = np.zeros((100_000), dtype=np.float64)
 
     balance_backtest = balance
-    list_backtest = np.zeros((200_000), dtype='float64')
+    list_backtest = np.zeros((200_000), dtype=np.float64)
     list_backtest[0] = balance_backtest
 
     tk_normal = tpsl / 10000
