@@ -3,6 +3,11 @@ from numba import njit
 from constants import Pairs
 from data import Data
 
+"""
+Usar as funções njit em vez de pandas quando:
+find_min_max: Quando for calcular mais de 500x
+"""
+
 class IndicatorsCalc:
     """
     Futuramente usar pandas?
@@ -27,9 +32,35 @@ class IndicatorsCalc:
         return all_min, all_max
 
 
+    @staticmethod
+    def EMA_PANDAS(array, period, mode='com', min_periods = 1, act_adjust = False):
+        """
+        Modes: com, span, halflife, alpha
+        if alpha, period must be between 0 > period > 1
+        """
+        array = pd.Series(array)
+        if mode == 'com':
+            array = array.ewm(com=period, min_periods=min_periods, adjust=act_adjust).mean()
+        elif mode == 'span':
+            array = array.ewm(span=period, min_periods=min_periods, adjust=act_adjust).mean()
+        elif mode == 'halflife':
+            array = array.ewm(halflife=period, min_periods=min_periods, adjust=act_adjust).mean()
+        elif mode == 'alpha':
+            array = array.ewm(span=period, min_periods=min_periods, adjust=act_adjust).mean()
+
+        return array
+
+
+    @staticmethod
+    def find_min_max_pandas(array, period, round_n=5):
+        max_ = pd.Series(array).rolling(period).max().to_numpy()
+        min_ = pd.Series(array).rolling(period).min().to_numpy()
+        return min_, max_
+
+
     @classmethod
     def STOCHASTIC(cls, array, periodo, k_period=3):
-        mini, maxi = cls.find_min_max(array, periodo)
+        mini, maxi = cls.find_min_max_pandas(array, periodo)
 
         k1 = array-mini
         k2 = maxi-mini
@@ -96,6 +127,9 @@ class IndicatorsCalc:
 
         macd_hist = macd_line - signal_line
 
+        macd_hist = np.around(macd_hist, round_n)
+        signal_line = np.around(signal_line, round_n)
+
         if only_hist:
             return macd_hist
         else:
@@ -123,6 +157,7 @@ class IndicatorsCalc:
     @staticmethod
     @njit
     def SMA(array, periodo):
+        # Fazer uso qunado usar mais de 300x
         sma = np.empty((array.size), dtype='float64')
         for i in np.arange(array.size):
             if i < periodo:
@@ -132,7 +167,13 @@ class IndicatorsCalc:
             for j in np.arange(periodo):
                 calc += array[i-j]
             sma[i] = calc / periodo
+
         return sma
+
+
+    @staticmethod
+    def SMA_PANDAS(array, periodo, round_n=5):
+        array = np.around(pd.Series(array).rolling(periodo).mean().to_numpy(), round_n)
 
 
     @staticmethod
@@ -148,6 +189,7 @@ class IndicatorsCalc:
                 kama[i] = array[i]
                 continue
             kama[i] = alpha[i] * (array[i] - kama[i-1]) + kama[i-1]
+
         return kama
 
 
@@ -164,6 +206,7 @@ class IndicatorsCalc:
             diff = np.absolute(diff)
         elif inverse:
             diff = -1 * diff
+
         return diff
 
 
@@ -241,16 +284,16 @@ class IndicatorsCalc:
 
 class Indicators(IndicatorsCalc, Data):
 
-    def calc_rsi(self, string, periodo):
+    def calc_rsi(self, string, periodo, round_n=5):
         """
         string = string com o nome da coluna a ser calculada
         periodo = int > 0
         """
         diff = super().diff_change(super().get_normal_data()[string].to_numpy(), 1)
-        return super().RSI(diff, periodo)
+        return np.around(super().RSI(diff, periodo), round_n)
 
 
-    def calc_kama(self, string, periodo_kama, fast_coef_period, slow_coef_period):
+    def calc_kama(self, string, periodo_kama, fast_coef_period, slow_coef_period, round_n=5):
         """
         string = string com o nome da coluna a ser calculada
         period_kama = int > 0
@@ -261,50 +304,50 @@ class Indicators(IndicatorsCalc, Data):
         change = super().diff_change(super().get_normal_data()[string].to_numpy(), periodo_kama, absolute=True)
         change_one = super().diff_change(super().get_normal_data()[string].to_numpy(), 1, absolute=True)
         sum_period = super().sum_periodo(change_one, periodo_kama)
-        return super().KAMA(super().get_normal_data()[string].to_numpy(),
-                            fast_coef_period,
-                            slow_coef_period,
-                            change,
-                            sum_period)
+        return np.around(super().KAMA(super().get_normal_data()[string].to_numpy(),
+                                        fast_coef_period,
+                                        slow_coef_period,
+                                        change,
+                                        sum_period, round_n)
 
 
-    def calc_stochastic(self, string, periodo, k_periodo = 3):
+    def calc_stochastic(self, string, periodo, k_periodo = 3, round_n=5):
         """
         string = string com o nome da coluna a ser calculada
         period = int > 0
         k_periodo = int > 0
-        k_periodo -> Média de d, slow stochastic
-        ---
+        k_periodo > Média de d, slow stochastic
         return
         k% e d%
         """
-        return super().STOCHASTIC(super().get_normal_data()[string].to_numpy(), periodo, k_period=k_periodo)
+
+        return np.around(super().STOCHASTIC(super().get_normal_data()[string].to_numpy(), periodo, k_period=k_periodo),round_n)
 
 
-    def calc_pmo(self, string, periodo1, periodo2, periodo3):
+    def calc_pmo(self, string, periodo1, periodo2, periodo3, round_n=5):
         """
         Ao informar a string certificar que ira pegar um ROC
         """
-        return super().PMO(super().get_normal_data()[string].to_numpy(), periodo1, periodo2, periodo3)
+        return np.around(super().PMO(super().get_normal_data()[string].to_numpy(), periodo1, periodo2, periodo3),round_n)
 
 
-    def calc_sma(self, string, periodo):
+    def calc_sma(self, string, periodo, round_n=5):
         """
         string = string com o nome da coluna a ser calculada
         period = int > 0
         """
-        return super().SMA(super().get_normal_data()[string].to_numpy(), periodo=periodo)
+        return np.around(super().SMA(super().get_normal_data()[string].to_numpy(), periodo=periodo),round_n)
 
 
-    def calc_wma(self, string, periodo):
+    def calc_wma(self, string, periodo, round_n=5):
         """
         string = string com o nome da coluna a ser calculada
         period = int > 0
         """
-        return super().WMA(super().get_normal_data()[string].to_numpy(), periodo=periodo)
+        return np.around(super().WMA(super().get_normal_data()[string].to_numpy(), periodo=periodo),round_n)
 
 
-    def calc_ema(self, string, periodo, coef=True, min_periods_1=False, mt=False):
+    def calc_ema(self, string, periodo, coef=True, min_periods_1=False, mt=False, round_n=5):
         """
         Parametros
         string = string com o nome da coluna a ser calculada
@@ -314,17 +357,21 @@ class Indicators(IndicatorsCalc, Data):
         min_periods_1 = Se True, sera calculado com um minimo de periodos de 1, caso contrario
                         minimo será periodo
         mt = Se True, calculo ema conforme calculo do mt5
-        '''
+        ---
         Retornos
         EWM em np.array()
         """
         if mt:
-            return super().EMA_MT(super().get_normal_data()[string].to_numpy(), periodo=periodo)
+            return np.around(super().EMA_MT(super().get_normal_data()[string].to_numpy(),
+                                            periodo=periodo), round_n)
         else:
-            return super().EMA_NORMAL(super().get_normal_data()[string].to_numpy(), periodo=periodo, coef=coef, min_periods_1=min_periods_1)
+            return np.around(super().EMA_NORMAL(super().get_normal_data()[string].to_numpy(),
+                                                periodo=periodo,
+                                                coef=coef,
+                                                min_periods_1=min_periods_1), round_n)
 
 
-    def calc_macd(self, string, first_period, second_period, signal_line, act_min_period=False, only_hist=True):
+    def calc_macd(self, string, first_period, second_period, signal_line, act_min_period=False, only_hist=True, round_n=5):
         """
         string = string com o nome da coluna a ser calculada
         first_period = int > 0
@@ -339,4 +386,9 @@ class Indicators(IndicatorsCalc, Data):
         Em vez de analsiar o cruzamento dos dois pode ver se o macd_hist esta pos ou neg
         cuidar para caso a primeira media seja maior que a segunda ira inverter
         """
-        return super().MACD(super().get_normal_data()[string].to_numpy(), first_period=first_period, second_period=second_period, signal_line=signal_line, act_min_period=act_min_period, only_hist=only_hist)
+        return np.around(super().MACD(super().get_normal_data()[string].to_numpy(),
+                        first_period=first_period,
+                        second_period=second_period,
+                        signal_line=signal_line,
+                        act_min_period=act_min_period,
+                        only_hist=only_hist), round_n)

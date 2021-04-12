@@ -128,6 +128,9 @@ class Central(Signals):
 
     def back_big_tpsl_ohl(self, tpsl, multiply_tpsl):
         """
+        Cuidar no split, de big data pois usa len(data normal)
+        tem que haver uma divisão inteira, caso contrario sera criado
+        um array dtype=object
         Returns
         list_backtest = Todos os trades
         sell_orders

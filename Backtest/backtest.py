@@ -91,10 +91,10 @@ def otimizado_tpsl(series, tpsl, multiply_tpsl, balance=1000):
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
-    tk_normal = tpsl / 10000
-    sl_normal = tpsl / 10000 / multiply_tpsl
-    tk_jpy = tpsl / 100
-    sl_jpy = tpsl / 100 / multiply_tpsl
+    tk_normal = round(tpsl / 10000,5)
+    sl_normal = round(tpsl / 10000 / multiply_tpsl, 5)
+    tk_jpy = round(tpsl / 100)
+    sl_jpy = round(tpsl / 100 / multiply_tpsl,5)
 
     for i in range(series[0][0].size): # 63k
 
@@ -308,10 +308,10 @@ def otimizado_tpsl_ohl(series, multiply_tpsl, tpsl, balance=1000):
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
-    tk_normal = tpsl / 10000
-    sl_normal = tpsl / 10000 / multiply_tpsl
-    tk_jpy = tpsl / 100
-    sl_jpy = tpsl / 100 / multiply_tpsl
+    tk_normal = round(tpsl / 10000,5)
+    sl_normal = round(tpsl / 10000 / multiply_tpsl, 5)
+    tk_jpy = round(tpsl / 100)
+    sl_jpy = round(tpsl / 100 / multiply_tpsl,5)
 
     for i in range(series[0][0].size): # 63k
 
@@ -432,10 +432,10 @@ def big_backtest_otimizado_tpsl(series, m1, multiply_tpsl, tpsl, balance=1000):
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
-    tk_normal = tpsl / 10000
-    sl_normal = tpsl / 10000 / multiply_tpsl
-    tk_jpy = tpsl / 100
-    sl_jpy = tpsl / 100 / multiply_tpsl
+    tk_normal = round(tpsl / 10000,5)
+    sl_normal = round(tpsl / 10000 / multiply_tpsl, 5)
+    tk_jpy = round(tpsl / 100)
+    sl_jpy = round(tpsl / 100 / multiply_tpsl,5)
 
     for i in range(series[0][0].size): # 63k
 
@@ -542,7 +542,7 @@ def single_backtest(series, tpsl, balance=1000):
     list_backtest = np.zeros((200_000), dtype=np.float64)
     list_backtest[0] = balance_backtest
 
-    tk_normal = tpsl / 10000
+    tk_normal = round(tpsl / 10000,5)
     sl_normal = tpsl / 20000
 
     for i in range(len(series[0])): # 63k
