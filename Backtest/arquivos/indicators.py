@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit
-from constants import Pairs
-from data import Data
+from arquivos.constants import Pairs
+from arquivos.data import Data
 
 """
 Usar as funções njit em vez de pandas quando:

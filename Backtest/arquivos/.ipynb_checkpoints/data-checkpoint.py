@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from constants import Pairs
-from meta_trader import MetaTrader
+from arquivos.constants import Pairs
+from arquivos.meta_trader import MetaTrader
 
 class Data(MetaTrader, Pairs):
 

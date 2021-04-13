@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
-import indicators as indi
-from indicators import Indicators
-from data import Data
+from arquivos.indicators import Indicators
+from arquivos.data import Data
 
 class Signals(Indicators):
 

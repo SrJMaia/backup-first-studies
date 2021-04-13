@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from constants import Pairs
-from meta_trader import MetaTrader
+from arquivos.constants import Pairs
+from arquivos.meta_trader import MetaTrader
 
 class Data(MetaTrader, Pairs):
 
@@ -27,6 +27,10 @@ class Data(MetaTrader, Pairs):
         return self.__numpy_normal_data
 
 
+    def get_normal_walk_forward(self):
+        return self.normal_walk_forward
+
+
     # Big Data
     def get_big_data(self):
         return self.__big_data
@@ -38,6 +42,10 @@ class Data(MetaTrader, Pairs):
 
     def get_numpy_big_data(self):
         return self.__numpy_big_data
+
+
+    def del_big_data(self):
+        del self.__big_data
 
 
     def get_normal_data_csv(self, path, separator=',', drop=False, drop_list=[]):
@@ -404,36 +412,27 @@ class Data(MetaTrader, Pairs):
         dará menos trabalho
         """
 
-        tot_len = len(self.get_normal_data())
+        c = 0
+        comp = len(self.get_normal_data())
+        lista = []
+        initial = 0.
+        final = 0.65
+        step = 0.05
+        c_final = int((final-step)/step)
+        for i in np.arange(initial, final, step):
+            if c == 0:
+                array = self.pandas_to_array(self.get_normal_data()[:int(comp*0.15)])
+                lista.append(array)
+                array = self.pandas_to_array(self.get_normal_data()[int(comp*0.15):int(comp*0.2)])
+                lista.append(array)
+            elif c == c_final:
+                array = self.pandas_to_array(self.get_normal_data()[int(comp*(i+0.2)):])
+                lista.append(array)
+            else:
+                array = self.pandas_to_array(self.get_normal_data()[int(comp*i):int(comp*(i+0.15))])
+                lista.append(array)
+                array = self.pandas_to_array(self.get_normal_data()[int(comp*(i+0.15)):int(comp*(i+0.2))])
+                lista.append(array)
+            c += 1
 
-        split1 = int(round(tot_len * 0.105, 0))
-        split2 = int(round(tot_len * 0.14, 0))
-        split3 = int(round(tot_len * 0.245, 0))
-        split4 = int(round(tot_len * 0.28, 0))
-        split5 = int(round(tot_len * 0.385, 0))
-        split6 = int(round(tot_len * 0.42, 0))
-        split7 = int(round(tot_len * 0.525, 0))
-        split8 = int(round(tot_len * 0.56, 0))
-        split9 = int(round(tot_len * 0.665, 0))
-        split10 = int(round(tot_len * 0.7, 0))
-
-        self.walk1 = self.pandas_to_array(self.get_normal_data()[:split1])
-        self.test1 = self.pandas_to_array(self.get_normal_data()[split1:split2])
-        self.walk2 = self.pandas_to_array(self.get_normal_data()[split2:split3])
-        self.test2 = self.pandas_to_array(self.get_normal_data()[split3:split4])
-        self.walk3 = self.pandas_to_array(self.get_normal_data()[split4:split5])
-        self.test3 = self.pandas_to_array(self.get_normal_data()[split5:split6])
-        self.walk4 = self.pandas_to_array(self.get_normal_data()[split6:split7])
-        self.test4 = self.pandas_to_array(self.get_normal_data()[split7:split8])
-        self.walk5 = self.pandas_to_array(self.get_normal_data()[split8:split9])
-        self.test5 = self.pandas_to_array(self.get_normal_data()[split9:split10])
-        self.final = self.pandas_to_array(self.get_normal_data()[split10:])
-        self.data_numpy = self.pandas_to_array(self.get_normal_data())
-
-        x = (len(self.walk1) + len(self.test1) + len(self.walk2) +
-            len(self.test2) + len(self.walk3) + len(self.test3) +
-            len(self.walk4) + len(self.test4) + len(self.walk5) +
-            len(self.test5) + len(self.final))
-        y = len(self.data)
-
-        print(f'Dados tem len de {y} e o split tem len de {x}.')
+        self.normal_walk_forward = lista

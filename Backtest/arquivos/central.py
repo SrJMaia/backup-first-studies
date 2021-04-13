@@ -1,8 +1,8 @@
-from signals import Signals
+from arquivos.signals import Signals
 import pandas as pd
 import numpy as np
-import backtest as bt
-import analysis_functions as af
+import arquivos.backtest as bt
+import arquivos.analysis_functions as af
 import matplotlib.pyplot as plt
 plt.style.use('dark_background')
 plt.rcParams["figure.figsize"] = (30,10)
