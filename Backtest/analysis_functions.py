@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def compare(test_columns):
-    
+
     # Futurametne arrumar isso
     a1 = set(test_columns[0])
     b2 = set(test_columns[1])
@@ -29,9 +29,11 @@ def outliers_calc(series, bins=100,no_return=False):
     iqr = q3-q1
     lower = q1 - (1.5 * iqr)
     upper = q3 + (1.5 * iqr)
+    a = series[series < lower].count()
+    b = series[series > upper].count()
     print(f"""
     Lower: {lower} | Upper: {upper}
-    Lower Total: {(a := series[series < lower].count())} | Upper Total: {(b := series[series > upper].count())}
+    Lower Total: {a} | Upper Total: {b}
     Total Outliers: {a+b}
     Total Outliers %: {round((a+b)/series.count()*100,4)}%
     """)
