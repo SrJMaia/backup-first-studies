@@ -308,7 +308,7 @@ class Indicators(IndicatorsCalc, Data):
                                         fast_coef_period,
                                         slow_coef_period,
                                         change,
-                                        sum_period, round_n)
+                                        sum_period, round_n))
 
 
     def calc_stochastic(self, string, periodo, k_periodo = 3, round_n=5):
@@ -320,7 +320,6 @@ class Indicators(IndicatorsCalc, Data):
         return
         k% e d%
         """
-
         return np.around(super().STOCHASTIC(super().get_normal_data()[string].to_numpy(), periodo, k_period=k_periodo),round_n)
 
 
