@@ -169,7 +169,7 @@ class Central(Signals):
             return tot, sell, buy, results_df
 
 
-    def back_big_tpsl_ohl(self, tpsl, multiply_tpsl):
+    def back_big_tpsl_ohl(self, tpsl, multiply_tpsl, multi_test=False, plot=False):
         """
         Cuidar no split, de big data pois usa len(data normal)
         tem que haver uma divisão inteira, caso contrario sera criado
