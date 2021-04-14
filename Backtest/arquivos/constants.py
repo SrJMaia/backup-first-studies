@@ -26,6 +26,11 @@ class Pairs:
                  'USDJPY','AUDUSD','NZDUSD','USDCAD','AUDJPY','CADJPY','CHFJPY',
                  'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD')
 
+    ALL_PAIRS_FOR_DF = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD',
+                        'GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD','USDCHF',
+                        'USDJPY','AUDUSD','NZDUSD','USDCAD','AUDJPY','CADJPY','CHFJPY',
+                        'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD']
+
     ALL_PAIRS_BUY = (
         'EURCHF_buy','EURGBP_buy','EURJPY_buy','EURNZD_buy','EURUSD_buy','EURAUD_buy','EURCAD_buy',
         'GBPAUD_buy','GBPCHF_buy','GBPJPY_buy','GBPCAD_buy','GBPUSD_buy','GBPNZD_buy','USDCHF_buy',
@@ -68,3 +73,42 @@ class Pairs:
         ('chf_signal','jpy_signal'),('nzd_signal','jpy_signal'),('aud_signal','chf_signal'),('cad_signal','chf_signal'),('nzd_signal','chf_signal'),
         ('aud_signal','nzd_signal'),('nzd_signal','cad_signal'),('aud_signal','cad_signal')
     )
+
+    MY_EVENTS = {
+    'EURUSD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'EURUSD','buy_strategy':'EURUSD_buy','sell_strategy':'EURUSD_sell'},
+    'EURCHF':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'EURCHF','buy_strategy':'EURCHF_buy','sell_strategy':'EURCHF_sell'},
+    'EURGBP':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'EURGBP','buy_strategy':'EURGBP_buy','sell_strategy':'EURGBP_sell'},
+    'EURJPY':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'EURJPY','buy_strategy':'EURJPY_buy','sell_strategy':'EURJPY_sell'},
+    'EURNZD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'EURNZD','buy_strategy':'EURNZD_buy','sell_strategy':'EURNZD_sell'},
+    'EURAUD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'EURAUD','buy_strategy':'EURAUD_buy','sell_strategy':'EURAUD_sell'},
+    'EURCAD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'EURCAD','buy_strategy':'EURCAD_buy','sell_strategy':'EURCAD_sell'},
+
+    'GBPAUD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'GBPAUD','buy_strategy':'GBPAUD_buy','sell_strategy':'GBPAUD_sell'},
+    'GBPCHF':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'GBPCHF','buy_strategy':'GBPCHF_buy','sell_strategy':'GBPCHF_sell'},
+    'GBPJPY':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'GBPJPY','buy_strategy':'GBPJPY_buy','sell_strategy':'GBPJPY_sell'},
+    'GBPCAD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'GBPCAD','buy_strategy':'GBPCAD_buy','sell_strategy':'GBPCAD_sell'},
+    'GBPUSD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'GBPUSD','buy_strategy':'GBPUSD_buy','sell_strategy':'GBPUSD_sell'},
+    'GBPNZD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'GBPNZD','buy_strategy':'GBPNZD_buy','sell_strategy':'GBPNZD_sell'},
+
+    'USDCHF':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'USDCHF','buy_strategy':'USDCHF_buy','sell_strategy':'USDCHF_sell'},
+    'USDJPY':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'USDJPY','buy_strategy':'USDJPY_buy','sell_strategy':'USDJPY_sell'},
+    'AUDUSD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'AUDUSD','buy_strategy':'AUDUSD_buy','sell_strategy':'AUDUSD_sell'},
+    'NZDUSD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'NZDUSD','buy_strategy':'NZDUSD_buy','sell_strategy':'NZDUSD_sell'},
+    'USDCAD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'USDCAD','buy_strategy':'USDCAD_buy','sell_strategy':'USDCAD_sell'},
+
+    'AUDJPY':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'AUDJPY','buy_strategy':'AUDJPY_buy','sell_strategy':'AUDJPY_sell'},
+    'CADJPY':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'CADJPY','buy_strategy':'CADJPY_buy','sell_strategy':'CADJPY_sell'},
+    'CHFJPY':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'CHFJPY','buy_strategy':'CHFJPY_buy','sell_strategy':'CHFJPY_sell'},
+    'NZDJPY':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'NZDJPY','buy_strategy':'NZDJPY_buy','sell_strategy':'NZDJPY_sell'},
+
+    'AUDCHF':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'AUDCHF','buy_strategy':'AUDCHF_buy','sell_strategy':'AUDCHF_sell'},
+    'CADCHF':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'CADCHF','buy_strategy':'CADCHF_buy','sell_strategy':'CADCHF_sell'},
+    'NZDCHF':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'NZDCHF','buy_strategy':'NZDCHF_buy','sell_strategy':'NZDCHF_sell'},
+
+    'AUDNZD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'AUDNZD','buy_strategy':'AUDNZD_buy','sell_strategy':'AUDNZD_sell'},
+    'NZDCAD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'NZDCAD','buy_strategy':'NZDCAD_buy','sell_strategy':'NZDCAD_sell'},
+
+    'AUDCAD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'AUDCAD','buy_strategy':'AUDCAD_buy','sell_strategy':'AUDCAD_sell'}
+    }
+
+    JPY = ('EURJPY','USDJPY','GBPJPY','AUDJPY','CHFJPY','NZDJPY','CADJPY')

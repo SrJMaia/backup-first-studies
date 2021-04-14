@@ -19,6 +19,14 @@ class Data(MetaTrader, Pairs):
         self.__normal_data = new_data
 
 
+    def get_new_normal_data(self):
+        return self.__new_normal_data
+
+
+    def set_new_normal_data(self, data):
+        self.__new_normal_data = data
+
+
     def normal_data_to_array(self):
         self.__numpy_normal_data = self.pandas_to_array(self.get_normal_data())
 
@@ -124,6 +132,17 @@ class Data(MetaTrader, Pairs):
         else:
             self.set_normal_data(df)
             print('Dados Baixados com Sucesso.')
+
+
+    def get_new_data_mt5(self, start_pos, end_pos, time_frame):
+
+        df = pd.DataFrame()
+
+        for i in range(len(super().ALL_PAIRS_OPEN)):
+            df[super().ALL_PAIRS_OPEN[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type=only_one)
+
+        self.set_new_normal_data(df)
+        print('Dados Baixados com Sucesso.')
 
 
     def pct_data(self, period=1, complement='_Open'):

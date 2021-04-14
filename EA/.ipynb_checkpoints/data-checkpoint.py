@@ -3,10 +3,10 @@ import MetaTrader5 as mt5
 import numpy as np
 from collections import deque
 
-ALL_PAIRS = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD',
+ALL_PAIRS = ('EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD',
              'GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD','USDCHF',
              'USDJPY','AUDUSD','NZDUSD','USDCAD','AUDJPY','CADJPY','CHFJPY',
-             'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD']
+             'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD')
 
 ALL_PAIRS_BUY = (
     'EURCHF_buy','EURGBP_buy','EURJPY_buy','EURNZD_buy','EURUSD_buy','EURAUD_buy','EURCAD_buy',
@@ -48,20 +48,18 @@ def get_data(start_pos, end_pos, time_frame):
 
 def pct_data(data, period=1):
 
-    diff_symbols = {
-        'eur':['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD'],
-        'gbp':['EURGBP','GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD'],
-        'usd':['GBPUSD','USDCHF','USDJPY','AUDUSD','NZDUSD','USDCAD','EURUSD'],
-        'jpy':['AUDJPY','CADJPY','CHFJPY','EURJPY','USDJPY','GBPJPY','NZDJPY'],
-        'chf':['AUDCHF','CADCHF','CHFJPY','USDCHF','EURCHF','GBPCHF','NZDCHF'],
-        'nzd':['AUDNZD','EURNZD','GBPNZD','NZDUSD','NZDCAD','NZDCHF','NZDJPY'],
-        'aud':['AUDCAD','AUDCHF','AUDJPY','AUDUSD','AUDNZD','EURAUD','GBPAUD'],
-        'cad':['AUDCAD','CADCHF','CADJPY','USDCAD','EURCAD','GBPCAD','NZDCAD']
-    }
+    diff_symbols = (
+        ('eur',('EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD')),
+        ('gbp',('EURGBP','GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD')),
+        ('usd',('GBPUSD','USDCHF','USDJPY','AUDUSD','NZDUSD','USDCAD','EURUSD')),
+        ('jpy',('AUDJPY','CADJPY','CHFJPY','EURJPY','USDJPY','GBPJPY','NZDJPY')),
+        ('chf',('AUDCHF','CADCHF','CHFJPY','USDCHF','EURCHF','GBPCHF','NZDCHF')),
+        ('nzd',('AUDNZD','EURNZD','GBPNZD','NZDUSD','NZDCAD','NZDCHF','NZDJPY')),
+        ('aud',('AUDCAD','AUDCHF','AUDJPY','AUDUSD','AUDNZD','EURAUD','GBPAUD')),
+        ('cad',('AUDCAD','CADCHF','CADJPY','USDCAD','EURCAD','GBPCAD','NZDCAD'))
+        )
 
-    df2 = pd.DataFrame()
-
-    for i in diff_symbols.items():
+    for i in diff_symbols:
         df = pd.DataFrame()
         for j in i[1]:
             df[j]=data[j].pct_change(period)
@@ -72,7 +70,7 @@ def pct_data(data, period=1):
                 if j in ['GBPUSD','AUDUSD','NZDUSD','EURUSD']:
                     df[j] = df[j] * -1
             if i[0] == 'jpy':
-                df[j] = 1 / df[j] * -1
+                df[j] = df[j] * -1
             if i[0] == 'chf':
                 if j in ['AUDCHF','CADCHF','USDCHF','EURCHF','GBPCHF','NZDCHF']:
                     df[j] = df[j] * -1
@@ -85,22 +83,22 @@ def pct_data(data, period=1):
             if i[0] == 'cad':
                 if j in ['AUDCAD','USDCAD','EURCAD','GBPCAD','NZDCAD']:
                     df[j] = df[j] * -1
-        df2[f'{i[0]}'] = df.sum(axis=1)*100
+        data[f'{i[0]}'] = df.sum(axis=1)*100
 
-    return df2
+    return data
 
 
 def signals(data):
-    
+
     for index, value in enumerate(SPLIT_PAIRS):
-        
-        pair1 = data[value[0]]
-        pair2 = data[value[1]]
-        
-        std1 = pair1.std()
-        std2 = pair2.std()
-        
-        data[ALL_PAIRS_BUY[index]] = ((pair1 < std1) and (pair2 > std2))
-        data[ALL_PAIRS_SELL[index]] = ((pair1 > std1) and (pair2 < std2))
-        
+
+        pair1 = data[value[0]].to_numpy()
+        pair2 = data[value[1]].to_numpy()
+
+        std1 = np.std(pair1)
+        std2 = np.std(pair2)
+
+        data[ALL_PAIRS_BUY[index]] = pd.Series(((pair1 < std1) & (pair2 > std2)))
+        data[ALL_PAIRS_SELL[index]] = pd.Series(((pair1 > std1) & (pair2 < std2)))
+
     return data

@@ -35,55 +35,55 @@ MY_EVENTS = {
     'AUDCAD':{'buy':True,'sell':True,'sell_request':0,'buy_request':0,'symbol':'AUDCAD','first_currency':'aud','second_currency':'cad'}
 }
 
-def open_trade(action, symbol, ea_magic_number):
-    '''https://www.mql5.com/en/docs/integration/python_metatrader5/mt5ordersend_py
-    '''
-    # prepare the buy request structure
-    symbol_info = get_info(symbol)
+# def open_trade(action, symbol, ea_magic_number):
+#     '''https://www.mql5.com/en/docs/integration/python_metatrader5/mt5ordersend_py
+#     '''
+#     # prepare the buy request structure
+#     symbol_info = get_info(symbol)
 
-    leverage, balance = account_information()
+#     leverage, balance = account_information()
 
-    if action == 'buy':
-        trade_type = mt5.ORDER_TYPE_BUY
-        price = mt5.symbol_info_tick(symbol).ask
-    elif action =='sell':
-        trade_type = mt5.ORDER_TYPE_SELL
-        price = mt5.symbol_info_tick(symbol).bid
-    point = mt5.symbol_info(symbol).point
+#     if action == 'buy':
+#         trade_type = mt5.ORDER_TYPE_BUY
+#         price = mt5.symbol_info_tick(symbol).ask
+#     elif action =='sell':
+#         trade_type = mt5.ORDER_TYPE_SELL
+#         price = mt5.symbol_info_tick(symbol).bid
+#     point = mt5.symbol_info(symbol).point
 
-    order_request = {
-        "action": mt5.TRADE_ACTION_DEAL,
-        "symbol": symbol,
-        "volume": lot_calculation(balance,leverage,symbol),
-        "type": trade_type,
-        "price": price,
-        "deviation": 10,
-        "magic": ea_magic_number,
-        "comment": "MAYBE LATER A COMMENT",
-        "type_time": mt5.ORDER_TIME_GTC, # good till cancelled
-        "type_filling": mt5.ORDER_FILLING_RETURN,
-    }
-    # send a trading request
-    result = mt5.order_send(order_request)
+#     order_request = {
+#         "action": mt5.TRADE_ACTION_DEAL,
+#         "symbol": symbol,
+#         "volume": lot_calculation(balance,leverage,symbol),
+#         "type": trade_type,
+#         "price": price,
+#         "deviation": 10,
+#         "magic": ea_magic_number,
+#         "comment": "MAYBE LATER A COMMENT",
+#         "type_time": mt5.ORDER_TIME_GTC, # good till cancelled
+#         "type_filling": mt5.ORDER_FILLING_RETURN,
+#     }
+#     # send a trading request
+#     result = mt5.order_send(order_request)
 
-    if result[0] == 10009:
-        print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
-        return False, True, order_request
-    elif result[0] == 10004 or result[0] == 10021:
-        while result[0] == 10004:
-            result = mt5.order_send(order_request)
-            print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | New Price.")
-        if result[0] == 10009:
-            print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
-            return False, True, order_request
-        else:
-            print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
-            return True, False, order_request
-        #print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | New Price.")
-        #return True, False, order_request
-    else:
-        print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
-        return True, False, order_request
+#     if result[0] == 10009:
+#         print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
+#         return False, True, order_request
+#     elif result[0] == 10004 or result[0] == 10021:
+#         while result[0] == 10004:
+#             result = mt5.order_send(order_request)
+#             print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | New Price.")
+#         if result[0] == 10009:
+#             print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
+#             return False, True, order_request
+#         else:
+#             print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
+#             return True, False, order_request
+#         #print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | New Price.")
+#         #return True, False, order_request
+#     else:
+#         print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
+#         return True, False, order_request
 
 def account_information():
     account = mt5.account_info()._asdict()

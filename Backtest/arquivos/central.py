@@ -12,7 +12,7 @@ class Central(Signals):
 
     def __init__(self, login=5528104, senha='YUWNehok', servidor='ActivTradesCorp-Server', balance=1000):
         super().__init__(login, senha, servidor)
-        self.balance = balance
+        self.balance_backtest = balance
 
 
     def back_tpsl(self, tpsl, multiply_tpsl, multi_test=False, plot=False):

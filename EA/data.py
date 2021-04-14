@@ -3,10 +3,10 @@ import MetaTrader5 as mt5
 import numpy as np
 from collections import deque
 
-ALL_PAIRS = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD',
+ALL_PAIRS = ('EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD',
              'GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD','USDCHF',
              'USDJPY','AUDUSD','NZDUSD','USDCAD','AUDJPY','CADJPY','CHFJPY',
-             'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD']
+             'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD')
 
 ALL_PAIRS_BUY = (
     'EURCHF_buy','EURGBP_buy','EURJPY_buy','EURNZD_buy','EURUSD_buy','EURAUD_buy','EURCAD_buy',
@@ -48,18 +48,18 @@ def get_data(start_pos, end_pos, time_frame):
 
 def pct_data(data, period=1):
 
-    diff_symbols = {
-        'eur':['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD'],
-        'gbp':['EURGBP','GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD'],
-        'usd':['GBPUSD','USDCHF','USDJPY','AUDUSD','NZDUSD','USDCAD','EURUSD'],
-        'jpy':['AUDJPY','CADJPY','CHFJPY','EURJPY','USDJPY','GBPJPY','NZDJPY'],
-        'chf':['AUDCHF','CADCHF','CHFJPY','USDCHF','EURCHF','GBPCHF','NZDCHF'],
-        'nzd':['AUDNZD','EURNZD','GBPNZD','NZDUSD','NZDCAD','NZDCHF','NZDJPY'],
-        'aud':['AUDCAD','AUDCHF','AUDJPY','AUDUSD','AUDNZD','EURAUD','GBPAUD'],
-        'cad':['AUDCAD','CADCHF','CADJPY','USDCAD','EURCAD','GBPCAD','NZDCAD']
-    }
+    diff_symbols = (
+        ('eur',('EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD')),
+        ('gbp',('EURGBP','GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD')),
+        ('usd',('GBPUSD','USDCHF','USDJPY','AUDUSD','NZDUSD','USDCAD','EURUSD')),
+        ('jpy',('AUDJPY','CADJPY','CHFJPY','EURJPY','USDJPY','GBPJPY','NZDJPY')),
+        ('chf',('AUDCHF','CADCHF','CHFJPY','USDCHF','EURCHF','GBPCHF','NZDCHF')),
+        ('nzd',('AUDNZD','EURNZD','GBPNZD','NZDUSD','NZDCAD','NZDCHF','NZDJPY')),
+        ('aud',('AUDCAD','AUDCHF','AUDJPY','AUDUSD','AUDNZD','EURAUD','GBPAUD')),
+        ('cad',('AUDCAD','CADCHF','CADJPY','USDCAD','EURCAD','GBPCAD','NZDCAD'))
+        )
 
-    for i in diff_symbols.items():
+    for i in diff_symbols:
         df = pd.DataFrame()
         for j in i[1]:
             df[j]=data[j].pct_change(period)

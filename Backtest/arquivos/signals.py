@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from arquivos.indicators import Indicators
-from arquivos.data import Data
 
 class Signals(Indicators):
 
@@ -107,6 +106,125 @@ class Signals(Indicators):
 
             data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < std1_neg) & (pair2 > std2_pos) & (sma < prices))
             data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > std1_pos) & (pair2 < std2_neg) & (sma > prices))
+
+        super().set_normal_data(data)
+
+
+    @staticmethod
+    def count_all(series):
+        #high = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        #low = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        geral = []
+        count = 0
+
+        for i, v in enumerate(series):
+
+            if v < 0:
+                if count < 0: count = 0
+                #high[count] += 1
+                count += 1
+            elif v > 0:
+                if count > 0: count = 0
+                #low[abs(count)] += 1
+                count -= 1
+            else:
+                count == 0
+
+            geral.append(count)
+
+        #return geral, high, low
+        return geral
+
+
+    def balance_signal0(self, cut):
+
+        data = super().get_normal_data()
+
+        for i in range(len(super().ALL_PAIRS_BUY)):
+
+            pair1 = data[super().SPLIT_PAIRS[i][0]].to_numpy()
+            pair2 = data[super().SPLIT_PAIRS[i][1]].to_numpy()
+
+            pair1_count = np.array(self.count_all(pair1))
+            pair2_count = np.array(self.count_all(pair2))
+
+            data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < pair2) & (pair1_count > cut) & (pair2_count < -cut))
+            data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > pair2) & (pair1_count < -cut) & (pair2_count > cut))
+
+        super().set_normal_data(data)
+
+
+    def balance_signal1(self, cut):
+
+        data = super().get_normal_data()
+
+        for i in range(len(super().ALL_PAIRS_BUY)):
+
+            pair1 = data[super().SPLIT_PAIRS[i][0]].to_numpy()
+            pair2 = data[super().SPLIT_PAIRS[i][1]].to_numpy()
+
+            pair1_count = np.array(self.count_all(pair1))
+            pair2_count = np.array(self.count_all(pair2))
+
+            data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < -np.std(pair1)) & (pair2 > np.std(pair2)) & (pair1_count > cut) & (pair2_count < -cut))
+            data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > np.std(pair1)) & (pair2 < -np.std(pair2)) & (pair1_count < -cut) & (pair2_count > cut))
+
+        super().set_normal_data(data)
+
+
+    def balance_signal3(self, cut, period):
+
+        data = super().get_normal_data()
+
+        for i in range(len(super().ALL_PAIRS_BUY)):
+
+            pair1 = data[super().SPLIT_PAIRS[i][0]].to_numpy()
+            pair2 = data[super().SPLIT_PAIRS[i][1]].to_numpy()
+
+            pair1_count = np.array(self.count_all(pair1))
+            pair2_count = np.array(self.count_all(pair2))
+
+            sma = super().calc_sma(super().ALL_PAIRS_OPEN[i], period)
+            prices = np.array(data[super().ALL_PAIRS_OPEN[i]])
+
+            data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < pair2) & (prices < sma) & (pair1_count > cut) & (pair2_count < -cut))
+            data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > pair2) & (prices > sma) & (pair1_count < -cut) & (pair2_count > cut))
+
+        super().set_normal_data(data)
+
+
+    def balance_signal4(self):
+
+        data = super().get_normal_data()
+
+        for i in range(len(super().ALL_PAIRS_BUY)):
+
+            pair1 = data[super().SPLIT_PAIRS[i][0]].to_numpy()
+            pair2 = data[super().SPLIT_PAIRS[i][1]].to_numpy()
+
+            data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < pair2))
+            data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > pair2))
+
+        super().set_normal_data(data)
+
+    def balance_signal5(self, cut):
+
+        data = super().get_normal_data()
+
+        for i in range(len(super().ALL_PAIRS_BUY)):
+
+            pair1 = data[super().SPLIT_PAIRS[i][0]].to_numpy()
+            pair2 = data[super().SPLIT_PAIRS[i][1]].to_numpy()
+
+            pair1_count = np.array(self.count_all(pair1))
+            pair2_count = np.array(self.count_all(pair2))
+
+            prices = np.array(data[super().ALL_PAIRS_OPEN[i]])
+
+            prices_count = np.array(self.count_all(pd.Series(prices).diff()))
+
+            data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < pair2) & (prices_count > cut))
+            data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > pair2) & (prices_count < -cut))
 
         super().set_normal_data(data)
 
