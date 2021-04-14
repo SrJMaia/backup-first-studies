@@ -112,6 +112,7 @@ def open_trade(action, tksl, symbol, ea_magic_number, multiply=2):
         "type_filling": mt5.ORDER_FILLING_RETURN,
     }
     # send a trading request
+
     result = mt5.order_send(order_request)
 
     if result[0] == 10009:

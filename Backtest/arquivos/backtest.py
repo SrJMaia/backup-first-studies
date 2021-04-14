@@ -22,7 +22,7 @@ def best_f(diff_array):
             my_result *= k
         results.append(sqrt(my_result))
     x = np.array(results)
-    retburn (np.where(x == x.max())[0][0])/100, x
+    return (np.where(x == x.max())[0][0])/100, x
 
 
 @njit

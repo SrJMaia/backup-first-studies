@@ -92,10 +92,16 @@ class Data(MetaTrader, Pairs):
                            one_pair = False,
                            symbol = 'EURUSD',
                            only_one = 'open',
-                           monte_carlo=False):
+                           monte_carlo=False,
+                           ea=False):
 
         df = pd.DataFrame()
         self.mt_login()
+
+        if ea:
+            for i in range(len(self.ALL_PAIRS)):
+                df[self.ALL_PAIRS[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type='open')
+
         if one_pair:
             if not all_four:
                 df[symbol]=self.mt_get_data_count(symbol=symbol,start=start_pos,end=end_pos,time_frame=time_frame,data_type=only_one)
@@ -138,8 +144,8 @@ class Data(MetaTrader, Pairs):
 
         df = pd.DataFrame()
 
-        for i in range(len(super().ALL_PAIRS_OPEN)):
-            df[super().ALL_PAIRS_OPEN[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type=only_one)
+        for i in range(len(super().ALL_PAIRS)):
+            df[super().ALL_PAIRS[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type='open')
 
         self.set_new_normal_data(df)
         print('Dados Baixados com Sucesso.')

@@ -98,7 +98,7 @@ def signals(data):
         std1 = np.std(pair1)
         std2 = np.std(pair2)
 
-        data[ALL_PAIRS_BUY[index]] = pd.Series(((pair1 < std1) & (pair2 > std2)))
-        data[ALL_PAIRS_SELL[index]] = pd.Series(((pair1 > std1) & (pair2 < std2)))
+        data[ALL_PAIRS_BUY[index]] = pd.Series(((pair1 > pair2)))
+        data[ALL_PAIRS_SELL[index]] = pd.Series(((pair1 < pair2)))
 
     return data

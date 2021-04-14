@@ -72,9 +72,12 @@ class MetaTrader:
 
         balance = self.account_information()
 
+        jpy_check = False
+
         if symbol in self.JPY:
             tk = tksl / 100
             sl = tksl / (100 * multiply)
+            jpy_check = True
         else:
             tk = tksl / 10000
             sl = tksl / (10000 * multiply)
@@ -82,13 +85,13 @@ class MetaTrader:
         if action == 'buy':
             trade_type = mt5.ORDER_TYPE_BUY
             price = mt5.symbol_info_tick(symbol).ask
-            tk += price
-            sl = price - sl
+            tk = round(price + tk,3) if jpy_check else round(price+tk, 5)
+            sl = round(price - sl, 3) if jpy_check else round(price - sl, 5)
         elif action =='sell':
             trade_type = mt5.ORDER_TYPE_SELL
             price = mt5.symbol_info_tick(symbol).bid
-            tk = price - tk
-            sl += price
+            tk = round(price - tk, 3) if jpy_check else round(price - tk, 5)
+            sl = round(price + sl, 3) if jpy_check else round(price + sl, 5)
 
         point = mt5.symbol_info(symbol).point
 
@@ -104,10 +107,11 @@ class MetaTrader:
             "magic": ea_magic_number,
             "comment": "MAYBE LATER A COMMENT",
             "type_time": mt5.ORDER_TIME_GTC, # good till cancelled
-            "type_filling": mt5.ORDER_FILLING_RETURN,
+            "type_filling": mt5.ORDER_FILLING_IOC,
         }
 
-        print(order_request)
+        o = mt5.order_check(order_request)
+        print(o)
         # send a trading request
         result = mt5.order_send(order_request)
 

@@ -41,7 +41,7 @@ class eaonline(Signals):
 
     def start(self):
 
-        self.get_data_mt5_count(0, self.get_final, self.tf)
+        self.get_data_mt5_count(0, self.get_final, self.tf, ea=True)
         self.pct_data()
         self.balance_signal4()
 
@@ -57,7 +57,7 @@ class eaonline(Signals):
         while True:
 
             for i in self.control_dict:
-
+                break
                 if self.get_normal_data()[self.control_dict[i]['buy_strategy']].iloc[-1] and self.control_dict[i]['buy']:
                     super().open_trade(action='buy',
                                        tksl = self.tpsl,
