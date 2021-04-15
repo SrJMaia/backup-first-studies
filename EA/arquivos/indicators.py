@@ -33,6 +33,32 @@ class IndicatorsCalc:
 
 
     @staticmethod
+    def count_all(series):
+        #high = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        #low = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        geral = []
+        count = 0
+
+        for i, v in enumerate(series):
+
+            if v < 0:
+                if count < 0: count = 0
+                #high[count] += 1
+                count += 1
+            elif v > 0:
+                if count > 0: count = 0
+                #low[abs(count)] += 1
+                count -= 1
+            else:
+                count == 0
+
+            geral.append(count)
+
+        #return geral, high, low
+        return geral
+
+
+    @staticmethod
     def EMA_PANDAS(array, period, mode='com', min_periods = 1, act_adjust = False):
         """
         Modes: com, span, halflife, alpha

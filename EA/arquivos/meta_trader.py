@@ -62,6 +62,23 @@ class MetaTrader:
         return info
 
 
+    def refresh_flags(self):
+        for i in ea.control_dict.values():
+
+            result = mt5.positions_get(symbol=i['symbol'])
+
+            if not i['buy']:
+                if result:
+                    self.control_dict[i['symbol']]['buy'] = True
+                elif not 0 in result:
+                    self.control_dict[i['symbol']]['buy'] = True
+            elif not i['sell']:
+                if result:
+                    self.control_dict[i['symbol']]['sell'] = True
+                elif not 1 in result:
+                    self.control_dict[i['symbol']]['sell'] = True
+
+
     def open_trade(self, action, tksl, symbol, ea_magic_number, multiply=2):
         '''https://www.mql5.com/en/docs/integration/python_metatrader5/mt5ordersend_py
         '''
@@ -110,8 +127,6 @@ class MetaTrader:
             "type_filling": mt5.ORDER_FILLING_IOC,
         }
 
-        o = mt5.order_check(order_request)
-        print(o)
         # send a trading request
         result = mt5.order_send(order_request)
 

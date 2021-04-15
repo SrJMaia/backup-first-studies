@@ -110,30 +110,19 @@ class Signals(Indicators):
         super().set_normal_data(data)
 
 
-    @staticmethod
-    def count_all(series):
-        #high = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        #low = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-        geral = []
-        count = 0
+    def main_online(self):
 
-        for i, v in enumerate(series):
+        data = super().get_normal_data()
 
-            if v < 0:
-                if count < 0: count = 0
-                #high[count] += 1
-                count += 1
-            elif v > 0:
-                if count > 0: count = 0
-                #low[abs(count)] += 1
-                count -= 1
-            else:
-                count == 0
+        for i in range(len(super().ALL_PAIRS_BUY)):
 
-            geral.append(count)
+            pair1 = data[super().SPLIT_PAIRS[i][0]].to_numpy()
+            pair2 = data[super().SPLIT_PAIRS[i][1]].to_numpy()
 
-        #return geral, high, low
-        return geral
+            data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < pair2))
+            data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > pair2))
+
+        super().set_normal_data(data)
 
 
     def balance_signal0(self, cut):
