@@ -12,6 +12,7 @@ class eaonline(Signals):
                  magic_number,
                  timeframe,
                  tpsl,
+                 pct_period,
                  login=50549136,
                  senha='TqmGUgqp',
                  servidor='ICMarketsSC-Demo'):
@@ -28,6 +29,7 @@ class eaonline(Signals):
             self.get_final == 66000
         self.tf = timeframe
         self.tpsl = tpsl
+        self.pct_period = pct_period
         self.control_dict = super().MY_EVENTS
 
 
@@ -42,7 +44,7 @@ class eaonline(Signals):
 
     def start(self):
         self.prepare()
-        schedule.every().day.at("00:00").do(a.my_func)
+        schedule.every().day.at("00:00").do(self.main_body)
         while True:
             schedule.run_pending()
             sleep(10)
@@ -50,13 +52,11 @@ class eaonline(Signals):
 
     def prepare(self):
         self.get_data_mt5_count(0, self.get_final, self.tf, ea=True)
-        self.pct_data()
+        self.pct_data(self.pct_period)
         self.main_online()
 
 
     def main_body(self):
-
-        new_df = pd.DataFrame()
 
         self.mt_login()
 
@@ -80,7 +80,7 @@ class eaonline(Signals):
 
         while True:
             try:
-                self.get_new_data_mt5(0, 1, self.tf)
+                self.new_normal_data_mt5(0, 1, self.tf)
             except:
                 print('Erro ao obter dados.')
             else:
@@ -88,7 +88,7 @@ class eaonline(Signals):
                 break
 
         if (self.get_new_normal_data().iloc[-1] == self.get_normal_data()[self.ALL_PAIRS_FOR_DF].iloc[-1]).sum() == 0:
-            self.set_normal_data(pd.concat([df,new_df]).reset_index(drop=True))
+            self.set_normal_data(pd.concat([self.get_normal_data()[self.ALL_PAIRS_FOR_DF],self.get_new_normal_data()]).reset_index(drop=True))
             self.pct_data()
             self.balance_signal4()
         else:

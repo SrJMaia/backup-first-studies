@@ -140,7 +140,7 @@ class Data(MetaTrader, Pairs):
             print('Dados Baixados com Sucesso.')
 
 
-    def get_new_data_mt5(self, start_pos, end_pos, time_frame):
+    def new_normal_data_mt5(self, start_pos, end_pos, time_frame):
 
         df = pd.DataFrame()
 
@@ -180,7 +180,7 @@ class Data(MetaTrader, Pairs):
                 if i[0] == 'cad':
                     if j in ['AUDCAD','USDCAD','EURCAD','GBPCAD','NZDCAD']:
                         df[j] = df[j] * -1
-            new_data[f'{i[0]}'] = df.sum(axis=1)*100
+            new_data[f'{i[0]}'] = round(df.sum(axis=1)*100_000)
 
         self.set_normal_data(new_data)
 
