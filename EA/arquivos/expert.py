@@ -62,22 +62,6 @@ class eaonline(Signals):
 
         self.refresh_flags()
 
-        for i in self.control_dict:
-            if self.get_normal_data()[self.control_dict[i]['buy_strategy']].iloc[-1] and self.control_dict[i]['buy']:
-                super().open_trade(action='buy',
-                                   tksl = self.tpsl,
-                                   symbol=self.control_dict[i]['symbol'],
-                                   ea_magic_number=self.magic_number,
-                                   multiply=self.multiply)
-                self.control_dict[i]['buy'] = False
-            elif self.get_normal_data()[self.control_dict[i]['sell_strategy']].iloc[-1] and self.control_dict[i]['sell']:
-                super().open_trade(action='sell',
-                                   tksl = self.tpsl,
-                                   symbol=self.control_dict[i]['symbol'],
-                                   ea_magic_number=self.magic_number,
-                                   multiply=self.multiply)
-                self.control_dict[i]['sell'] = False
-
         while True:
             try:
                 self.new_normal_data_mt5(0, 1, self.tf)
@@ -93,5 +77,21 @@ class eaonline(Signals):
             self.balance_signal4()
         else:
             print('Não há dados novos.')
+
+        for i in self.control_dict:
+            if self.get_normal_data()[self.control_dict[i]['buy_strategy']].iloc[-1] and self.control_dict[i]['buy']:
+                super().open_trade(action='buy',
+                                   tksl = self.tpsl,
+                                   symbol=self.control_dict[i]['symbol'],
+                                   ea_magic_number=self.magic_number,
+                                   multiply=self.multiply)
+                self.control_dict[i]['buy'] = False
+            elif self.get_normal_data()[self.control_dict[i]['sell_strategy']].iloc[-1] and self.control_dict[i]['sell']:
+                super().open_trade(action='sell',
+                                   tksl = self.tpsl,
+                                   symbol=self.control_dict[i]['symbol'],
+                                   ea_magic_number=self.magic_number,
+                                   multiply=self.multiply)
+                self.control_dict[i]['sell'] = False
 
         self.mt_logoff()

@@ -10,7 +10,7 @@ plt.rcParams["figure.figsize"] = (30,10)
 
 class Central(Signals):
 
-    def __init__(self, login=5528104, senha='YUWNehok', servidor='ActivTradesCorp-Server', balance=1000):
+    def __init__(self, login=50549136, senha='TqmGUgqp', servidor='ICMarketsSC-Demo', balance=1000):
         super().__init__(login, senha, servidor)
         self.balance_backtest = balance
 

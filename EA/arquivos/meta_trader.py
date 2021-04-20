@@ -64,18 +64,26 @@ class MetaTrader:
 
     def refresh_flags(self):
         for i in ea.control_dict.values():
-
+            """
+            Usar result como dict, e pegar o tipo de posicao
+            Quando for colocar na aws, checar o horario de mt5 e o horario da aws
+            """
             result = mt5.positions_get(symbol=i['symbol'])
+
+            r = []
+
+            for k in range(len(result)):
+                r.append(result[k]._asdict()['type'])
 
             if not i['buy']:
                 if result:
                     self.control_dict[i['symbol']]['buy'] = True
-                elif not 0 in result:
+                elif not 0 in r:
                     self.control_dict[i['symbol']]['buy'] = True
             elif not i['sell']:
                 if result:
                     self.control_dict[i['symbol']]['sell'] = True
-                elif not 1 in result:
+                elif not 1 in r:
                     self.control_dict[i['symbol']]['sell'] = True
 
 
