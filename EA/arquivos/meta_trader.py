@@ -72,10 +72,9 @@ class MetaTrader:
             for k in range(len(result)):
                 r.append(result[k]._asdict()['type'])
 
-            if not i['buy']:
+            if not i['buy'] or not i['sell']:
                 if not 0 in r:
                     self.control_dict[i['symbol']]['buy'] = True
-            elif not i['sell']:
                 if not 1 in r:
                     self.control_dict[i['symbol']]['sell'] = True
 
