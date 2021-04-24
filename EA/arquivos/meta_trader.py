@@ -151,6 +151,8 @@ class MetaTrader:
                 print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
             else:
                 print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
+        elif result[0] == 10018:
+            print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | Mercado Fechado")
         else:
             print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
 

@@ -11,14 +11,16 @@ def finance_calculation(balance, saldo_inicial, saldo_final, preco_eur, eur):
     #    lot = (balance - initial_balance) // 1000 * 1000
 
     comission = (lot//1000) * 0.07
+    overnight = (lot//1000) * 0.1
+    # random entre -2 a 2 pips para simular slippage
 
     if eur:
         tot = (lot * (saldo_inicial - saldo_final)) / saldo_final
-        tot2 = round(tot - comission,2)
+        tot2 = tot - comission
         return (tot2 + balance), tot2
     else:
         tot = (lot * (saldo_inicial - saldo_final)) / saldo_final
-        tot2 = round(tot / saldo_final / preco_eur - comission,2)
+        tot2 = tot / saldo_final / preco_eur - comission
         return (tot2 + balance), tot2
 
 
@@ -42,6 +44,8 @@ def otimizado_tpsl(series, tpsl, multiply_tpsl, balance=1000):
                    1 = jpy
     """
 
+    balance_backtest = balance
+
     check_eur_jpy = np.array([
                         [1, 0],[1, 0],[1, 1],[1, 0],[1, 0],[1, 0],[1, 0],
                         [0, 0],[0, 0],[0, 1],[0, 0],[0, 0],[0, 0],[0, 0],
@@ -49,19 +53,25 @@ def otimizado_tpsl(series, tpsl, multiply_tpsl, balance=1000):
                         [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
                         ], dtype=np.bool_)
 
-    operacoes = np.zeros((28,6),dtype=np.float64)
+    operacoes = np.zeros((28,6),dtype=np.float32)
     buy_sell = np.ones((28,2),dtype=np.bool_)
 
     buy_sell_list_indi = np.zeros(3, dtype=np.int32)
 
-    buy_orders = np.zeros((2_000_000), dtype=np.float64)
-    sell_orders = np.zeros((2_000_000), dtype=np.float64)
+    buy_orders = np.zeros((2_000_000), dtype=np.float32)
+    sell_orders = np.zeros((2_000_000), dtype=np.float32)
+    buy_orders[0] = balance_backtest
+    sell_orders[0] = balance_backtest
+    buy_sell_list_indi[0] += 1
+    buy_sell_list_indi[1] += 1
 
-    each_pair_index = np.zeros((28), dtype=np.int64)
-    each_pair = np.zeros((28,100_000), dtype=np.float64)
+    each_pair_index = np.zeros((28), dtype=np.int32)
+    each_pair = np.zeros((28,100_000), dtype=np.float32)
+    for i in range(28):
+        each_pair[i][each_pair_index[i]] = balance_backtest
+        each_pair_index[i] += 1
 
-    balance_backtest = balance
-    list_backtest = np.zeros((2_000_000), dtype=np.float64)
+    list_backtest = np.zeros((2_000_000), dtype=np.float32)
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
@@ -95,8 +105,8 @@ def otimizado_tpsl(series, tpsl, multiply_tpsl, balance=1000):
                                                                    eur = check_eur_jpy[h][0],
                                                                    preco_eur=series[h][3][i])
                 list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                buy_orders[buy_sell_list_indi[0]] = buy_result
-                each_pair[h][each_pair_index[h]] = buy_result
+                buy_orders[buy_sell_list_indi[0]] = buy_orders[buy_sell_list_indi[0]-1] + buy_result
+                each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + buy_result
                 each_pair_index[h] += 1
                 buy_sell[h][0] = True
                 buy_sell_list_indi[2] += 1
@@ -108,8 +118,8 @@ def otimizado_tpsl(series, tpsl, multiply_tpsl, balance=1000):
                                                                    eur = check_eur_jpy[h][0],
                                                                    preco_eur=series[h][3][i])
                 list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                buy_orders[buy_sell_list_indi[0]] = buy_result
-                each_pair[h][each_pair_index[h]] = buy_result
+                buy_orders[buy_sell_list_indi[0]] = buy_orders[buy_sell_list_indi[0]-1] + buy_result
+                each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + buy_result
                 each_pair_index[h] += 1
                 buy_sell[h][0] = True
                 buy_sell_list_indi[2] += 1
@@ -132,8 +142,8 @@ def otimizado_tpsl(series, tpsl, multiply_tpsl, balance=1000):
                                                                     eur = check_eur_jpy[h][0],
                                                                     preco_eur=series[h][3][i])
                 list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                sell_orders[buy_sell_list_indi[1]] = sell_result
-                each_pair[h][each_pair_index[h]] = sell_result
+                sell_orders[buy_sell_list_indi[1]] = sell_orders[buy_sell_list_indi[1]-1] + sell_result
+                each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + sell_result
                 each_pair_index[h] += 1
                 buy_sell[h][1] = True
                 buy_sell_list_indi[2] += 1
@@ -145,8 +155,8 @@ def otimizado_tpsl(series, tpsl, multiply_tpsl, balance=1000):
                                                                     eur = check_eur_jpy[h][0],
                                                                     preco_eur=series[h][3][i])
                 list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                sell_orders[buy_sell_list_indi[1]] = sell_result
-                each_pair[h][each_pair_index[h]] = sell_result
+                sell_orders[buy_sell_list_indi[1]] = sell_orders[buy_sell_list_indi[1]-1] + sell_result
+                each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + sell_result
                 each_pair_index[h] += 1
                 buy_sell[h][1] = True
                 buy_sell_list_indi[2] += 1
@@ -166,6 +176,8 @@ def otimizado_no_tpsl(series, balance=1000):
                    1 = jpy
     """
 
+    balance_backtest = balance
+
     check_eur_jpy = np.array([
                         [1, 0],[1, 0],[1, 1],[1, 0],[1, 0],[1, 0],[1, 0],
                         [0, 0],[0, 0],[0, 1],[0, 0],[0, 0],[0, 0],[0, 0],
@@ -173,19 +185,25 @@ def otimizado_no_tpsl(series, balance=1000):
                         [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
                         ], dtype=np.bool_)
 
-    operacoes = np.zeros((28,2),dtype=np.float64)
+    operacoes = np.zeros((28,6),dtype=np.float32)
     buy_sell = np.ones((28,2),dtype=np.bool_)
 
     buy_sell_list_indi = np.zeros(3, dtype=np.int32)
 
-    buy_orders = np.zeros((500_000), dtype=np.float64)
-    sell_orders = np.zeros((500_000), dtype=np.float64)
+    buy_orders = np.zeros((2_000_000), dtype=np.float32)
+    sell_orders = np.zeros((2_000_000), dtype=np.float32)
+    buy_orders[0] = balance_backtest
+    sell_orders[0] = balance_backtest
+    buy_sell_list_indi[0] += 1
+    buy_sell_list_indi[1] += 1
 
     each_pair_index = np.zeros((28), dtype=np.int32)
-    each_pair = np.zeros((28,50_000), dtype=np.float64)
+    each_pair = np.zeros((28,100_000), dtype=np.float32)
+    for i in range(28):
+        each_pair[i][each_pair_index[i]] = balance_backtest
+        each_pair_index[i] += 1
 
-    balance_backtest = balance
-    list_backtest = np.zeros((1_000_000), dtype=np.float64)
+    list_backtest = np.zeros((2_000_000), dtype=np.float32)
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
@@ -207,8 +225,8 @@ def otimizado_no_tpsl(series, balance=1000):
                                                                         eur=check_eur_jpy[h][0],
                                                                         preco_eur=series[h][3][i])
                     list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                    sell_orders[buy_sell_list_indi[1]] = sell_result
-                    each_pair[h][each_pair_index[h]] = sell_result
+                    sell_orders[buy_sell_list_indi[1]] = sell_orders[buy_sell_list_indi[1]-1] + sell_result
+                    each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + sell_result
                     each_pair_index[h] += 1
                     buy_sell_list_indi[1] += 1
                     buy_sell_list_indi[2] += 1
@@ -227,8 +245,8 @@ def otimizado_no_tpsl(series, balance=1000):
                                                                        eur=check_eur_jpy[h][0],
                                                                        preco_eur=series[h][3][i])
                     list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                    buy_orders[buy_sell_list_indi[0]] = buy_result
-                    each_pair[h][each_pair_index[h]] = buy_result
+                    buy_orders[buy_sell_list_indi[0]] = buy_orders[buy_sell_list_indi[0]-1] + buy_result
+                    each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + buy_result
                     each_pair_index[h] += 1
                     buy_sell_list_indi[0] += 1
                     buy_sell_list_indi[2] += 1
@@ -258,6 +276,9 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_s
     check_eur_jpy: 0 = eur
                    1 = jpy
     """
+
+    balance_backtest = balance
+
     check_eur_jpy = np.array([
                         [1, 0],[1, 0],[1, 1],[1, 0],[1, 0],[1, 0],[1, 0],
                         [0, 0],[0, 0],[0, 1],[0, 0],[0, 0],[0, 0],[0, 0],
@@ -265,20 +286,25 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_s
                         [0, 1],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0],[0, 0]
                         ], dtype=np.bool_)
 
-    operacoes = np.zeros((28,6),dtype=np.float64)
+    operacoes = np.zeros((28,6),dtype=np.float32)
     buy_sell = np.ones((28,2),dtype=np.bool_)
-    #history = TRADE_HISTORY
 
     buy_sell_list_indi = np.zeros(3, dtype=np.int32)
 
-    buy_orders = np.zeros((800_000), dtype=np.float64)
-    sell_orders = np.zeros((800_000), dtype=np.float64)
+    buy_orders = np.zeros((2_000_000), dtype=np.float32)
+    sell_orders = np.zeros((2_000_000), dtype=np.float32)
+    buy_orders[0] = balance_backtest
+    sell_orders[0] = balance_backtest
+    buy_sell_list_indi[0] += 1
+    buy_sell_list_indi[1] += 1
 
     each_pair_index = np.zeros((28), dtype=np.int32)
-    each_pair = np.zeros((28,50_000), dtype=np.float64)
+    each_pair = np.zeros((28,100_000), dtype=np.float32)
+    for i in range(28):
+        each_pair[i][each_pair_index[i]] = balance_backtest
+        each_pair_index[i] += 1
 
-    balance_backtest = balance
-    list_backtest = np.zeros((1_600_000), dtype=np.float64)
+    list_backtest = np.zeros((2_000_000), dtype=np.float32)
     list_backtest[0] = balance_backtest
     buy_sell_list_indi[2] += 1
 
@@ -318,8 +344,8 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_s
                                                                        saldo_final=operacoes[h][0], eur = check_eur_jpy[h][0],
                                                                        preco_eur=series[h][3][i])
                     list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                    buy_orders[buy_sell_list_indi[0]] = buy_result
-                    each_pair[h][each_pair_index[h]] = buy_result
+                    buy_orders[buy_sell_list_indi[0]] = buy_orders[buy_sell_list_indi[0]-1] + buy_result
+                    each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + buy_result
                     each_pair_index[h] += 1
                     buy_sell_list_indi[0] += 1
                     buy_sell_list_indi[2] += 1
@@ -330,8 +356,8 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_s
                                                                        saldo_final=operacoes[h][0], eur = check_eur_jpy[h][0],
                                                                        preco_eur=series[h][3][i])
                     list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                    buy_orders[buy_sell_list_indi[0]] = buy_result
-                    each_pair[h][each_pair_index[h]] = buy_result
+                    buy_orders[buy_sell_list_indi[0]] = buy_orders[buy_sell_list_indi[0]-1] + buy_result
+                    each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + buy_result
                     each_pair_index[h] += 1
                     buy_sell_list_indi[0] += 1
                     buy_sell_list_indi[2] += 1
@@ -360,8 +386,8 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_s
                                                                         saldo_final=operacoes[h][3], eur = check_eur_jpy[h][0],
                                                                         preco_eur=series[h][3][i])
                     list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                    sell_orders[buy_sell_list_indi[1]] = sell_result
-                    each_pair[h][each_pair_index[h]] = sell_result
+                    sell_orders[buy_sell_list_indi[1]] = sell_orders[buy_sell_list_indi[1]-1] + sell_result
+                    each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + sell_result
                     each_pair_index[h] += 1
                     buy_sell_list_indi[1] += 1
                     buy_sell_list_indi[2] += 1
@@ -372,8 +398,8 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_s
                                                                         saldo_final=operacoes[h][2], eur = check_eur_jpy[h][0],
                                                                         preco_eur=series[h][3][i])
                     list_backtest[buy_sell_list_indi[2]] = balance_backtest
-                    sell_orders[buy_sell_list_indi[1]] = sell_result
-                    each_pair[h][each_pair_index[h]] = sell_result
+                    sell_orders[buy_sell_list_indi[1]] = sell_orders[buy_sell_list_indi[1]-1] + sell_result
+                    each_pair[h][each_pair_index[h]] = each_pair[h][each_pair_index[h]-1] + sell_result
                     each_pair_index[h] += 1
                     buy_sell_list_indi[1] += 1
                     buy_sell_list_indi[2] += 1
@@ -381,77 +407,3 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_s
                     break
 
     return list_backtest, sell_orders, buy_orders, each_pair
-
-
-@njit
-def single_backtest(series, tpsl, balance=1000):
-    """
-    Apenas EUR por enquanto
-    Arrumar quando tiver tempo
-    """
-    operacoes = np.array([1.,1.,0.,0.,0.,0.,0.,0.])
-
-
-
-    buy_orders = np.zeros((100_000), dtype=np.float64)
-    sell_orders = np.zeros((100_000), dtype=np.float64)
-
-    balance_backtest = balance
-    list_backtest = np.zeros((200_000), dtype=np.float64)
-    list_backtest[0] = balance_backtest
-
-    tk_normal = round(tpsl / 10000,5)
-    sl_normal = tpsl / 20000
-
-    for i in range(len(series[0])): # 63k
-
-        buy_result = 0
-        sell_result = 0
-
-        if series[1][i] and operacoes[0]:
-            operacoes[2] = series[0][i]
-            operacoes[0] = False
-            operacoes[6] = series[0][i] + tk_normal
-            operacoes[7] = series[0][i] - sl_normal
-
-        if operacoes[0] == False and series[0][i] >= operacoes[6]:
-            balance_backtest, buy_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacoes[6],
-                                                                saldo_final=operacoes[2], preco_eur=0, eur=True)
-            list_backtest[buy_sell_list_indi[2]] = balance_backtest
-            buy_orders[buy_sell_list_indi[0]] = buy_result
-            operacoes[0] = True
-            buy_sell_list_indi[2] += 1
-            buy_sell_list_indi[0] += 1
-        elif operacoes[0] == False and series[0][i] <= operacoes[7]:
-            balance_backtest, buy_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacoes[7],
-                                                                saldo_final=operacoes[2], preco_eur=0, eur=True)
-            list_backtest[buy_sell_list_indi[2]] = balance_backtest
-            buy_orders[buy_sell_list_indi[0]] = buy_result
-            operacoes[0] = True
-            buy_sell_list_indi[2] += 1
-            buy_sell_list_indi[0] += 1
-
-        if series[2][i] and operacoes[1]:
-            operacoes[3] = series[0][i]
-            operacoes[1] = False
-            operacoes[4] = series[0][i] - tk_normal
-            operacoes[5] = series[0][i] + sl_normal
-
-        if operacoes[1] == False and series[0][i] <= operacoes[4]:
-            balance_backtest, sell_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacoes[3],
-                                                                saldo_final=operacoes[4], preco_eur=0, eur=True)
-            list_backtest[buy_sell_list_indi[2]] = balance_backtest
-            sell_orders[buy_sell_list_indi[1]] = sell_result
-            operacoes[1] = True
-            buy_sell_list_indi[2] += 1
-            buy_sell_list_indi[1] += 1
-        elif operacoes[1] == False and series[0][i] >= operacoes[5]:
-            balance_backtest, sell_result = finance_calculation(balance=balance_backtest,saldo_inicial=operacoes[3],
-                                                                saldo_final=operacoes[5], preco_eur=0, eur=True)
-            list_backtest[buy_sell_list_indi[2]] = balance_backtest
-            sell_orders[buy_sell_list_indi[1]] = sell_result
-            operacoes[1] = True
-            buy_sell_list_indi[2] += 1
-            buy_sell_list_indi[1] += 1
-
-    return list_backtest, buy_orders, sell_orders

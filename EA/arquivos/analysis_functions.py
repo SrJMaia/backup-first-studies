@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Analysis:
+    """
+    Bugs: Annualized Return e Pessimsitic ROR para os pares
+    """
 
     def analysis_backtest(self, df):
         period = len(self.get_normal_data())
@@ -33,9 +36,21 @@ class Analysis:
         ar = self.annualized_return(df)
         analy['Annualized_Return_%'] = ar
 
+        pror = self.pessimsitic_ror(df)
+        analy['Pessimistic_ROR_%'] = pror
+
         max_dd, max_equity = self.max_drawdown(df)
         analy['Max_DD_%'] = max_dd
         analy['Max_DD_€'] = max_equity
+
+        shaper_r = self.shaper_ratio(df)
+        analy['Shaper_Ration'] = shaper_r
+
+        net = self.net_profit(df)
+        analy['Net_Profit'] = net
+
+        rcube = self.rrr(df)
+        analy['RRR_Min_>3'] = rcube
 
         win_percent = self.win_percent_rate(df)
         analy['Average_Win_Rate_%'] = win_percent
@@ -50,7 +65,65 @@ class Analysis:
         analy['Largest_Loss_€'] = max_neg
         analy['Smallest_Loss_€'] = min_neg
 
+        #((averagewin*(numberofwins-(numberofwins**0.5))) - (averageloss*(numberofloss+(numberofloss**0.5))))
+
         return analy
+
+
+    @staticmethod
+    def shaper_ratio(df):
+        risk_free = 0.04
+        count = []
+        for i in df.columns:
+            if i == 'Result':
+                r = df['Result'].iloc[-1] / df['Result'].iloc[0] - 1
+                count.append((r - risk_free) / df[i].std())
+            else:
+                r = df[i].sum() / df['Result'].iloc[0]
+                count.append((r - risk_free) / df[i].std())
+        return count
+
+
+    def pessimsitic_ror(self, df):
+        winr = self.win_percent_rate(df)
+        lossr = self.loss_percent_rate(df)
+        count = []
+        period = self.period_data
+        for i, v in enumerate(df):
+            num_loss = 0
+            num_won = 0
+            if v == 'Result':
+                num_loss = df[v].diff()[df[v].diff() < 0].count()
+                num_won = df[v].diff()[df[v].diff() > 0].count()
+            else:
+                num_loss = df[v][df[v] < 0].count()
+                num_won = df[v][df[v] > 0].count()
+            calc = (winr[i]*(num_won-(num_won**0.5))) / abs((lossr[i]*(num_loss+(num_loss**0.5)))) * 100
+            count.append(calc)
+        return count
+
+
+
+    def rrr(self, df):
+        count = []
+        _, e = self.max_drawdown(df)
+        net = self.net_profit(df)
+        for i, _ in enumerate(df):
+            count.append(abs(net[i] / e[i]))
+        return count
+
+
+    @staticmethod
+    def net_profit(df):
+        count = []
+        for _, v in enumerate(df):
+            array = 0
+            if v == 'Result':
+                array = df[v].dropna().to_numpy()
+            else:
+                array = np.append(1000, df[v].dropna().to_numpy()).cumsum()
+            count.append(array[-1])
+        return count
 
 
     @staticmethod
@@ -59,17 +132,13 @@ class Analysis:
         equity = []
         for i in df.columns:
             array = 0
-            if i == 'Total_Trades':
+            if i == 'Result':
                 array = df[i].dropna().to_numpy()
-            elif i == 'Short_Trades' or i == 'Long_Trades':
-                count.append(np.nan)
-                equity.append(np.nan)
-                continue
             else:
                 array = np.append(1000, df[i].dropna().to_numpy()).cumsum()
             calc = ((np.maximum.accumulate(array) - array) / np.maximum.accumulate(array)).max() * 100 * -1
             equity_max = np.where(((np.maximum.accumulate(array) - array) / np.maximum.accumulate(array)) == ((np.maximum.accumulate(array) - array) / np.maximum.accumulate(array)).max())[0][0]
-            equity.append(pd.Series(array).diff(equity_max)[equity_max])
+            equity.append(abs(pd.Series(array).diff(equity_max)[equity_max]) * -1)
             count.append(calc)
 
         return count, equity
@@ -79,7 +148,7 @@ class Analysis:
     def loss_percent_rate(df):
         count = []
         for i in df.columns:
-            if i == 'Total_Trades':
+            if i == 'Result':
                 count.append(df[i].diff()[df[i].diff() < 0].count() / df[i].count() * 100)
             else:
                 count.append(df[i][df[i] < 0].count() / df[i].count() * 100)
@@ -90,7 +159,7 @@ class Analysis:
     def win_percent_rate(df):
         count = []
         for i in df.columns:
-            if i == 'Total_Trades':
+            if i == 'Result':
                 count.append(df[i].diff()[df[i].diff() > 0].count() / df[i].count() * 100)
             else:
                 count.append(df[i][df[i] > 0].count() / df[i].count() * 100)
@@ -120,8 +189,8 @@ class Analysis:
         ar = []
 
         for i in df.columns:
-            if i == 'Total_Trades':
-                ret = df['Total_Trades'].iloc[-1] / df['Total_Trades'].iloc[0]
+            if i == 'Result':
+                ret = df['Result'].iloc[-1] / df['Result'].iloc[0]
                 if ret < 0:
                     ret = abs(ret)
                     tot = (((ret ** period) - 1) * 100) * -1
@@ -129,13 +198,13 @@ class Analysis:
                 else:
                     ar.append((((ret ** period) - 1) * 100))
             else:
-                ret = df[i].sum() / df['Total_Trades'].iloc[0]
+                ret = (df['Result'].iloc[0] + df[i].sum()) / df['Result'].iloc[0]
                 if ret < 0:
                     ret = abs(ret)
-                    tot = ((ret ** period) * 100) * -1
+                    tot = (((ret ** period) - 1) * 100) * -1
                     ar.append(tot)
                 else:
-                    ar.append(((ret ** period) * 100))
+                    ar.append((((ret ** period) - 1) * 100))
 
         return ar
 
@@ -145,7 +214,7 @@ class Analysis:
         max_positive, min_positive = [], []
         max_negative, min_negative = [], []
         for i in df.columns:
-            if i == 'Total_Trades':
+            if i == 'Result':
                 max_positive.append(df[i].diff()[df[i].diff() > 0].max())
                 min_positive.append(df[i].diff()[df[i].diff() > 0].min())
                 max_negative.append(df[i].diff()[df[i].diff() < 0].max())

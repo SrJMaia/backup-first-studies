@@ -19,7 +19,7 @@ class Central(Signals, Analysis):
 
     def clean_results(self, tot, sell, buy, each_pair):
         df = pd.DataFrame()
-        df['Total_Trades'] = pd.Series(np.delete(tot, np.where(tot == 0.)))
+        df['Result'] = pd.Series(np.delete(tot, np.where(tot == 0.)))
         df['Short_Trades'] = pd.Series(np.delete(sell, np.where(sell == 0.)))
         df['Long_Trades'] = pd.Series(np.delete(buy, np.where(buy == 0.)))
         for index, value in enumerate(each_pair):
