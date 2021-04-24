@@ -1,7 +1,5 @@
 import numpy as np
 from numba import njit
-from math import sqrt
-
 
 @njit
 def finance_calculation(balance, saldo_inicial, saldo_final, preco_eur, eur):
