@@ -36,6 +36,13 @@ class MetaTrader:
 
 
     def mt_get_data_count(self, symbol, start, end, time_frame, data_type='open'):
+        """
+        symbol = ativo
+        start = 0 = hoje
+        end = x -> int de quantos dados no passado deseja
+        time_frame = str exemplos em tf
+        data_type = retorn apenas open
+        """
         tf = {'M1':mt5.TIMEFRAME_M1, 'M5':mt5.TIMEFRAME_M5, 'M15':mt5.TIMEFRAME_M15,
               'M30':mt5.TIMEFRAME_M30, 'H1':mt5.TIMEFRAME_H1, 'H4':mt5.TIMEFRAME_H4,
               'D1':mt5.TIMEFRAME_D1, 'W1':mt5.TIMEFRAME_W1}

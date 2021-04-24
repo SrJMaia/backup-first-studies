@@ -2,6 +2,110 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+class Analysis:
+
+    def analysis_backtest(self, df):
+        period = len(self.get_normal_data())
+        if period < 4000:
+            print('Period data set D1')
+            period /= 365
+        elif period > 4000 and period < 24000:
+            print('Period data set H4')
+            period = period / 6 / 365
+        elif l > 24000 and period < 96000:
+            print('Period data set H1')
+            period = period / 24 / 365
+
+        self.period_data = period
+
+        analy = pd.DataFrame()
+        analy['Analises'] = np.nan
+        analy[df.columns] = np.nan
+        analy.set_index('Analises', inplace=True)
+        analy = analy.T
+
+        max_pos, min_pos, max_neg, min_neg = self.max_min(df)
+        analy['Largest_Win_€'] = max_pos
+        analy['Smallest_Win_€'] = min_pos
+        analy['Largest_Loss_€'] = max_neg
+        analy['Smallest_Loss_€'] = min_neg
+
+        ar = self.annualized_return(df)
+        analy['Annualized_Return_%'] = ar
+
+        trades_year = self.count_trades(df)
+        analy['Average_Trades_Per_Year'] = trades_year
+
+        win_percent = self.win_percent_rate(df)
+        analy['Average_Win_Rate_%'] = win_percent
+
+        return analy
+
+
+    @staticmethod
+    def win_percent_rate(df):
+        count = []
+        for i in df.columns:
+            if i == 'Total_Trades':
+                count.append(df[i].diff()[df[i].diff() > 0].count() / df[i].count() * 100)
+            else:
+                count.append(df[i][df[i] > 0].count() / df[i].count() * 100)
+        return count
+
+
+    @staticmethod
+    def count_trades(df):
+        count = []
+        for i in df.columns:
+            count.append(df[i].dropna().count() / 365)
+        return count
+
+
+    def annualized_return(self, df):
+
+        period = 1 / self.period_data
+
+        ar = []
+
+        for i in df.columns:
+            if i == 'Total_Trades':
+                ret = df['Total_Trades'].iloc[-1] / df['Total_Trades'].iloc[0]
+                if ret < 0:
+                    ret = abs(ret)
+                    tot = (((ret ** period) - 1) * 100) * -1
+                    ar.append(tot)
+                else:
+                    ar.append((((ret ** period) - 1) * 100))
+            else:
+                ret = df[i].sum() / df['Total_Trades'].iloc[0]
+                if ret < 0:
+                    ret = abs(ret)
+                    tot = ((ret ** period) * 100) * -1
+                    ar.append(tot)
+                else:
+                    ar.append(((ret ** period) * 100))
+
+        return ar
+
+
+    @staticmethod
+    def max_min(df):
+        max_positive, min_positive = [], []
+        max_negative, min_negative = [], []
+        for i in df.columns:
+            if i == 'Total_Trades':
+                max_positive.append(df[i].diff()[df[i].diff() > 0].max())
+                min_positive.append(df[i].diff()[df[i].diff() > 0].min())
+                max_negative.append(df[i].diff()[df[i].diff() < 0].max())
+                min_negative.append(df[i].diff()[df[i].diff() < 0].min())
+            else:
+                max_positive.append(df[i][df[i] > 0].max())
+                min_positive.append(df[i][df[i] > 0].min())
+                max_negative.append(df[i][df[i] < 0].max())
+                min_negative.append(df[i][df[i] < 0].min())
+        return max_positive, min_positive, max_negative, min_negative
+
+
 def compare(test_columns):
 
     # Futurametne arrumar isso

@@ -31,6 +31,10 @@ class Data(MetaTrader, Pairs):
         self.__numpy_normal_data = self.pandas_to_array(self.get_normal_data())
 
 
+    def del_numpy_normal_data(self):
+        del self.__numpy_normal_data
+
+
     def get_numpy_normal_data(self):
         return self.__numpy_normal_data
 
