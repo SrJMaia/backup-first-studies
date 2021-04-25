@@ -172,6 +172,7 @@ class Central(Signals, Analysis):
                     tot = self.clean_results(tot, sell, buy, each_pair)
                     results_walk[j] = tot['Result']
                     wfe_is[j] = self.wfe(tot['Result'])
+                self.del_numpy_big_data()
                 if plot:
                     try:
                         results_walk.plot()
@@ -181,7 +182,6 @@ class Central(Signals, Analysis):
                     except TypeError:
                         print('Apenas prejuízos')
                 wfe_is = np.delete(wfe_is, np.where(wfe_is == 0.))
-                self.del_numpy_big_data()
 
                 # Out of Sample
                 results_out = pd.DataFrame()
@@ -199,6 +199,7 @@ class Central(Signals, Analysis):
                     tot = self.clean_results(tot, sell, buy, each_pair)
                     results_out[j] = tot['Result']
                     wfe_oos[j] = self.wfe(tot['Result'])
+                self.del_numpy_big_data()
                 if plot:
                     try:
                         results_out.plot()
@@ -212,7 +213,6 @@ class Central(Signals, Analysis):
                 wfe_tot[str(c)] = pd.Series(wfe_oos / wfe_is)
 
                 c += 1
-                self.del_numpy_big_data()
 
                 # Live
                 if i == len(self.get_normal_walk_forward())-2:
@@ -229,6 +229,7 @@ class Central(Signals, Analysis):
                                                                                     multiply_sl=multiply_sl)
                         tot = self.clean_results(tot, sell, buy, each_pair)
                         live[j] = tot['Result']
+                    self.del_numpy_big_data()
                     if plot:
                         try:
                             live.plot()
@@ -237,7 +238,6 @@ class Central(Signals, Analysis):
                             plt.show()
                         except TypeError:
                             print('Apenas prejuízos')
-            self.del_numpy_normal_data()
             return wfe_tot
         else:
             self.big_data_to_array()
