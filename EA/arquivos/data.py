@@ -403,34 +403,34 @@ class Data(MetaTrader, Pairs):
 
         array = np.array(
                 [
-                    np.transpose(np.array(data[['EURCHF_Open','EURCHF_buy','EURCHF_sell','EURCHF_Open','EURCHF_High','EURCHF_Low']])),
-                    np.transpose(np.array(data[['EURGBP_Open','EURGBP_buy','EURGBP_sell','EURGBP_Open','EURGBP_High','EURGBP_Low']])),
-                    np.transpose(np.array(data[['EURJPY_Open','EURJPY_buy','EURJPY_sell','EURJPY_Open','EURJPY_High','EURJPY_Low']])),
-                    np.transpose(np.array(data[['EURNZD_Open','EURNZD_buy','EURNZD_sell','EURNZD_Open','EURNZD_High','EURNZD_Low']])),
-                    np.transpose(np.array(data[['EURUSD_Open','EURUSD_buy','EURUSD_sell','EURUSD_Open','EURUSD_High','EURUSD_Low']])),
-                    np.transpose(np.array(data[['EURAUD_Open','EURAUD_buy','EURAUD_sell','EURAUD_Open','EURAUD_High','EURAUD_Low']])),
-                    np.transpose(np.array(data[['EURCAD_Open','EURCAD_buy','EURCAD_sell','EURCAD_Open','EURCAD_High','EURCAD_Low']])),
-                    np.transpose(np.array(data[['GBPAUD_Open','GBPAUD_buy','GBPAUD_sell','EURAUD_Open','GBPAUD_High','GBPAUD_Low']])),
-                    np.transpose(np.array(data[['GBPCHF_Open','GBPCHF_buy','GBPCHF_sell','EURCHF_Open','GBPCHF_High','GBPCHF_Low']])),
-                    np.transpose(np.array(data[['GBPJPY_Open','GBPJPY_buy','GBPJPY_sell','EURJPY_Open','GBPJPY_High','GBPJPY_Low']])),
-                    np.transpose(np.array(data[['GBPCAD_Open','GBPCAD_buy','GBPCAD_sell','EURCAD_Open','GBPCAD_High','GBPCAD_Low']])),
-                    np.transpose(np.array(data[['GBPUSD_Open','GBPUSD_buy','GBPUSD_sell','EURUSD_Open','GBPUSD_High','GBPUSD_Low']])),
-                    np.transpose(np.array(data[['GBPNZD_Open','GBPNZD_buy','GBPNZD_sell','EURNZD_Open','GBPNZD_High','GBPNZD_Low']])),
-                    np.transpose(np.array(data[['USDCHF_Open','USDCHF_buy','USDCHF_sell','EURCHF_Open','USDCHF_High','USDCHF_Low']])),
-                    np.transpose(np.array(data[['USDJPY_Open','USDJPY_buy','USDJPY_sell','EURJPY_Open','USDJPY_High','USDJPY_Low']])),
-                    np.transpose(np.array(data[['AUDUSD_Open','AUDUSD_buy','AUDUSD_sell','EURUSD_Open','AUDUSD_High','AUDUSD_Low']])),
-                    np.transpose(np.array(data[['NZDUSD_Open','NZDUSD_buy','NZDUSD_sell','EURUSD_Open','NZDUSD_High','NZDUSD_Low']])),
-                    np.transpose(np.array(data[['USDCAD_Open','USDCAD_buy','USDCAD_sell','EURCAD_Open','USDCAD_High','USDCAD_Low']])),
-                    np.transpose(np.array(data[['AUDJPY_Open','AUDJPY_buy','AUDJPY_sell','EURJPY_Open','AUDJPY_High','AUDJPY_Low']])),
-                    np.transpose(np.array(data[['CADJPY_Open','CADJPY_buy','CADJPY_sell','EURJPY_Open','CADJPY_High','CADJPY_Low']])),
-                    np.transpose(np.array(data[['CHFJPY_Open','CHFJPY_buy','CHFJPY_sell','EURJPY_Open','CHFJPY_High','CHFJPY_Low']])),
-                    np.transpose(np.array(data[['NZDJPY_Open','NZDJPY_buy','NZDJPY_sell','EURJPY_Open','NZDJPY_High','NZDJPY_Low']])),
-                    np.transpose(np.array(data[['AUDCHF_Open','AUDCHF_buy','AUDCHF_sell','EURCHF_Open','AUDCHF_High','AUDCHF_Low']])),
-                    np.transpose(np.array(data[['CADCHF_Open','CADCHF_buy','CADCHF_sell','EURCHF_Open','CADCHF_High','CADCHF_Low']])),
-                    np.transpose(np.array(data[['NZDCHF_Open','NZDCHF_buy','NZDCHF_sell','EURCHF_Open','NZDCHF_High','NZDCHF_Low']])),
-                    np.transpose(np.array(data[['AUDNZD_Open','AUDNZD_buy','AUDNZD_sell','EURNZD_Open','AUDNZD_High','AUDNZD_Low']])),
-                    np.transpose(np.array(data[['NZDCAD_Open','NZDCAD_buy','NZDCAD_sell','EURCAD_Open','NZDCAD_High','NZDCAD_Low']])),
-                    np.transpose(np.array(data[['AUDCAD_Open','AUDCAD_buy','AUDCAD_sell','EURCAD_Open','AUDCAD_High','AUDCAD_Low']])),
+                    np.transpose(np.array(data[['EURCHF_Open','EURCHF_buy','EURCHF_sell','EURCHF_High','EURCHF_Low']])),
+                    np.transpose(np.array(data[['EURGBP_Open','EURGBP_buy','EURGBP_sell','EURGBP_High','EURGBP_Low']])),
+                    np.transpose(np.array(data[['EURJPY_Open','EURJPY_buy','EURJPY_sell','EURJPY_High','EURJPY_Low']])),
+                    np.transpose(np.array(data[['EURNZD_Open','EURNZD_buy','EURNZD_sell','EURNZD_High','EURNZD_Low']])),
+                    np.transpose(np.array(data[['EURUSD_Open','EURUSD_buy','EURUSD_sell','EURUSD_High','EURUSD_Low']])),
+                    np.transpose(np.array(data[['EURAUD_Open','EURAUD_buy','EURAUD_sell','EURAUD_High','EURAUD_Low']])),
+                    np.transpose(np.array(data[['EURCAD_Open','EURCAD_buy','EURCAD_sell','EURCAD_High','EURCAD_Low']])),
+                    np.transpose(np.array(data[['GBPAUD_Open','GBPAUD_buy','GBPAUD_sell','GBPAUD_High','GBPAUD_Low']])),
+                    np.transpose(np.array(data[['GBPCHF_Open','GBPCHF_buy','GBPCHF_sell','GBPCHF_High','GBPCHF_Low']])),
+                    np.transpose(np.array(data[['GBPJPY_Open','GBPJPY_buy','GBPJPY_sell','GBPJPY_High','GBPJPY_Low']])),
+                    np.transpose(np.array(data[['GBPCAD_Open','GBPCAD_buy','GBPCAD_sell','GBPCAD_High','GBPCAD_Low']])),
+                    np.transpose(np.array(data[['GBPUSD_Open','GBPUSD_buy','GBPUSD_sell','GBPUSD_High','GBPUSD_Low']])),
+                    np.transpose(np.array(data[['GBPNZD_Open','GBPNZD_buy','GBPNZD_sell','GBPNZD_High','GBPNZD_Low']])),
+                    np.transpose(np.array(data[['USDCHF_Open','USDCHF_buy','USDCHF_sell','USDCHF_High','USDCHF_Low']])),
+                    np.transpose(np.array(data[['USDJPY_Open','USDJPY_buy','USDJPY_sell','USDJPY_High','USDJPY_Low']])),
+                    np.transpose(np.array(data[['AUDUSD_Open','AUDUSD_buy','AUDUSD_sell','AUDUSD_High','AUDUSD_Low']])),
+                    np.transpose(np.array(data[['NZDUSD_Open','NZDUSD_buy','NZDUSD_sell','NZDUSD_High','NZDUSD_Low']])),
+                    np.transpose(np.array(data[['USDCAD_Open','USDCAD_buy','USDCAD_sell','USDCAD_High','USDCAD_Low']])),
+                    np.transpose(np.array(data[['AUDJPY_Open','AUDJPY_buy','AUDJPY_sell','AUDJPY_High','AUDJPY_Low']])),
+                    np.transpose(np.array(data[['CADJPY_Open','CADJPY_buy','CADJPY_sell','CADJPY_High','CADJPY_Low']])),
+                    np.transpose(np.array(data[['CHFJPY_Open','CHFJPY_buy','CHFJPY_sell','CHFJPY_High','CHFJPY_Low']])),
+                    np.transpose(np.array(data[['NZDJPY_Open','NZDJPY_buy','NZDJPY_sell','NZDJPY_High','NZDJPY_Low']])),
+                    np.transpose(np.array(data[['AUDCHF_Open','AUDCHF_buy','AUDCHF_sell','AUDCHF_High','AUDCHF_Low']])),
+                    np.transpose(np.array(data[['CADCHF_Open','CADCHF_buy','CADCHF_sell','CADCHF_High','CADCHF_Low']])),
+                    np.transpose(np.array(data[['NZDCHF_Open','NZDCHF_buy','NZDCHF_sell','NZDCHF_High','NZDCHF_Low']])),
+                    np.transpose(np.array(data[['AUDNZD_Open','AUDNZD_buy','AUDNZD_sell','AUDNZD_High','AUDNZD_Low']])),
+                    np.transpose(np.array(data[['NZDCAD_Open','NZDCAD_buy','NZDCAD_sell','NZDCAD_High','NZDCAD_Low']])),
+                    np.transpose(np.array(data[['AUDCAD_Open','AUDCAD_buy','AUDCAD_sell','AUDCAD_High','AUDCAD_Low']])),
                 ], dtype=np.float64)
         return array
 
@@ -445,9 +445,9 @@ class Data(MetaTrader, Pairs):
         comp = len(self.get_normal_data())
         lista = []
         initial = 0.
-        final = 0.65
+        final = 0.7
         step = 0.05
-        c_final = int((final-step)/step)
+        c_final = int(final/step)
         for i in np.arange(initial, final, step):
             if c == 0:
                 array = self.pandas_to_array(self.get_normal_data()[:int(comp*0.15)])
@@ -455,8 +455,9 @@ class Data(MetaTrader, Pairs):
                 array = self.pandas_to_array(self.get_normal_data()[int(comp*0.15):int(comp*0.2)])
                 lista.append(array)
             elif c == c_final:
-                array = self.pandas_to_array(self.get_normal_data()[int(comp*(i+0.2)):])
+                array = self.pandas_to_array(self.get_normal_data()[int(comp*(i+0.15)):])
                 lista.append(array)
+                break
             else:
                 array = self.pandas_to_array(self.get_normal_data()[int(comp*i):int(comp*(i+0.15))])
                 lista.append(array)
