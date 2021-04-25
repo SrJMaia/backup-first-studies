@@ -47,7 +47,10 @@ class Central(Signals, Analysis):
                 # In Sample
                 for j in range(2, 31):
                     self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i-1])
-                    tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i-1], tpsl_series=self.slcalc, multiply_tp=multiply_tp, multiply_sl=multiply_sl)
+                    tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i-1],
+                                                                    tpsl_series=self.slcalc,
+                                                                    multiply_tp=multiply_tp,
+                                                                    multiply_sl=multiply_sl)
                     tot = self.clean_results(tot, sell, buy, each_pair)
                     results_walk[j] = tot['Result']
                     wfe_is[j] = self.wfe(tot['Result'])
@@ -66,7 +69,10 @@ class Central(Signals, Analysis):
                 wfe_oos = np.zeros((31),dtype=np.float64)
                 for j in range(2, 31):
                     self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i])
-                    tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i], tpsl_series=self.slcalc, multiply_tp=multiply_tp, multiply_sl=multiply_sl)
+                    tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i],
+                                                                    tpsl_series=self.slcalc,
+                                                                    multiply_tp=multiply_tp,
+                                                                    multiply_sl=multiply_sl)
                     tot = self.clean_results(tot, sell, buy, each_pair)
                     results_out[j] = tot['Result']
                     wfe_oos[j] = self.wfe(tot['Result'])
@@ -89,7 +95,10 @@ class Central(Signals, Analysis):
                     live = pd.DataFrame()
                     for j in range(2,31):
                         self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i+1])
-                        tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i+1], tpsl_series=self.slcalc, multiply_tp=multiply_tp, multiply_sl=multiply_sl)
+                        tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i+1],
+                                                                        tpsl_series=self.slcalc,
+                                                                        multiply_tp=multiply_tp,
+                                                                        multiply_sl=multiply_sl)
                         tot = self.clean_results(tot, sell, buy, each_pair)
                         live[j] = tot['Result']
                     if plot:
@@ -100,13 +109,15 @@ class Central(Signals, Analysis):
                             plt.show()
                         except TypeError:
                             print('Apenas prejuízos')
-
+            self.del_numpy_normal_data()
             return wfe_tot
-
         else:
             self.normal_data_to_array()
             self.tpsl_calculation(tpsl_mean)
-            tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_numpy_normal_data(), tpsl_series=self.slcalc, multiply_tp=multiply_tp, multiply_sl=multiply_sl)
+            tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_numpy_normal_data(),
+                                                            tpsl_series=self.slcalc,
+                                                            multiply_tp=multiply_tp,
+                                                            multiply_sl=multiply_sl)
             self.del_numpy_normal_data()
             if analyse:
                 return self.analysis_backtest(self.clean_results(tot, sell, buy, each_pair))
@@ -122,13 +133,13 @@ class Central(Signals, Analysis):
         buy_orders
         each_pair = resultado de cada par
         """
-        robot.normal_data_to_array()
+        self.normal_data_to_array()
         tot, sell, buy, each_pair =  bt.otimizado_no_tpsl(self.get_numpy_normal_data())
         self.del_numpy_normal_data()
         return self.clean_results(tot, sell, buy, each_pair)
 
 
-    def back_big_tpsl_ohl(self, multiply_tp, multiply_sl, tpsl_mean=14, multi_test=False, plot=False):
+    def back_big_tpsl_ohl(self, multiply_tp, multiply_sl, tpsl_mean=14, analyse=True, multi_test=False, plot=False):
         """
         Cuidar no split, de big data pois usa len(data normal)
         tem que haver uma divisão inteira, caso contrario sera criado
@@ -140,15 +151,27 @@ class Central(Signals, Analysis):
         each_pair = resultado de cada par
         """
         if multi_test:
+            self.set_period()
             self.walk_forward_split()
-            bests_out_sample = []
+            wfe_tot = pd.DataFrame()
+            c = 0
             for i in range(1,len(self.get_normal_walk_forward()),2):
                 results_walk = pd.DataFrame()
-                for j in tpsl:
-                    tpsl_calculation(j)
-                    tot, _, _, _ =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i-1], j, multiply_tpsl)
-                    tot = np.delete(tot, np.where(tot == 0.))
-                    results_walk[j] = pd.Series(tot)
+                wfe_is = np.zeros((31),dtype=np.float64)
+                self.big_data_to_array_wfa(comp=len(self.get_normal_walk_forward()[i-1][0][0]),
+                                                    start=self.index_list_wfa[c][0][0],
+                                                    stop=self.index_list_wfa[c][0][1])
+                # In Sample
+                for j in range(2, 31):
+                    self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i-1])
+                    tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i-1],
+                                                                                self.get_numpy_big_data(),
+                                                                                tpsl_series=self.slcalc,
+                                                                                multiply_tp=multiply_tp,
+                                                                                multiply_sl=multiply_sl)
+                    tot = self.clean_results(tot, sell, buy, each_pair)
+                    results_walk[j] = tot['Result']
+                    wfe_is[j] = self.wfe(tot['Result'])
                 if plot:
                     try:
                         results_walk.plot()
@@ -157,30 +180,55 @@ class Central(Signals, Analysis):
                         plt.show()
                     except TypeError:
                         print('Apenas prejuízos')
+                wfe_is = np.delete(wfe_is, np.where(wfe_is == 0.))
+                self.del_numpy_big_data()
 
+                # Out of Sample
                 results_out = pd.DataFrame()
-                for j in results_walk.columns:
-                    tpsl_calculation(j)
-                    tot, _, _, _ =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i], j, multiply_tpsl)
-                    tot = np.delete(tot, np.where(tot == 0.))
-                    results_out[j] = pd.Series(tot)
+                wfe_oos = np.zeros((31),dtype=np.float64)
+                self.big_data_to_array_wfa(comp=len(self.get_normal_walk_forward()[i-1][0][0]),
+                                                    start=self.index_list_wfa[c][1][0],
+                                                    stop=self.index_list_wfa[c][1][1])
+                for j in range(2, 31):
+                    self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i])
+                    tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i],
+                                                                                self.get_numpy_big_data(),
+                                                                                tpsl_series=self.slcalc,
+                                                                                multiply_tp=multiply_tp,
+                                                                                multiply_sl=multiply_sl)
+                    tot = self.clean_results(tot, sell, buy, each_pair)
+                    results_out[j] = tot['Result']
+                    wfe_oos[j] = self.wfe(tot['Result'])
                 if plot:
                     try:
                         results_out.plot()
                         plt.title(f'Out Sample {i}', fontsize=30)
                         plt.grid()
                         plt.show()
-                        bests_out_sample.append(results_out.columns)
                     except TypeError:
                         print('Apenas prejuízos')
+                wfe_oos = np.delete(wfe_oos, np.where(wfe_oos == 0.))
 
+                wfe_tot[str(c)] = pd.Series(wfe_oos / wfe_is)
+
+                c += 1
+                self.del_numpy_big_data()
+
+                # Live
                 if i == len(self.get_normal_walk_forward())-2:
-                    x = af.compare(bests_out_sample)
                     live = pd.DataFrame()
-                    for j in x:
-                        tot, _, _, _ =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i+1], j, multiply_tpsl)
-                        tot = np.delete(tot, np.where(tot == 0.))
-                        live[j] = pd.Series(tot)
+                    self.big_data_to_array_wfa(comp=len(self.get_normal_walk_forward()[i-1][0][0]),
+                                                start=self.index_list_wfa[c][0][0],
+                                                stop=self.index_list_wfa[c][0][1])
+                    for j in range(2,31):
+                        self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i+1])
+                        tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i+1],
+                                                                                    self.get_numpy_big_data(),
+                                                                                    tpsl_series=self.slcalc,
+                                                                                    multiply_tp=multiply_tp,
+                                                                                    multiply_sl=multiply_sl)
+                        tot = self.clean_results(tot, sell, buy, each_pair)
+                        live[j] = tot['Result']
                     if plot:
                         try:
                             live.plot()
@@ -189,9 +237,20 @@ class Central(Signals, Analysis):
                             plt.show()
                         except TypeError:
                             print('Apenas prejuízos')
-        else:
-            self.normal_data_to_array()
-            tpsl_calculation(tpsl_mean)
-            tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_numpy_normal_data(), self.get_numpy_big_data(), tpsl_series=self.slcalc, multiply_tp=multiply_tp, multiply_sl=multiply_sl)
             self.del_numpy_normal_data()
-            return self.clean_results(tot, sell, buy, each_pair)
+            return wfe_tot
+        else:
+            self.big_data_to_array()
+            self.normal_data_to_array()
+            self.tpsl_calculation(tpsl_mean)
+            tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_numpy_normal_data(),
+                                                                        self.get_numpy_big_data(),
+                                                                        tpsl_series=self.slcalc,
+                                                                        multiply_tp=multiply_tp,
+                                                                        multiply_sl=multiply_sl)
+            self.del_numpy_normal_data()
+            self.del_numpy_big_data()
+            if analyse:
+                return self.analysis_backtest(self.clean_results(tot, sell, buy, each_pair))
+            else:
+                return self.clean_results(tot, sell, buy, each_pair)

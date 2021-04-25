@@ -9,17 +9,22 @@ class Analysis:
 
     def set_period(self):
         period = len(self.get_normal_data())
+        division = 0
         if period < 4000:
             print('Period data set D1')
             period /= 365
+            division = 1440
         elif period > 4000 and period < 24000:
             print('Period data set H4')
             period = period / 6 / 365
+            division = 240
         elif l > 24000 and period < 96000:
             print('Period data set H1')
             period = period / 24 / 365
+            division = 60
 
         self.period_data = period
+        self.division_big_data = division
 
 
     def analysis_backtest(self, df):
