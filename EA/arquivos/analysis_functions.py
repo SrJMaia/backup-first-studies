@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from IPython.display import clear_output
 
 class Analysis:
     """
@@ -12,16 +13,18 @@ class Analysis:
         division = 0
         if period < 4000:
             print('Period data set D1')
-            period = 250 / period
+            period = 365 / period
             division = 1440
         elif period > 4000 and period < 24000:
             print('Period data set H4')
-            period = 250 / (period / 6)
+            period = 365 / (period / 6)
             division = 240
         elif l > 24000 and period < 96000:
             print('Period data set H1')
-            period = 250 / (period / 24)
+            period = 365 / (period / 24)
             division = 60
+
+        clear_output(wait=True)
 
         self.period_data = period
         self.division_big_data = division
@@ -89,7 +92,7 @@ class Analysis:
         #((averagewin*(numberofwins-(numberofwins**0.5))) - (averageloss*(numberofloss+(numberofloss**0.5))))
 
         self.del_period_data()
-        
+
         return analy
 
 
@@ -241,6 +244,30 @@ class Analysis:
             max_negative.append(df[i].diff()[df[i].diff() < 0].max())
             min_negative.append(df[i].diff()[df[i].diff() < 0].min())
         return max_positive, min_positive, max_negative, min_negative
+
+
+    @staticmethod
+    def pre_monte_carlo_simulation(series):
+        df = pd.DataFrame()
+        df['Capital'] = series
+        df['Diff'] = df['Capital'].diff()
+        df['Net_Profit'] = df['Diff'].cumsum()
+
+        return df['Net_Profit']
+
+
+    def monte_carlo_simulation(self, series, times):
+        """
+        series = pandas series
+        times = int > 0 | quantidade de vezes para simulação
+        return
+        dataframe com as simulações
+        """
+        df = pd.DataFrame()
+        for i in np.arange(times):
+            df_random = series.sample(frac=1).reset_index(drop=True)
+            df[i] = self.pre_monte_carlo_simulation(df_random)
+
 
 
 def compare(test_columns):

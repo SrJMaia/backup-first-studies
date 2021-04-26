@@ -26,6 +26,30 @@ class Signals(Indicators):
 
         self.slcalc = calc.values.T
 
+
+    def tpsl_calculation_otimization(self, periodo):
+
+        data = super().get_normal_data()
+        calc = pd.DataFrame()
+
+        for i in range(len(super().ALL_PAIRS_BUY)):
+
+            at = pd.DataFrame()
+
+            high = data[super().ALL_PAIRS_HIGH[i]].shift()
+            low = data[super().ALL_PAIRS_LOW[i]].shift()
+            close = data[super().ALL_PAIRS_CLOSE[i]].shift(2)
+
+            at['a1'] = high-low
+            at['a2'] = abs(high - close)
+            at['a3'] = abs(low - close)
+            atr = pd.Series(at.values.max(1)).rolling(periodo).mean()
+
+            data[super().ALL_PAIRS_TPSL[i]] = atr.fillna(atr.mean())
+
+        super().set_normal_data(data)
+
+
     def tpsl_calculation_wfe(self, periodo, array):
 
         calc = pd.DataFrame()

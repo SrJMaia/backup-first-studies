@@ -25,7 +25,7 @@ def finance_calculation(balance, saldo_inicial, saldo_final, preco_eur, eur):
 
 
 @njit(parallel=True)
-def otimizado_tpsl(series, tpsl_series, multiply_tp, multiply_sl, balance=1000):
+def otimizado_tpsl(series, multiply_tp, multiply_sl, balance=1000):
     """
     tpsl = TakeProfit e StopLoss int > 0
     multiply_tpsl = float > 0
@@ -92,14 +92,14 @@ def otimizado_tpsl(series, tpsl_series, multiply_tp, multiply_sl, balance=1000):
                 operacoes[h][0] = series[h][0][i]
                 buy_sell[h][0] = False
                 if check_eur_jpy[h][1]:
-                    operacoes[h][4] = series[h][0][i] + round(multiply_tp * tpsl_series[h][i],3) # TP
+                    operacoes[h][4] = series[h][0][i] + round(multiply_tp * series[h][5][i],3) # TP
                     #operacoes[h][4] = series[h][0][i] + tk_jpy
-                    operacoes[h][5] = series[h][0][i] - round(multiply_sl * tpsl_series[h][i],3) # SL
+                    operacoes[h][5] = series[h][0][i] - round(multiply_sl * series[h][5][i],3) # SL
                     #operacoes[h][5] = series[h][0][i] - sl_jpy
                 else:
-                    operacoes[h][4] = series[h][0][i] + round(multiply_tp * tpsl_series[h][i],5) # TP
+                    operacoes[h][4] = series[h][0][i] + round(multiply_tp * series[h][5][i],5) # TP
                     #operacoes[h][4] = series[h][0][i] + tk_normal
-                    operacoes[h][5] = series[h][0][i] - round(multiply_sl * tpsl_series[h][i],5) # SL
+                    operacoes[h][5] = series[h][0][i] - round(multiply_sl * series[h][5][i],5) # SL
                     #operacoes[h][5] = series[h][0][i] - sl_normal
 
             if buy_sell[h][0] == False and series[h][0][i] <= operacoes[h][5]:
@@ -133,14 +133,14 @@ def otimizado_tpsl(series, tpsl_series, multiply_tp, multiply_sl, balance=1000):
                 operacoes[h][1] = series[h][0][i]
                 buy_sell[h][1] = False
                 if check_eur_jpy[h][1]:
-                    operacoes[h][2] = series[h][0][i] - round(multiply_tp * tpsl_series[h][i],3) # TP
+                    operacoes[h][2] = series[h][0][i] - round(multiply_tp * series[h][5][i],3) # TP
                     #operacoes[h][2] = series[h][0][i] - tk_jpy
-                    operacoes[h][3] = series[h][0][i] + round(multiply_sl * tpsl_series[h][i],3) # SL
+                    operacoes[h][3] = series[h][0][i] + round(multiply_sl * series[h][5][i],3) # SL
                     #operacoes[h][3] = series[h][0][i] + sl_jpy
                 else:
-                    operacoes[h][2] = series[h][0][i] - round(multiply_tp * tpsl_series[h][i],5) # TP
+                    operacoes[h][2] = series[h][0][i] - round(multiply_tp * series[h][5][i],5) # TP
                     #operacoes[h][2] = series[h][0][i] - tk_normal
-                    operacoes[h][3] = series[h][0][i] + round(multiply_sl * tpsl_series[h][i],5) # SL
+                    operacoes[h][3] = series[h][0][i] + round(multiply_sl * series[h][5][i],5) # SL
                     #operacoes[h][3] = series[h][0][i] + sl_normal
 
             if buy_sell[h][1] == False and series[h][0][i] >= operacoes[h][3]:
@@ -266,7 +266,7 @@ def otimizado_no_tpsl(series, balance=1000):
 
 
 @njit(parallel=True)
-def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_sl, balance=1000):
+def big_backtest_otimizado_tpsl(series, m1, multiply_tp, multiply_sl, balance=1000):
     """
     tpsl = TakeProfit e StopLoss int > 0
     multiply_tpsl = float > 0
@@ -334,14 +334,14 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_s
                     operacoes[h][0] = series[h][0][i]
                     buy_sell[h][0] = False
                     if check_eur_jpy[h][1]:
-                        operacoes[h][4] = series[h][0][i] + round(multiply_tp * tpsl_series[h][i],3) # TP
+                        operacoes[h][4] = series[h][0][i] + round(multiply_tp * series[h][5][i],3) # TP
                         #operacoes[h][4] = series[h][0][i] + tk_jpy
-                        operacoes[h][5] = series[h][0][i] - round(multiply_sl * tpsl_series[h][i],3) # SL
+                        operacoes[h][5] = series[h][0][i] - round(multiply_sl * series[h][5][i],3) # SL
                         #operacoes[h][5] = series[h][0][i] - sl_jpy
                     else:
-                        operacoes[h][4] = series[h][0][i] + round(multiply_tp * tpsl_series[h][i],5) # TP
+                        operacoes[h][4] = series[h][0][i] + round(multiply_tp * series[h][5][i],5) # TP
                         #operacoes[h][4] = series[h][0][i] + tk_normal
-                        operacoes[h][5] = series[h][0][i] - round(multiply_sl * tpsl_series[h][i],5) # SL
+                        operacoes[h][5] = series[h][0][i] - round(multiply_sl * series[h][5][i],5) # SL
                         #operacoes[h][5] = series[h][0][i] - sl_normal
 
                 check_buy_sl = (m1[h][0][i][super] <= operacoes[h][5]) or (m1[h][1][i][super] <= operacoes[h][5]) or (m1[h][2][i][super] <= operacoes[h][5]) or (m1[h][3][i][super] <= operacoes[h][5])
@@ -376,14 +376,14 @@ def big_backtest_otimizado_tpsl(series, m1, tpsl_series, multiply_tp, multiply_s
                     operacoes[h][1] = series[h][0][i]
                     buy_sell[h][1] = False
                     if check_eur_jpy[h][1]:
-                        operacoes[h][2] = series[h][0][i] - round(multiply_tp * tpsl_series[h][i],3) # TP
+                        operacoes[h][2] = series[h][0][i] - round(multiply_tp * series[h][5][i],3) # TP
                         #operacoes[h][2] = series[h][0][i] - tk_jpy
-                        operacoes[h][3] = series[h][0][i] + round(multiply_sl * tpsl_series[h][i],3) # SL
+                        operacoes[h][3] = series[h][0][i] + round(multiply_sl * series[h][5][i],3) # SL
                         #operacoes[h][3] = series[h][0][i] + sl_jpy
                     else:
-                        operacoes[h][2] = series[h][0][i] - round(multiply_tp * tpsl_series[h][i],5) # TP
+                        operacoes[h][2] = series[h][0][i] - round(multiply_tp * series[h][5][i],5) # TP
                         #operacoes[h][2] = series[h][0][i] - tk_normal
-                        operacoes[h][3] = series[h][0][i] + round(multiply_sl * tpsl_series[h][i],5) # SL
+                        operacoes[h][3] = series[h][0][i] + round(multiply_sl * series[h][5][i],5) # SL
                         #operacoes[h][3] = series[h][0][i] + sl_normal
 
                 check_sell_sl = (m1[h][0][i][super] >= operacoes[h][3]) or (m1[h][1][i][super] >= operacoes[h][3]) or (m1[h][2][i][super] >= operacoes[h][3]) or (m1[h][3][i][super] >= operacoes[h][3])

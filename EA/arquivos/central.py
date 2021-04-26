@@ -117,10 +117,9 @@ class Central(Signals, Analysis):
                             print('Apenas prejuízos')
             return wfe_tot
         else:
+            self.tpsl_calculation_otimization(tpsl_mean)
             self.normal_data_to_array()
-            self.tpsl_calculation(tpsl_mean)
             tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_numpy_normal_data(),
-                                                            tpsl_series=self.slcalc,
                                                             multiply_tp=multiply_tp,
                                                             multiply_sl=multiply_sl)
             self.del_numpy_normal_data()
@@ -250,16 +249,13 @@ class Central(Signals, Analysis):
                             print('Apenas prejuízos')
             return wfe_tot
         else:
-            self.big_data_to_array()
+            self.tpsl_calculation_otimization(tpsl_mean)
             self.normal_data_to_array()
-            self.tpsl_calculation(tpsl_mean)
             tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_numpy_normal_data(),
                                                                         self.get_numpy_big_data(),
-                                                                        tpsl_series=self.slcalc,
                                                                         multiply_tp=multiply_tp,
                                                                         multiply_sl=multiply_sl)
             self.del_numpy_normal_data()
-            self.del_numpy_big_data()
             if analyse:
                 return self.analysis_backtest(self.clean_results(tot, sell, buy, each_pair))
             else:
