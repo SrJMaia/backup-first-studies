@@ -37,14 +37,14 @@ class Central(Signals, Analysis):
         each_pair = resultado de cada par
         """
         if multi_test:
-            self.set_period()
             self.walk_forward_split()
             wfe_tot = pd.DataFrame()
             c = 0
             for i in range(1,len(self.get_normal_walk_forward()),2):
-                results_walk = pd.DataFrame()
-                wfe_is = np.zeros((31),dtype=np.float64)
                 # In Sample
+                results_in = pd.DataFrame()
+                wfe_is = np.zeros((31),dtype=np.float64)
+                self.set_period(len(self.get_normal_walk_forward()[i-1][0][0]))
                 for j in range(2, 31):
                     self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i-1])
                     tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i-1],
@@ -52,19 +52,21 @@ class Central(Signals, Analysis):
                                                                     multiply_tp=multiply_tp,
                                                                     multiply_sl=multiply_sl)
                     tot = self.clean_results(tot, sell, buy, each_pair)
-                    results_walk[j] = tot['Result']
+                    results_in[j] = tot['Result']
                     wfe_is[j] = self.wfe(tot['Result'])
                 if plot:
                     try:
-                        results_walk.plot()
+                        results_in.plot()
                         plt.title(f'In Sample {i-1}', fontsize=30)
                         plt.grid()
                         plt.show()
                     except TypeError:
                         print('Apenas prejuízos')
                 wfe_is = np.delete(wfe_is, np.where(wfe_is == 0.))
+                self.del_period_data()
 
                 # Out of Sample
+                self.set_period(len(self.get_normal_walk_forward()[i][0][0]))
                 results_out = pd.DataFrame()
                 wfe_oos = np.zeros((31),dtype=np.float64)
                 for j in range(2, 31):
@@ -85,6 +87,7 @@ class Central(Signals, Analysis):
                     except TypeError:
                         print('Apenas prejuízos')
                 wfe_oos = np.delete(wfe_oos, np.where(wfe_oos == 0.))
+                self.del_period_data()
 
                 wfe_tot[str(c)] = pd.Series(wfe_oos / wfe_is)
 
@@ -93,6 +96,7 @@ class Central(Signals, Analysis):
                 # Live
                 if i == len(self.get_normal_walk_forward())-2:
                     live = pd.DataFrame()
+                    self.set_period(len(self.get_normal_walk_forward()[i+1][0][0]))
                     for j in range(2,31):
                         self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i+1])
                         tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i+1],
@@ -101,6 +105,8 @@ class Central(Signals, Analysis):
                                                                         multiply_sl=multiply_sl)
                         tot = self.clean_results(tot, sell, buy, each_pair)
                         live[j] = tot['Result']
+                    self.del_normal_walk_forward()
+                    self.del_period_data()
                     if plot:
                         try:
                             live.plot()
@@ -109,7 +115,6 @@ class Central(Signals, Analysis):
                             plt.show()
                         except TypeError:
                             print('Apenas prejuízos')
-            self.del_numpy_normal_data()
             return wfe_tot
         else:
             self.normal_data_to_array()
@@ -151,17 +156,17 @@ class Central(Signals, Analysis):
         each_pair = resultado de cada par
         """
         if multi_test:
-            self.set_period()
             self.walk_forward_split()
             wfe_tot = pd.DataFrame()
             c = 0
             for i in range(1,len(self.get_normal_walk_forward()),2):
+                # In Sample
+                self.set_period(len(self.get_normal_walk_forward()[i-1][0][0]))
                 results_walk = pd.DataFrame()
                 wfe_is = np.zeros((31),dtype=np.float64)
                 self.big_data_to_array_wfa(comp=len(self.get_normal_walk_forward()[i-1][0][0]),
                                                     start=self.index_list_wfa[c][0][0],
                                                     stop=self.index_list_wfa[c][0][1])
-                # In Sample
                 for j in range(2, 31):
                     self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i-1])
                     tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i-1],
@@ -173,6 +178,7 @@ class Central(Signals, Analysis):
                     results_walk[j] = tot['Result']
                     wfe_is[j] = self.wfe(tot['Result'])
                 self.del_numpy_big_data()
+                self.del_period_data()
                 if plot:
                     try:
                         results_walk.plot()
@@ -184,6 +190,7 @@ class Central(Signals, Analysis):
                 wfe_is = np.delete(wfe_is, np.where(wfe_is == 0.))
 
                 # Out of Sample
+                self.set_period(len(self.get_normal_walk_forward()[i][0][0]))
                 results_out = pd.DataFrame()
                 wfe_oos = np.zeros((31),dtype=np.float64)
                 self.big_data_to_array_wfa(comp=len(self.get_normal_walk_forward()[i-1][0][0]),
@@ -200,6 +207,7 @@ class Central(Signals, Analysis):
                     results_out[j] = tot['Result']
                     wfe_oos[j] = self.wfe(tot['Result'])
                 self.del_numpy_big_data()
+                self.del_period_data()
                 if plot:
                     try:
                         results_out.plot()
@@ -217,6 +225,7 @@ class Central(Signals, Analysis):
                 # Live
                 if i == len(self.get_normal_walk_forward())-2:
                     live = pd.DataFrame()
+                    self.set_period(len(self.get_normal_walk_forward()[i+1][0][0]))
                     self.big_data_to_array_wfa(comp=len(self.get_normal_walk_forward()[i-1][0][0]),
                                                 start=self.index_list_wfa[c][0][0],
                                                 stop=self.index_list_wfa[c][0][1])
@@ -230,6 +239,7 @@ class Central(Signals, Analysis):
                         tot = self.clean_results(tot, sell, buy, each_pair)
                         live[j] = tot['Result']
                     self.del_numpy_big_data()
+                    self.del_period_data()
                     if plot:
                         try:
                             live.plot()

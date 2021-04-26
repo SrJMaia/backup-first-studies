@@ -43,6 +43,10 @@ class Data(MetaTrader, Pairs):
         return self.normal_walk_forward
 
 
+    def del_normal_walk_forward(self):
+        del self.normal_walk_forward
+
+
     # Big Data
     def get_big_data(self):
         return self.__big_data

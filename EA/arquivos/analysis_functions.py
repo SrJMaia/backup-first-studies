@@ -7,29 +7,33 @@ class Analysis:
     Bugs: Annualized Return e Pessimsitic ROR para os pares
     """
 
-    def set_period(self):
-        period = len(self.get_normal_data())
+    def set_period(self, length):
+        period = length
         division = 0
         if period < 4000:
             print('Period data set D1')
-            period /= 365
+            period = 250 / period
             division = 1440
         elif period > 4000 and period < 24000:
             print('Period data set H4')
-            period = period / 6 / 365
+            period = 250 / (period / 6)
             division = 240
         elif l > 24000 and period < 96000:
             print('Period data set H1')
-            period = period / 24 / 365
+            period = 250 / (period / 24)
             division = 60
 
         self.period_data = period
         self.division_big_data = division
 
 
+    def del_period_data(self):
+        del self.period_data
+
+
     def analysis_backtest(self, df):
 
-        self.set_period()
+        self.set_period(len(self.get_normal_data()))
 
         analy = pd.DataFrame()
         analy['Analises'] = np.nan
@@ -84,6 +88,8 @@ class Analysis:
 
         #((averagewin*(numberofwins-(numberofwins**0.5))) - (averageloss*(numberofloss+(numberofloss**0.5))))
 
+        self.del_period_data()
+        
         return analy
 
 
@@ -194,7 +200,7 @@ class Analysis:
 
     def annualized_return(self, df):
 
-        period = 1 / self.period_data
+        period = self.period_data
 
         ar = []
 
@@ -212,7 +218,7 @@ class Analysis:
 
     def wfe(self, series):
 
-        period = 1 / self.period_data
+        period = self.period_data
 
         wfe = 0
 
