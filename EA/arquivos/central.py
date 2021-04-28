@@ -48,7 +48,6 @@ class Central(Signals, Analysis):
                 for j in range(2, 31):
                     self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i-1])
                     tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i-1],
-                                                                    tpsl_series=self.slcalc,
                                                                     multiply_tp=multiply_tp,
                                                                     multiply_sl=multiply_sl)
                     tot = self.clean_results(tot, sell, buy, each_pair)
@@ -72,7 +71,6 @@ class Central(Signals, Analysis):
                 for j in range(2, 31):
                     self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i])
                     tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i],
-                                                                    tpsl_series=self.slcalc,
                                                                     multiply_tp=multiply_tp,
                                                                     multiply_sl=multiply_sl)
                     tot = self.clean_results(tot, sell, buy, each_pair)
@@ -100,7 +98,6 @@ class Central(Signals, Analysis):
                     for j in range(2,31):
                         self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i+1])
                         tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i+1],
-                                                                        tpsl_series=self.slcalc,
                                                                         multiply_tp=multiply_tp,
                                                                         multiply_sl=multiply_sl)
                         tot = self.clean_results(tot, sell, buy, each_pair)
@@ -170,7 +167,6 @@ class Central(Signals, Analysis):
                     self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i-1])
                     tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i-1],
                                                                                 self.get_numpy_big_data(),
-                                                                                tpsl_series=self.slcalc,
                                                                                 multiply_tp=multiply_tp,
                                                                                 multiply_sl=multiply_sl)
                     tot = self.clean_results(tot, sell, buy, each_pair)
@@ -199,7 +195,6 @@ class Central(Signals, Analysis):
                     self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i])
                     tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i],
                                                                                 self.get_numpy_big_data(),
-                                                                                tpsl_series=self.slcalc,
                                                                                 multiply_tp=multiply_tp,
                                                                                 multiply_sl=multiply_sl)
                     tot = self.clean_results(tot, sell, buy, each_pair)
@@ -232,7 +227,6 @@ class Central(Signals, Analysis):
                         self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i+1])
                         tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i+1],
                                                                                     self.get_numpy_big_data(),
-                                                                                    tpsl_series=self.slcalc,
                                                                                     multiply_tp=multiply_tp,
                                                                                     multiply_sl=multiply_sl)
                         tot = self.clean_results(tot, sell, buy, each_pair)
