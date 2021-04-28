@@ -12,17 +12,17 @@ class Analysis:
         period = length
         division = 0
         if period < 4000:
-            print('Period data set D1')
-            period = 365 / period
+            period = 250 / period
+            print(f'Period data set D1 | {period}')
             division = 1440
         elif period > 4000 and period < 24000:
-            print('Period data set H4')
-            period = 365 / (period / 6)
+            period = 250 / (period / 6)
             division = 240
+            print(f'Period data set H4 | {period}')
         elif l > 24000 and period < 96000:
-            print('Period data set H1')
-            period = 365 / (period / 24)
+            period = 250 / (period / 24)
             division = 60
+            print(f'Period data set H1 | {period}')
 
         clear_output(wait=True)
 
@@ -210,9 +210,7 @@ class Analysis:
         for i in df.columns:
             ret = df[i].dropna().iloc[-1] / df[i].iloc[0]
             if ret < 0:
-                ret = abs(ret)
-                tot = (((ret ** period) - 1) * 100) * -1
-                ar.append(tot)
+                ar.append((((abs(ret) ** period) - 1) * 100) * -1)
             else:
                 ar.append((((ret ** period) - 1) * 100))
 
