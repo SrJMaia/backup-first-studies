@@ -8,7 +8,7 @@ class Analysis:
     Bugs: Annualized Return e Pessimsitic ROR para os pares
     """
 
-    def set_period(self, length):
+    def set_period(self, length, multi=False):
         period = length
         division = 0
         if period < 4000:
@@ -24,7 +24,8 @@ class Analysis:
             division = 60
             print(f'Period data set H1 | {period}')
 
-        clear_output(wait=True)
+        if not multi:
+            clear_output(wait=True)
 
         self.period_data = period
         self.division_big_data = division

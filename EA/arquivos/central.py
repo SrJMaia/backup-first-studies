@@ -37,16 +37,24 @@ class Central(Signals, Analysis):
         each_pair = resultado de cada par
         """
         if multi_test:
-            self.walk_forward_split()
             wfe_tot = pd.DataFrame()
             c = 0
+            self.walk_forward_split()
+            """
+            Bug, e feito a operação duas vezes
+            """
             for i in range(1,len(self.get_normal_walk_forward()),2):
+                """
+                Mudar o len de i e passar um valro especifico
+                Criar um unico loop de 2 a 31
+                """
                 # In Sample
                 results_in = pd.DataFrame()
                 wfe_is = np.zeros((31),dtype=np.float64)
-                self.set_period(len(self.get_normal_walk_forward()[i-1][0][0]))
+                self.set_period(len(self.get_normal_walk_forward()[i-1][0][0]), multi=True)
                 for j in range(2, 31):
-                    self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i-1])
+                    self.tpsl_calculation_otimization(j)
+                    self.walk_forward_split()
                     tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i-1],
                                                                     multiply_tp=multiply_tp,
                                                                     multiply_sl=multiply_sl)
@@ -65,11 +73,12 @@ class Central(Signals, Analysis):
                 self.del_period_data()
 
                 # Out of Sample
-                self.set_period(len(self.get_normal_walk_forward()[i][0][0]))
+                self.set_period(len(self.get_normal_walk_forward()[i][0][0]), multi=True)
                 results_out = pd.DataFrame()
                 wfe_oos = np.zeros((31),dtype=np.float64)
                 for j in range(2, 31):
-                    self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i])
+                    self.tpsl_calculation_otimization(j)
+                    self.walk_forward_split()
                     tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i],
                                                                     multiply_tp=multiply_tp,
                                                                     multiply_sl=multiply_sl)
@@ -94,9 +103,10 @@ class Central(Signals, Analysis):
                 # Live
                 if i == len(self.get_normal_walk_forward())-2:
                     live = pd.DataFrame()
-                    self.set_period(len(self.get_normal_walk_forward()[i+1][0][0]))
+                    self.set_period(len(self.get_normal_walk_forward()[i+1][0][0]), multi=True)
+                    self.walk_forward_split()
                     for j in range(2,31):
-                        self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i+1])
+                        self.tpsl_calculation_otimization(j)
                         tot, sell, buy, each_pair =  bt.otimizado_tpsl(self.get_normal_walk_forward()[i+1],
                                                                         multiply_tp=multiply_tp,
                                                                         multiply_sl=multiply_sl)
@@ -152,19 +162,23 @@ class Central(Signals, Analysis):
         each_pair = resultado de cada par
         """
         if multi_test:
-            self.walk_forward_split()
             wfe_tot = pd.DataFrame()
             c = 0
+            self.walk_forward_split()
+            """
+            Bug, e feito a operação duas vezes
+            """
             for i in range(1,len(self.get_normal_walk_forward()),2):
                 # In Sample
-                self.set_period(len(self.get_normal_walk_forward()[i-1][0][0]))
+                self.set_period(len(self.get_normal_walk_forward()[i-1][0][0]), multi=True)
                 results_walk = pd.DataFrame()
                 wfe_is = np.zeros((31),dtype=np.float64)
                 self.big_data_to_array_wfa(comp=len(self.get_normal_walk_forward()[i-1][0][0]),
                                                     start=self.index_list_wfa[c][0][0],
                                                     stop=self.index_list_wfa[c][0][1])
                 for j in range(2, 31):
-                    self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i-1])
+                    self.tpsl_calculation_otimization(j)
+                    self.walk_forward_split()
                     tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i-1],
                                                                                 self.get_numpy_big_data(),
                                                                                 multiply_tp=multiply_tp,
@@ -185,14 +199,15 @@ class Central(Signals, Analysis):
                 wfe_is = np.delete(wfe_is, np.where(wfe_is == 0.))
 
                 # Out of Sample
-                self.set_period(len(self.get_normal_walk_forward()[i][0][0]))
+                self.set_period(len(self.get_normal_walk_forward()[i][0][0]), multi=True)
                 results_out = pd.DataFrame()
                 wfe_oos = np.zeros((31),dtype=np.float64)
                 self.big_data_to_array_wfa(comp=len(self.get_normal_walk_forward()[i-1][0][0]),
                                                     start=self.index_list_wfa[c][1][0],
                                                     stop=self.index_list_wfa[c][1][1])
                 for j in range(2, 31):
-                    self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i])
+                    self.tpsl_calculation_otimization(j)
+                    self.walk_forward_split()
                     tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i],
                                                                                 self.get_numpy_big_data(),
                                                                                 multiply_tp=multiply_tp,
@@ -219,12 +234,13 @@ class Central(Signals, Analysis):
                 # Live
                 if i == len(self.get_normal_walk_forward())-2:
                     live = pd.DataFrame()
-                    self.set_period(len(self.get_normal_walk_forward()[i+1][0][0]))
+                    self.set_period(len(self.get_normal_walk_forward()[i+1][0][0]), multi=True)
                     self.big_data_to_array_wfa(comp=len(self.get_normal_walk_forward()[i-1][0][0]),
                                                 start=self.index_list_wfa[c][0][0],
                                                 stop=self.index_list_wfa[c][0][1])
                     for j in range(2,31):
-                        self.tpsl_calculation_wfe(j, self.get_normal_walk_forward()[i+1])
+                        self.tpsl_calculation_otimization(j)
+                        self.walk_forward_split()
                         tot, sell, buy, each_pair =  bt.big_backtest_otimizado_tpsl(self.get_normal_walk_forward()[i+1],
                                                                                     self.get_numpy_big_data(),
                                                                                     multiply_tp=multiply_tp,
