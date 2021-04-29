@@ -266,6 +266,7 @@ class Analysis:
         for i in np.arange(times):
             df_random = series.sample(frac=1).reset_index(drop=True)
             df[i] = self.pre_monte_carlo_simulation(df_random)
+        return df
 
 
 

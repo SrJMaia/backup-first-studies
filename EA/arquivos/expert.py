@@ -51,9 +51,18 @@ class eaonline(Signals):
 
 
     def prepare(self):
-        self.get_data_mt5_count(0, self.get_final, self.tf, ea=True)
-        self.pct_data(self.pct_period)
-        self.main_online()
+        while True:
+            try:
+                self.get_data_mt5_count(0, self.get_final, self.tf, ea=True)
+                self.pct_data(self.pct_period)
+                self.main_online()
+                self.tpsl_online(10)
+                self.main_online()
+            except:
+                print('Erro a iniciar.')
+            else:
+                print('Iniciado.')
+                break
 
 
     def main_body(self):
@@ -74,21 +83,22 @@ class eaonline(Signals):
         if (self.get_new_normal_data().iloc[-1] == self.get_normal_data()[self.ALL_PAIRS_FOR_DF].iloc[-1]).sum() == 0:
             self.set_normal_data(pd.concat([self.get_normal_data()[self.ALL_PAIRS_FOR_DF],self.get_new_normal_data()]).reset_index(drop=True))
             self.pct_data()
-            self.balance_signal4()
+            self.main_online()
+            self.tpsl_online(10)
         else:
             print('Não há dados novos.')
 
         for i in self.control_dict:
             if self.get_normal_data()[self.control_dict[i]['buy_strategy']].iloc[-1] and self.control_dict[i]['buy']:
                 super().open_trade(action='buy',
-                                   tksl = self.tpsl,
+                                   tksl = self.get_normal_data()[self.control_dict[i]['TPSL']].iloc[-1],
                                    symbol=self.control_dict[i]['symbol'],
                                    ea_magic_number=self.magic_number,
                                    multiply=self.multiply)
                 self.control_dict[i]['buy'] = False
             elif self.get_normal_data()[self.control_dict[i]['sell_strategy']].iloc[-1] and self.control_dict[i]['sell']:
                 super().open_trade(action='sell',
-                                   tksl = self.tpsl,
+                                   tksl = self.get_normal_data()[self.control_dict[i]['TPSL']].iloc[-1],
                                    symbol=self.control_dict[i]['symbol'],
                                    ea_magic_number=self.magic_number,
                                    multiply=self.multiply)

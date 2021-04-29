@@ -50,6 +50,44 @@ class Signals(Indicators):
         super().set_normal_data(data)
 
 
+    def tpsl_online(self, periodo):
+
+        data = super().get_normal_data()
+        calc = pd.DataFrame()
+
+        for i in range(len(super().ALL_PAIRS_BUY)):
+
+            at = pd.DataFrame()
+
+            high = data[super().ALL_PAIRS_HIGH[i]].shift()
+            low = data[super().ALL_PAIRS_LOW[i]].shift()
+            close = data[super().ALL_PAIRS_CLOSE[i]].shift(2)
+
+            at['a1'] = high-low
+            at['a2'] = abs(high - close)
+            at['a3'] = abs(low - close)
+            atr = pd.Series(at.values.max(1)).rolling(periodo).mean()
+
+            data[super().ALL_PAIRS_TPSL[i]] = atr.fillna(atr.mean())
+
+        super().set_normal_data(data)
+
+
+    def main_online(self):
+
+        data = super().get_normal_data()
+
+        for i in range(len(super().ALL_PAIRS_BUY)):
+
+            pair1 = data[super().SPLIT_PAIRS[i][0]].to_numpy()
+            pair2 = data[super().SPLIT_PAIRS[i][1]].to_numpy()
+
+            data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < pair2))
+            data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > pair2))
+
+        super().set_normal_data(data)
+
+
     def tpsl_calculation_wfe(self, periodo, array):
 
         calc = pd.DataFrame()
@@ -173,21 +211,6 @@ class Signals(Indicators):
 
             data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < std1_neg) & (pair2 > std2_pos) & (sma < prices))
             data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > std1_pos) & (pair2 < std2_neg) & (sma > prices))
-
-        super().set_normal_data(data)
-
-
-    def main_online(self):
-
-        data = super().get_normal_data()
-
-        for i in range(len(super().ALL_PAIRS_BUY)):
-
-            pair1 = data[super().SPLIT_PAIRS[i][0]].to_numpy()
-            pair2 = data[super().SPLIT_PAIRS[i][1]].to_numpy()
-
-            data[super().ALL_PAIRS_SELL[i]] = pd.Series((pair1 < pair2))
-            data[super().ALL_PAIRS_BUY[i]] = pd.Series((pair1 > pair2))
 
         super().set_normal_data(data)
 
