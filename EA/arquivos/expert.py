@@ -11,7 +11,9 @@ class eaonline(Signals):
                  multiply,
                  magic_number,
                  timeframe,
-                 tpsl,
+                 tpsl_avg,
+                 tp_multi,
+                 sl_multi,
                  pct_period,
                  login=50549136,
                  senha='TqmGUgqp',
@@ -28,7 +30,9 @@ class eaonline(Signals):
         elif timeframe == 'H1':
             self.get_final == 66000
         self.tf = timeframe
-        self.tpsl = tpsl
+        self.tpsl_avg = tpsl_avg
+        self.tp_multi = tp_multi
+        self.sl_multi = sl_multi
         self.pct_period = pct_period
         self.control_dict = super().MY_EVENTS
 
@@ -56,7 +60,7 @@ class eaonline(Signals):
                 self.get_data_mt5_count(0, self.get_final, self.tf, ea=True)
                 self.pct_data(self.pct_period)
                 self.main_online()
-                self.tpsl_online(10)
+                self.tpsl_online(self.tpsl_avg)
                 self.main_online()
             except:
                 print('Erro a iniciar.')
@@ -82,9 +86,9 @@ class eaonline(Signals):
 
         if (self.get_new_normal_data().iloc[-1] == self.get_normal_data()[self.ALL_PAIRS_FOR_DF].iloc[-1]).sum() == 0:
             self.set_normal_data(pd.concat([self.get_normal_data()[self.ALL_PAIRS_FOR_DF],self.get_new_normal_data()]).reset_index(drop=True))
-            self.pct_data()
+            self.pct_data(self.pct_period)
             self.main_online()
-            self.tpsl_online(10)
+            self.tpsl_online(self.tpsl_avg)
         else:
             print('Não há dados novos.')
 

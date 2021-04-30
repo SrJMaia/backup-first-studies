@@ -99,12 +99,12 @@ class MetaTrader:
         jpy_check = False
 
         if symbol in self.JPY:
-            tk = tksl * 4
-            sl = tksl * 0.5
+            tk = tksl * self.tp_multi
+            sl = tksl * self.sl_multi
             jpy_check = True
         else:
-            tk = tksl * 4
-            sl = tksl * 0.5
+            tk = tksl * self.tp_multi
+            sl = tksl * self.sl_multi
 
         if action == 'buy':
             trade_type = mt5.ORDER_TYPE_BUY
