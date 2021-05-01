@@ -70,7 +70,7 @@ class MetaTrader:
 
 
     def refresh_flags(self):
-        for i in ea.control_dict.values():
+        for i in self.control_dict.values():
 
             result = mt5.positions_get(symbol=i['symbol'])
 

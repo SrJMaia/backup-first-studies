@@ -36,6 +36,24 @@ class Pairs:
                         'USDJPY','AUDUSD','NZDUSD','USDCAD','AUDJPY','CADJPY','CHFJPY',
                         'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD']
 
+
+    ALL_FOUR_FOR_DF = ['EURCHF_Open','EURGBP_Open','EURJPY_Open','EURNZD_Open','EURUSD_Open','EURAUD_Open','EURCAD_Open',
+                      'GBPAUD_Open','GBPCHF_Open','GBPJPY_Open','GBPCAD_Open','GBPUSD_Open','GBPNZD_Open','USDCHF_Open',
+                      'USDJPY_Open','AUDUSD_Open','NZDUSD_Open','USDCAD_Open','AUDJPY_Open','CADJPY_Open','CHFJPY_Open',
+                      'NZDJPY_Open','AUDCHF_Open','CADCHF_Open','NZDCHF_Open','AUDNZD_Open','NZDCAD_Open','AUDCAD_Open',
+                      'EURCHF_Close','EURGBP_Close','EURJPY_Close','EURNZD_Close','EURUSD_Close','EURAUD_Close','EURCAD_Close',
+                        'GBPAUD_Close','GBPCHF_Close','GBPJPY_Close','GBPCAD_Close','GBPUSD_Close','GBPNZD_Close','USDCHF_Close',
+                        'USDJPY_Close','AUDUSD_Close','NZDUSD_Close','USDCAD_Close','AUDJPY_Close','CADJPY_Close','CHFJPY_Close',
+                        'NZDJPY_Close','AUDCHF_Close','CADCHF_Close','NZDCHF_Close','AUDNZD_Close','NZDCAD_Close','AUDCAD_Close',
+                        'EURCHF_High','EURGBP_High','EURJPY_High','EURNZD_High','EURUSD_High','EURAUD_High','EURCAD_High',
+                      'GBPAUD_High','GBPCHF_High','GBPJPY_High','GBPCAD_High','GBPUSD_High','GBPNZD_High','USDCHF_High',
+                      'USDJPY_High','AUDUSD_High','NZDUSD_High','USDCAD_High','AUDJPY_High','CADJPY_High','CHFJPY_High',
+                      'NZDJPY_High','AUDCHF_High','CADCHF_High','NZDCHF_High','AUDNZD_High','NZDCAD_High','AUDCAD_High',
+                      'EURCHF_Low','EURGBP_Low','EURJPY_Low','EURNZD_Low','EURUSD_Low','EURAUD_Low','EURCAD_Low',
+                    'GBPAUD_Low','GBPCHF_Low','GBPJPY_Low','GBPCAD_Low','GBPUSD_Low','GBPNZD_Low','USDCHF_Low',
+                    'USDJPY_Low','AUDUSD_Low','NZDUSD_Low','USDCAD_Low','AUDJPY_Low','CADJPY_Low','CHFJPY_Low',
+                    'NZDJPY_Low','AUDCHF_Low','CADCHF_Low','NZDCHF_Low','AUDNZD_Low','NZDCAD_Low','AUDCAD_Low']
+
     ALL_PAIRS_BUY = (
         'EURCHF_buy','EURGBP_buy','EURJPY_buy','EURNZD_buy','EURUSD_buy','EURAUD_buy','EURCAD_buy',
         'GBPAUD_buy','GBPCHF_buy','GBPJPY_buy','GBPCAD_buy','GBPUSD_buy','GBPNZD_buy','USDCHF_buy',
@@ -88,32 +106,32 @@ class Pairs:
     'EURAUD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'EURAUD','buy_strategy':'EURAUD_buy','sell_strategy':'EURAUD_sell','TPSL':'EURAUD_TPSL'},
     'EURCAD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'EURCAD','buy_strategy':'EURCAD_buy','sell_strategy':'EURCAD_sell','TPSL':'EURCAD_TPSL'},
 
-    'GBPAUD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPAUD','buy_strategy':'GBPAUD_buy','sell_strategy':'GBPAUD_sell','TPSL','GBPAUD_TPSL'},
-    'GBPCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPCHF','buy_strategy':'GBPCHF_buy','sell_strategy':'GBPCHF_sell','TPSL','GBPCHF_TPSL'},
-    'GBPJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPJPY','buy_strategy':'GBPJPY_buy','sell_strategy':'GBPJPY_sell','TPSL','GBPJPY_TPSL'},
-    'GBPCAD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPCAD','buy_strategy':'GBPCAD_buy','sell_strategy':'GBPCAD_sell','TPSL','GBPCAD_TPSL'},
-    'GBPUSD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPUSD','buy_strategy':'GBPUSD_buy','sell_strategy':'GBPUSD_sell','TPSL','GBPUSD_TPSL'},
-    'GBPNZD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPNZD','buy_strategy':'GBPNZD_buy','sell_strategy':'GBPNZD_sell','TPSL','GBPNZD_TPSL'},
+    'GBPAUD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPAUD','buy_strategy':'GBPAUD_buy','sell_strategy':'GBPAUD_sell','TPSL':'GBPAUD_TPSL'},
+    'GBPCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPCHF','buy_strategy':'GBPCHF_buy','sell_strategy':'GBPCHF_sell','TPSL':'GBPCHF_TPSL'},
+    'GBPJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPJPY','buy_strategy':'GBPJPY_buy','sell_strategy':'GBPJPY_sell','TPSL':'GBPJPY_TPSL'},
+    'GBPCAD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPCAD','buy_strategy':'GBPCAD_buy','sell_strategy':'GBPCAD_sell','TPSL':'GBPCAD_TPSL'},
+    'GBPUSD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPUSD','buy_strategy':'GBPUSD_buy','sell_strategy':'GBPUSD_sell','TPSL':'GBPUSD_TPSL'},
+    'GBPNZD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'GBPNZD','buy_strategy':'GBPNZD_buy','sell_strategy':'GBPNZD_sell','TPSL':'GBPNZD_TPSL'},
 
-    'USDCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'USDCHF','buy_strategy':'USDCHF_buy','sell_strategy':'USDCHF_sell','TPSL','USDCHF_TPSL'},
-    'USDJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'USDJPY','buy_strategy':'USDJPY_buy','sell_strategy':'USDJPY_sell','TPSL','USDJPY_TPSL'},
-    'AUDUSD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDUSD','buy_strategy':'AUDUSD_buy','sell_strategy':'AUDUSD_sell','TPSL','AUDUSD_TPSL'},
-    'NZDUSD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'NZDUSD','buy_strategy':'NZDUSD_buy','sell_strategy':'NZDUSD_sell','TPSL','NZDUSD_TPSL'},
-    'USDCAD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'USDCAD','buy_strategy':'USDCAD_buy','sell_strategy':'USDCAD_sell','TPSL','USDCAD_TPSL'},
+    'USDCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'USDCHF','buy_strategy':'USDCHF_buy','sell_strategy':'USDCHF_sell','TPSL':'USDCHF_TPSL'},
+    'USDJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'USDJPY','buy_strategy':'USDJPY_buy','sell_strategy':'USDJPY_sell','TPSL':'USDJPY_TPSL'},
+    'AUDUSD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDUSD','buy_strategy':'AUDUSD_buy','sell_strategy':'AUDUSD_sell','TPSL':'AUDUSD_TPSL'},
+    'NZDUSD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'NZDUSD','buy_strategy':'NZDUSD_buy','sell_strategy':'NZDUSD_sell','TPSL':'NZDUSD_TPSL'},
+    'USDCAD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'USDCAD','buy_strategy':'USDCAD_buy','sell_strategy':'USDCAD_sell','TPSL':'USDCAD_TPSL'},
 
-    'AUDJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDJPY','buy_strategy':'AUDJPY_buy','sell_strategy':'AUDJPY_sell','TPSL','AUDJPY_TPSL'},
-    'CADJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'CADJPY','buy_strategy':'CADJPY_buy','sell_strategy':'CADJPY_sell','TPSL','CADJPY_TPSL'},
-    'CHFJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'CHFJPY','buy_strategy':'CHFJPY_buy','sell_strategy':'CHFJPY_sell','TPSL','CHFJPY_TPSL'},
-    'NZDJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'NZDJPY','buy_strategy':'NZDJPY_buy','sell_strategy':'NZDJPY_sell','TPSL','NZDJPY_TPSL'},
+    'AUDJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDJPY','buy_strategy':'AUDJPY_buy','sell_strategy':'AUDJPY_sell','TPSL':'AUDJPY_TPSL'},
+    'CADJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'CADJPY','buy_strategy':'CADJPY_buy','sell_strategy':'CADJPY_sell','TPSL':'CADJPY_TPSL'},
+    'CHFJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'CHFJPY','buy_strategy':'CHFJPY_buy','sell_strategy':'CHFJPY_sell','TPSL':'CHFJPY_TPSL'},
+    'NZDJPY':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'NZDJPY','buy_strategy':'NZDJPY_buy','sell_strategy':'NZDJPY_sell','TPSL':'NZDJPY_TPSL'},
 
-    'AUDCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDCHF','buy_strategy':'AUDCHF_buy','sell_strategy':'AUDCHF_sell','TPSL','AUDCHF_TPSL'},
-    'CADCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'CADCHF','buy_strategy':'CADCHF_buy','sell_strategy':'CADCHF_sell','TPSL','CADCHF_TPSL'},
-    'NZDCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'NZDCHF','buy_strategy':'NZDCHF_buy','sell_strategy':'NZDCHF_sell','TPSL','NZDCHF_TPSL'},
+    'AUDCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDCHF','buy_strategy':'AUDCHF_buy','sell_strategy':'AUDCHF_sell','TPSL':'AUDCHF_TPSL'},
+    'CADCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'CADCHF','buy_strategy':'CADCHF_buy','sell_strategy':'CADCHF_sell','TPSL':'CADCHF_TPSL'},
+    'NZDCHF':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'NZDCHF','buy_strategy':'NZDCHF_buy','sell_strategy':'NZDCHF_sell','TPSL':'NZDCHF_TPSL'},
 
-    'AUDNZD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDNZD','buy_strategy':'AUDNZD_buy','sell_strategy':'AUDNZD_sell','TPSL','AUDNZD_TPSL'},
-    'NZDCAD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'NZDCAD','buy_strategy':'NZDCAD_buy','sell_strategy':'NZDCAD_sell','TPSL','NZDCAD_TPSL'},
+    'AUDNZD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDNZD','buy_strategy':'AUDNZD_buy','sell_strategy':'AUDNZD_sell','TPSL':'AUDNZD_TPSL'},
+    'NZDCAD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'NZDCAD','buy_strategy':'NZDCAD_buy','sell_strategy':'NZDCAD_sell','TPSL':'NZDCAD_TPSL'},
 
-    'AUDCAD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDCAD','buy_strategy':'AUDCAD_buy','sell_strategy':'AUDCAD_sell','TPSL','AUDCAD_TPSL'}
+    'AUDCAD':{'buy':False,'sell':False,'sell_request':0,'buy_request':0,'symbol':'AUDCAD','buy_strategy':'AUDCAD_buy','sell_strategy':'AUDCAD_sell','TPSL':'AUDCAD_TPSL'}
     }
 
     JPY = ('EURJPY','USDJPY','GBPJPY','AUDJPY','CHFJPY','NZDJPY','CADJPY')

@@ -169,7 +169,8 @@ class Data(MetaTrader, Pairs):
         df = pd.DataFrame()
 
         for i in range(len(super().ALL_PAIRS)):
-            df[super().ALL_PAIRS[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type='open')
+            for j in ['Open','High','Low','Close']:
+                df[super().ALL_PAIRS[i]+'_'+j]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type=j.lower())
 
         self.set_new_normal_data(df)
         print('Dados Baixados com Sucesso.')
