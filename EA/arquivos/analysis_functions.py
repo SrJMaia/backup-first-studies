@@ -35,6 +35,14 @@ class Analysis:
         del self.period_data
 
 
+    def monte_carlo_otimization(self, series, multiple_times):
+        test = pd.DataFrame()
+        for i in range(multiple_times):
+            test[i] = pd.concat([pd.Series(self.balance_backtest), series.diff().iloc[1:].sample(frac=1).reset_index(drop=True)]).cumsum()
+        max_dd, max_equity = self.max_drawdown(test)
+        return test, max_dd
+
+
     def analysis_backtest(self, df):
 
         self.set_period(len(self.get_normal_data()))
