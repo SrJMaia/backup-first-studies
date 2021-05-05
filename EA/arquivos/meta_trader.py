@@ -2,6 +2,7 @@
 import MetaTrader5 as mt5
 # Mudar se for usar
 import pandas as pd
+from time import sleep
 
 class MetaTrader:
 
@@ -136,6 +137,9 @@ class MetaTrader:
 
         # send a trading request
         result = mt5.order_send(order_request)
+        """
+        Depois arrumar isso
+        """
 
         if result[0] == 10009:
             print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
@@ -152,7 +156,14 @@ class MetaTrader:
             else:
                 print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
         elif result[0] == 10018:
-            print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | Mercado Fechado")
+            while result[0] == 10018:
+                result = mt5.order_send(order_request)
+                print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | Mercado Fechado")
+                sleep(1)
+            if result[0] == 10009:
+                print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
+            else:
+                print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
         else:
             print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
 

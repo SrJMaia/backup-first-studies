@@ -49,6 +49,7 @@ class eaonline(Signals):
     def start(self):
         self.prepare()
         schedule.every().day.at("00:00").do(self.main_body)
+        #schedule.every().minute.do(self.main_body)
         while True:
             schedule.run_pending()
             sleep(10)
@@ -78,7 +79,7 @@ class eaonline(Signals):
         while True:
             try:
                 self.new_normal_data_mt5(0, 1, self.tf)
-            except:
+            except KeyError:
                 print('Erro ao obter dados.')
             else:
                 print('Dados obtidos com sucesso.')
