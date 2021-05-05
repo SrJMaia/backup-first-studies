@@ -147,21 +147,17 @@ class MetaTrader:
                 self.control_dict[symbol]['buy_request'] = order_request
             elif action == 'sell':
                 self.control_dict[symbol]['sell_request'] = order_request
-        elif result[0] == 10004 or result[0] == 10021:
-            while result[0] == 10004:
+        elif result[0] == 10004 or result[0] == 10018 or result[0] == 10021:
+            while result[0] == 10004 or result[0] == 10018:
                 result = mt5.order_send(order_request)
                 print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | New Price.")
-            if result[0] == 10009:
-                print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
-            else:
-                print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
-        elif result[0] == 10018:
-            while result[0] == 10018:
-                result = mt5.order_send(order_request)
-                print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | Mercado Fechado")
                 sleep(1)
             if result[0] == 10009:
                 print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
+                if action == 'buy':
+                    self.control_dict[symbol]['buy_request'] = order_request
+                elif action == 'sell':
+                    self.control_dict[symbol]['sell_request'] = order_request
             else:
                 print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
         else:
