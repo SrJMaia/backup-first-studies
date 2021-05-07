@@ -3,6 +3,7 @@ import MetaTrader5 as mt5
 # Mudar se for usar
 import pandas as pd
 from time import sleep
+from datetime import datetime
 
 class MetaTrader:
 
@@ -149,6 +150,9 @@ class MetaTrader:
                 self.control_dict[symbol]['sell_request'] = order_request
         elif result[0] == 10004 or result[0] == 10018 or result[0] == 10021:
             while result[0] == 10004 or result[0] == 10018:
+                if result[0] == 10018:
+                    if datetime.today().weekday() == 5 or datetime.today().weekday() == 6:
+                        break
                 result = mt5.order_send(order_request)
                 print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | New Price.")
                 sleep(1)
