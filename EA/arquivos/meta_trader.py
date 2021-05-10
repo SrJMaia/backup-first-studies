@@ -18,6 +18,11 @@ class MetaTrader:
         self.servidor = servidor
 
 
+    @static
+    def get_hour():
+        return f'{datetime.now().day}/{datetime.now().month}/{datetime.now().year} {datetime.now().hour}:{datetime.now().minute}:{datetime.now().second}'
+
+
     def mt_login(self):
         mt5.initialize()
 
@@ -143,7 +148,7 @@ class MetaTrader:
         """
 
         if result[0] == 10009:
-            print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
+            print(f"Hour: {get_hour()} | Type: {action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
             if action == 'buy':
                 self.control_dict[symbol]['buy_request'] = order_request
             elif action == 'sell':
@@ -152,20 +157,21 @@ class MetaTrader:
             while result[0] == 10004 or result[0] == 10018:
                 if result[0] == 10018:
                     if datetime.today().weekday() == 5 or datetime.today().weekday() == 6:
+                        print(f'Hour: {get_hour()} Weekend.')
                         break
                 result = mt5.order_send(order_request)
-                print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | New Price.")
+                print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]} | New Price. Hour: {get_hour()}")
                 sleep(1)
             if result[0] == 10009:
-                print(f"{action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
+                print(f"Hour: {get_hour()} | Type: {action.title()} | Symbol: {symbol} | Price: {order_request['price']} | Volume: {order_request['volume']}")
                 if action == 'buy':
                     self.control_dict[symbol]['buy_request'] = order_request
                 elif action == 'sell':
                     self.control_dict[symbol]['sell_request'] = order_request
             else:
-                print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
+                print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}. Hour: {get_hour()}")
         else:
-            print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}")
+            print(f"Error Order {symbol}: {mt5.last_error()} | Code: {result[0]}. Hour: {get_hour()}")
 
 
     def close_trade(self, action, symbol):
@@ -206,8 +212,8 @@ class MetaTrader:
         # Erro 10004
         while result[0] != 10009 or result[0] == 10021:
             result=mt5.order_send(close_request)
-            print(f'Error Closing {symbol}: {mt5.last_error()} | Code: {result[0]}')
-        print(f"Closing as: {action.title()} | Symbol: {symbol} | Volume: {result[3]} | Price: {result[4]}")
+            print(f'Error Closing {symbol}: {mt5.last_error()} | Code: {result[0]}. Hour: {get_hour()s}')
+        print(f"Hour: {get_hour()} | Closing as: {action.title()} | Symbol: {symbol} | Volume: {result[3]} | Price: {result[4]}")
         if action == 'buy':
             self.control_dict[symbol]['sell_request'] = 0
         elif action == 'sell':
