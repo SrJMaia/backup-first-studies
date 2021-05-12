@@ -19,7 +19,7 @@ class MetaTrader:
 
 
     @staticmethod
-    def self.get_hour():
+    def get_hour():
         return f'{datetime.now().day}/{datetime.now().month}/{datetime.now().year} {datetime.now().hour}:{datetime.now().minute}:{datetime.now().second}'
 
 

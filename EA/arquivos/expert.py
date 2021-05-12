@@ -48,7 +48,7 @@ class eaonline(Signals):
 
     def start(self):
         self.prepare()
-        schedule.every().day.at("00:00").do(self.main_body)
+        schedule.every().day.at("21:00").do(self.main_body)
         #schedule.every().minute.do(self.main_body)
         while True:
             schedule.run_pending()
@@ -58,7 +58,7 @@ class eaonline(Signals):
     def prepare(self):
         while True:
             try:
-                self.get_data_mt5_count(0, self.get_final, self.tf, all_four=True)
+                self.get_data_mt5_count(0, self.get_final, self.tf, ea=True)
                 self.pct_data(self.pct_period)
                 self.main_online()
                 self.tpsl_online(self.tpsl_avg)
