@@ -86,7 +86,7 @@ class eaonline(Signals):
                 break
 
         if (self.get_new_normal_data()[self.ALL_FOUR_FOR_DF].iloc[-1] == self.get_normal_data()[self.ALL_FOUR_FOR_DF].iloc[-1]).sum() == 0:
-            self.set_normal_data(pd.concat([self.get_normal_data()[self.ALL_PAIRS_FOR_DF],self.get_new_normal_data()]).reset_index(drop=True))
+            self.set_normal_data(pd.concat([self.get_normal_data()[self.ALL_FOUR_FOR_DF],self.get_new_normal_data()]).reset_index(drop=True))
             self.pct_data(self.pct_period)
             self.main_online()
             self.tpsl_online(self.tpsl_avg)
