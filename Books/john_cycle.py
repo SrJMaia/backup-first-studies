@@ -1,3 +1,60 @@
+def bandpass_filter(series, period = 30, bandwidth = .3):
+    alpha2 = (math.cos(math.radians(.25*bandwidth*360/period))) + (math.sin(math.radians(.25*bandwidth*360/period))-1) / (math.cos(math.radians(.25*bandwidth*360/period)))
+    alpha3 = (math.cos(math.radians(1.5*bandwidth*360/period))) + (math.sin(math.radians(1.5*bandwidth*360/period))-1) / (math.cos(math.radians(1.5*bandwidth*360/period)))
+    beta1 = math.cos(math.radians(360/period))
+    gamma1 = 1 / math.cos(math.radians(360 * bandwidth/period))
+    alpha1 = gamma1 - math.sqrt(gamma1*gamma1-1)
+    hp = np.zeros(len(series))
+    bandpass = np.zeros(len(series))
+    bp = np.zeros(len(series))
+    peak = np.zeros(len(series))
+    trigger = np.zeros(len(series))
+
+    for i in range(series.size):
+        if i < 2:
+            continue
+        hp[i] = (1+alpha2 / 2) * (series[i]-series[i-1]) + (1-alpha2)*hp[i-1]
+        bp[i] = .5*(1-alpha1)*(hp[i] - hp[i-2]) + beta1*(1+alpha1) *bp[i-1]-alpha1*bp[i-2]
+        peak[i] = .991*peak[i-1]
+
+        if abs(bp[i]) > peak[i]:
+            peak[i] = abs(bp[i])
+
+        if peak[i] != 0:
+            bandpass[i] = bp[i] / peak[i]
+
+        trigger[i] = (1+alpha3 / 2)*(bandpass[i]-bandpass[i-1])+(1-alpha3)*trigger[i-1]
+
+    return bandpass, trigger
+
+
+def dominant_cycle_measure(series, period_1 = 20, period_2 = 30, bandwidth_1 = .7, bandwidth_2 = .7):
+    bandpass_1, _ = bandpass_filter(series, period = period_1, bandwidth = bandwidth_1)
+    bandpass_2, _ = bandpass_filter(series, period = period_2, bandwidth = bandwidth_2)
+
+    dc = np.zeros(series.size)
+    counter = 0
+
+    for i in range(series.size):
+
+        dc[i] = dc[i-1]
+
+        if dc[i] < 6:
+            dc[i] = 6
+
+        counter += 1
+
+        if bandpass_1[i] > 0 and bandpass_2[i] > 0 and bandpass_1[i] > bandpass_2[i] or bandpass_1[i] < 0 and bandpass_2[i] < 0 and bandpass_1[i] < bandpass_2[i]:
+            dc[i] = 2*counter
+            if 2*counter > 1.25*dc[i-1]:
+                dc[i] = 1.25*dc[i-1]
+            elif 2*counter < .8*dc[i-1]:
+                dc[i] = .8*dc[i-1]
+            counter = 0
+
+    return dc
+
+
 def decycler_oscilator(series, osc_period1 = 30, osc_period2 = 60):
     """
     Bom para encontrar mudança de tendencias
