@@ -328,7 +328,7 @@ def big_backtest_otimizado_tpsl(series, m1, multiply_tp, multiply_sl, balance=10
 
         for h in range(len(series)): # 28
 
-            for super in np.arange(m1[h][0][i].size):
+            for super in np.arange(m1[h][0][i].size): # Big backtest
 
                 if series[h][1][i] and buy_sell[h][0]:
                     operacoes[h][0] = series[h][0][i]
@@ -346,6 +346,23 @@ def big_backtest_otimizado_tpsl(series, m1, multiply_tp, multiply_sl, balance=10
 
                 check_buy_sl = (m1[h][0][i][super] <= operacoes[h][5]) or (m1[h][1][i][super] <= operacoes[h][5]) or (m1[h][2][i][super] <= operacoes[h][5]) or (m1[h][3][i][super] <= operacoes[h][5])
                 check_buy_tp = (m1[h][0][i][super] >= operacoes[h][4]) or (m1[h][1][i][super] >= operacoes[h][4]) or (m1[h][2][i][super] >= operacoes[h][4]) or (m1[h][3][i][super] >= operacoes[h][4])
+
+                if series[h][2][i] and buy_sell[h][1]:
+                    operacoes[h][1] = series[h][0][i]
+                    buy_sell[h][1] = False
+                    if check_eur_jpy[h][1]:
+                        operacoes[h][2] = series[h][0][i] - round(multiply_tp * series[h][5][i],3) # TP
+                        #operacoes[h][2] = series[h][0][i] - tk_jpy
+                        operacoes[h][3] = series[h][0][i] + round(multiply_sl * series[h][5][i],3) # SL
+                        #operacoes[h][3] = series[h][0][i] + sl_jpy
+                    else:
+                        operacoes[h][2] = series[h][0][i] - round(multiply_tp * series[h][5][i],5) # TP
+                        #operacoes[h][2] = series[h][0][i] - tk_normal
+                        operacoes[h][3] = series[h][0][i] + round(multiply_sl * series[h][5][i],5) # SL
+                        #operacoes[h][3] = series[h][0][i] + sl_normal
+
+                check_sell_sl = (m1[h][0][i][super] >= operacoes[h][3]) or (m1[h][1][i][super] >= operacoes[h][3]) or (m1[h][2][i][super] >= operacoes[h][3]) or (m1[h][3][i][super] >= operacoes[h][3])
+                check_sell_buy = (m1[h][0][i][super] <= operacoes[h][2]) or (m1[h][1][i][super] <= operacoes[h][2]) or (m1[h][2][i][super] <= operacoes[h][2]) or (m1[h][3][i][super] <= operacoes[h][2])
 
                 if buy_sell[h][0] == False and check_buy_sl:
                     balance_backtest, buy_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacoes[h][5],
@@ -371,23 +388,6 @@ def big_backtest_otimizado_tpsl(series, m1, multiply_tp, multiply_sl, balance=10
                     buy_sell_list_indi[2] += 1
                     buy_sell[h][0] = True
                     break
-
-                if series[h][2][i] and buy_sell[h][1]:
-                    operacoes[h][1] = series[h][0][i]
-                    buy_sell[h][1] = False
-                    if check_eur_jpy[h][1]:
-                        operacoes[h][2] = series[h][0][i] - round(multiply_tp * series[h][5][i],3) # TP
-                        #operacoes[h][2] = series[h][0][i] - tk_jpy
-                        operacoes[h][3] = series[h][0][i] + round(multiply_sl * series[h][5][i],3) # SL
-                        #operacoes[h][3] = series[h][0][i] + sl_jpy
-                    else:
-                        operacoes[h][2] = series[h][0][i] - round(multiply_tp * series[h][5][i],5) # TP
-                        #operacoes[h][2] = series[h][0][i] - tk_normal
-                        operacoes[h][3] = series[h][0][i] + round(multiply_sl * series[h][5][i],5) # SL
-                        #operacoes[h][3] = series[h][0][i] + sl_normal
-
-                check_sell_sl = (m1[h][0][i][super] >= operacoes[h][3]) or (m1[h][1][i][super] >= operacoes[h][3]) or (m1[h][2][i][super] >= operacoes[h][3]) or (m1[h][3][i][super] >= operacoes[h][3])
-                check_sell_buy = (m1[h][0][i][super] <= operacoes[h][2]) or (m1[h][1][i][super] <= operacoes[h][2]) or (m1[h][2][i][super] <= operacoes[h][2]) or (m1[h][3][i][super] <= operacoes[h][2])
 
                 if buy_sell[h][1] == False and check_sell_sl:
                     balance_backtest, sell_result = finance_calculation(balance=balance_backtest,saldo_inicial=operacoes[h][1],
