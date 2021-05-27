@@ -57,6 +57,74 @@ class MetaTrader:
         return dt
 
 
+    def get_data_mt5_count(self,
+                           start_pos,
+                           end_pos,
+                           time_frame,
+                           all_four = False,
+                           one_pair = False,
+                           symbol = 'EURUSD',
+                           only_one = 'open',
+                           monte_carlo=False,
+                           ea=False):
+
+        df = pd.DataFrame()
+        self.mt_login()
+
+        if ea:
+            for i in range(len(self.ALL_PAIRS)):
+                df[self.ALL_PAIRS[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type='open')
+
+        if one_pair:
+            if not all_four:
+                df[symbol]=self.mt_get_data_count(symbol=symbol,start=start_pos,end=end_pos,time_frame=time_frame,data_type=only_one)
+            elif all_four:
+                df[f'{symbol}_Open']=self.mt_get_data_count(symbol=symbol,start=start_pos,end=end_pos,time_frame=time_frame,data_type='open')
+                df[f'{symbol}_Close']=self.mt_get_data_count(symbol=symbol,start=start_pos,end=end_pos,time_frame=time_frame,data_type='close')
+                df[f'{symbol}_High']=self.mt_get_data_count(symbol=symbol,start=start_pos,end=end_pos,time_frame=time_frame,data_type='high')
+                df[f'{symbol}_Low']=self.mt_get_data_count(symbol=symbol,start=start_pos,end=end_pos,time_frame=time_frame,data_type='low')
+        elif not one_pair:
+            x = []
+            if not all_four:
+                if only_one == 'open':
+                    x = super().ALL_PAIRS_OPEN
+                elif only_one == 'close':
+                    x = super().ALL_PAIRS_CLOSE
+                elif only_one == 'high':
+                    x = super().ALL_PAIRS_HIGH
+                elif only_one == 'low':
+                    x = super().ALL_PAIRS_LOW
+
+                for i in range(len(x)):
+                    df[x[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type=only_one)
+            elif all_four:
+                for i in range(len(super().ALL_PAIRS)):
+                    df[super().ALL_PAIRS_OPEN[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type='open')
+                    df[super().ALL_PAIRS_CLOSE[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type='close')
+                    df[super().ALL_PAIRS_HIGH[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type='high')
+                    df[super().ALL_PAIRS_LOW[i]]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type='low')
+
+        self.mt_logoff()
+        if monte_carlo:
+            self.set_normal_data(df.sample(frac=1).reset_index(drop=True))
+            print('Dados Baixados com Sucesso.')
+        else:
+            self.set_normal_data(df)
+            print('Dados Baixados com Sucesso.')
+
+
+    def new_normal_data_mt5(self, start_pos, end_pos, time_frame):
+
+        df = pd.DataFrame()
+
+        for i in range(len(super().ALL_PAIRS)):
+            for j in ['Open','High','Low','Close']:
+                df[super().ALL_PAIRS[i]+'_'+j]=self.mt_get_data_count(symbol=super().ALL_PAIRS[i],start=start_pos,end=end_pos,time_frame=time_frame,data_type=j.lower())
+
+        self.set_new_normal_data(df)
+        print('Dados Baixados com Sucesso.')
+
+
     @staticmethod
     def account_information():
         account = mt5.account_info()._asdict()
