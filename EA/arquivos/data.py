@@ -80,12 +80,14 @@ class Data(MetaTrader, Pairs):
         del self.__big_data
 
 
-    def get_normal_data_csv(self, path, separator=',', drop=False, drop_list=[]):
+    def get_normal_data_csv(self, path, timeframe, separator=',', drop=False, drop_list=[]):
         """
         path = str do caminho do arquivo
+        timeframe = 'H1', 'H4', 'D1'
         sepator = separador do csv
         drop = Se True, passar lista de colunas a serem dropadas
         """
+        self.__data_timeframe = timeframe
         if drop:
             self.__normal_data = pd.read_csv(path, sep=separator).drop(columns=drop_list)
             print('Dados Carregados com Sucesso.')

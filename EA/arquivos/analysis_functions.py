@@ -9,27 +9,16 @@ class Analysis:
     """
 
     def set_period(self, length, multi=False):
-        period = length
-        division = 0
-        if period < 4000:
-            period = 250 / period
-            print(f'Period data set D1 | {period}')
-            division = 1440
-        elif period > 4000 and period < 24000:
-            period = 250 / (period / 6)
-            division = 240
-            print(f'Period data set H4 | {period}')
-        elif l > 24000 and period < 96000:
-            period = 250 / (period / 24)
-            division = 60
-            print(f'Period data set H1 | {period}')
+        period = 0
+        if self.__data_timeframe == 'D1':
+            period = 250 / length
+        elif self.__data_timeframe == 'H4':
+            period = 250 / (length / 6)
+        elif self.__data_timeframe == 'H1':
+            period = 250 / (length / 24)
 
-        if not multi:
-            clear_output(wait=True)
 
         self.period_data = period
-        self.division_big_data = division
-
 
     def del_period_data(self):
         del self.period_data
