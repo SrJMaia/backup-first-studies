@@ -18,6 +18,10 @@ class Data(MetaTrader, Pairs):
         self.__normal_data = new_data
 
 
+    def get_tf_data(self):
+        return self.__tf_data
+
+
     def normal_data_to_array(self):
         array = self.get_normal_data()[[f'{__single_pair_name}_Open',
                                         f'{__single_pair_name}_High',
@@ -68,10 +72,17 @@ class Data(MetaTrader, Pairs):
         self.__data_timeframe = timeframe
         if drop:
             self.__normal_data = pd.read_csv(path, sep=separator).drop(columns=drop_list)
-            print('Dados Carregados com Sucesso.')
         else:
             self.__normal_data = pd.read_csv(path, sep=separator)
-            print('Dados Carregados com Sucesso.')
+
+        if timeframe == 'H1':
+            self.__tf_data = self.get_normal_data().loc[self.get_normal_data()['time'].dt.minute == 0, f'{pair}_Open']
+        elif timeframe == 'H4':
+            self.__tf_data = self.get_normal_data().loc[(self.get_normal_data()['time'].dt.hour.isin([0, 4, 8, 12, 16, 20])) & (self.get_normal_data()['time'].dt.minute == 0), f'{pair}_Open']
+        elif tiemframe == 'D1':
+            self.__tf_data = self.get_normal_data().loc[(self.get_normal_data()['time'].dt.hour == 0) & (self.get_normal_data()['time'].dt.minute == 0), f'{pair}_Open']
+
+        print('Dados Carregados com Sucesso.')
 
 
     def walk_forward_split(self):
