@@ -24,6 +24,28 @@ def finance_calculation(balance, saldo_inicial, saldo_final, preco_eur, eur):
         return (tot2 + balance), tot2
 
 
+@njit
+def tpsl_calc(price, multiply_tp, multiply_sl, tpsl_value=0, jpy=False, buy=True, fix_tpsl = False):
+    tp, sl = 0, 0
+    round_tpsl = 3 if jpy else 5
+    if fix_tpsl:
+        if buy:
+            tp = round(price + multiply_tp, round_tpsl)
+            sl = round(price - multiply_sl, round_tpsl)
+        elif not buy:
+            tp = round(price - multiply_tp, round_tpsl)
+            sl = round(price + multiply_sl, round_tpsl)
+    else:
+        if buy:
+            tp = price + round(multiply_tp * tpsl_value, round_tpsl)
+            sl = price - round(multiply_sl * tpsl_value, round_tpsl)
+        elif not buy:
+            tp = price - round(multiply_tp * tpsl_value, round_tpsl)
+            sl = price + round(multiply_sl * tpsl_value, round_tpsl)
+
+    return tp, sl
+
+
 @njit(parallel=True)
 def single_backtest(array, multiply_tp, multiply_sl, fix_tpsl = False, jpy = False, balance = 1000):
     """
@@ -77,86 +99,52 @@ def single_backtest(array, multiply_tp, multiply_sl, fix_tpsl = False, jpy = Fal
 
     for i in np.arange(array[0].size): # Array tamanho
 
-        if not np.isnan(array[4][i]):
+        if not np.isnan(array[4, i]):
 
-            def tpsl_calc(price, multiply_tp, multiply_sl, tpsl_value=0, jpy=False, buy=True, fix_tpsl = False):
-                tp, sl = 0, 0
-                round_tpsl = 3 if jpy else 5
-                if fix_tpsl:
-                    if buy:
-                        tp = round(price + multiply_tp, round_tpsl)
-                        sl = round(price - multiply_sl, round_tpsl)
-                    elif not buy:
-                        tp = round(price - multiply_tp, round_tpsl)
-                        sl = round(price + multiply_sl, round_tpsl)
-                else:
-                    if buy:
-                        tp = price + round(multiply_tp * tpsl_value, round_tpsl)
-                        sl = price - round(multiply_sl * tpsl_value, round_tpsl)
-                    elif not buy:
-                        tp = price - round(multiply_tp * tpsl_value, round_tpsl)
-                        sl = price + round(multiply_sl * tpsl_value, round_tpsl)
-
-                return tp, sl
-
-            if array[7][i] == 1. and buy_sell[0] == 1.: #Compra
-                operacao_info[0] = array[4][i]
+            if array[7, i] == 1. and buy_sell[0] == 1.: #Compra
+                operacao_info[0] = array[4, i]
                 buy_sell[0] = False
-                # fix_tpsl
-                if fix_tpsl:
-                    tpsl_calc(price=array[4][i], multiply_tp=multiply_tp, multiply_sl=multiply_sl, jpy=jpy, buy=True, fix_tpsl=True)
-                    operacao_info[4] = array[4][i] + round(multiply_tp * array[5][i],3) # TP
-                    #operacao_info[4] = array[0][i] + tk_jpy
-                    operacao_info[5] = array[4][i] - round(multiply_sl * array[5][i],3) # SL
-                    #operacao_info[5] = array[0][i] - sl_jpy
-                elif not fix_tpsl:
-                    tpsl_calc(price=array[4][i], multiply_tp=multiply_tp, multiply_sl=multiply_sl, tpsl_value=array[5][i], jpy=jpy, buy=True, fix_tpsl=True)
-                    operacao_info[4] = array[4][i] + round(multiply_tp * array[5][i],5) # TP
-                    #operacao_info[4] = array[0][i] + tk_normal
-                    operacao_info[5] = array[4][i] - round(multiply_sl * array[5][i],5) # SL
-                    #operacao_info[5] = array[0][i] - sl_normal
-            elif array[6][i] == 1. and buy_sell[1] == 1.:
-                operacao_info[1] = array[4][i]
+                operacao_info[4], operacao_info[5] = tpsl_calc(price=array[4, i],
+                                                                multiply_tp=multiply_tp,
+                                                                multiply_sl=multiply_sl,
+                                                                tpsl_value=array[5, i],
+                                                                jpy=jpy, buy=True,
+                                                                fix_tpsl=fix_tpsl)
+            elif array[6, i] == 1. and buy_sell[1] == 1.:
+                operacao_info[1] = array[4, i]
                 buy_sell[1] = False
-                if fix_tpsl:
-                    tpsl_calc(price=array[4][i], multiply_tp=multiply_tp, multiply_sl=multiply_sl, jpy=jpy, buy=False, fix_tpsl=True)
-                    operacao_info[2] = array[4][i] - round(multiply_tp * array[5][i],3) # TP
-                    #operacao_info[2] = array[0][i] - tk_jpy
-                    operacao_info[3] = array[4][i] + round(multiply_sl * array[5][i],3) # SL
-                    #operacao_info[3] = array[0][i] + sl_jpy
-                elif not fix_tpsl:
-                    tpsl_calc(price=array[4][i], multiply_tp=multiply_tp, multiply_sl=multiply_sl, tpsl_value=array[5][i], jpy=jpy, buy=False, fix_tpsl=True)
-                    operacao_info[2] = array[4][i] - round(multiply_tp * array[5][i],5) # TP
-                    #operacao_info[2] = array[0][i] - tk_normal
-                    operacao_info[3] = array[4][i] + round(multiply_sl * array[5][i],5) # SL
-                    #operacao_info[3] = array[0][i] + sl_normal
+                operacao_info[2], operacao_info[3] = tpsl_calc(price=array[4, i],
+                                                                multiply_tp=multiply_tp,
+                                                                multiply_sl=multiply_sl,
+                                                                tpsl_value=array[5, i],
+                                                                jpy=jpy, buy=False,
+                                                                fix_tpsl=fix_tpsl)
 
-        check_sell_sl = (array[0][i] >= operacao_info[3]) or (array[1][i] >= operacao_info[3]) or (array[2][i] >= operacao_info[3]) or (array[3][i] >= operacao_info[3])
-        check_sell_buy = (array[0][i] <= operacao_info[2]) or (array[1][i] <= operacao_info[2]) or (array[2][i] <= operacao_info[2]) or (array[3][i] <= operacao_info[2])
-        check_buy_sl = (array[0][i] <= operacao_info[5]) or (array[1][i] <= operacao_info[5]) or (array[2][i] <= operacao_info[5]) or (array[3][i] <= operacao_info[5])
-        check_buy_tp = (array[0][i] >= operacao_info[4]) or (array[1][i] >= operacao_info[4]) or (array[2][i] >= operacao_info[4]) or (array[3][i] >= operacao_info[4])
-
-        if np.isnan(array[4][i]):
-            if buy_sell[0] == False and check_buy_sl:
-                balance_backtest, buy_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacao_info[5],
-                                                                   saldo_final=operacao_info[0], eur = eur,
-                                                                   preco_eur=1)
+        if np.isnan(array[4, i]):
+            if buy_sell[0] == False and (array[[0, 1, 2, 3], i] <= operacao_info[5]).sum() > 0:
+                balance_backtest, buy_result = finance_calculation(balance=balance_backtest,
+                                                                    saldo_inicial=operacao_info[5],
+                                                                    saldo_final=operacao_info[0],
+                                                                    eur = eur,
+                                                                    preco_eur=1)
                 tot_trades[buy_sell_tot_trades_indi[2]] = balance_backtest
                 buy_orders[buy_sell_tot_trades_indi[0]] = buy_orders[buy_sell_tot_trades_indi[0]-1] + buy_result
                 buy_sell_tot_trades_indi[0] += 1
                 buy_sell_tot_trades_indi[2] += 1
                 buy_sell[0] = True
-            elif buy_sell[0] == False and check_buy_tp:
-                balance_backtest, buy_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacao_info[4],
-                                                                   saldo_final=operacao_info[0], eur = eur,
-                                                                   preco_eur=1)
+            elif buy_sell[0] == False and (array[[0, 1, 2, 3], i] >= operacao_info[4]).sum() > 0:
+                balance_backtest, buy_result = finance_calculation(balance=balance_backtest,
+                                                                    saldo_inicial=operacao_info[4],
+                                                                    saldo_final=operacao_info[0],
+                                                                    eur = eur,
+                                                                    preco_eur=1)
                 tot_trades[buy_sell_tot_trades_indi[2]] = balance_backtest
                 buy_orders[buy_sell_tot_trades_indi[0]] = buy_orders[buy_sell_tot_trades_indi[0]-1] + buy_result
                 buy_sell_tot_trades_indi[0] += 1
                 buy_sell_tot_trades_indi[2] += 1
                 buy_sell[0] = True
 
-            if buy_sell[1] == False and check_sell_sl:
+            if buy_sell[1] == False and (array[[0, 1, 2, 3], i] >= operacao_info[3]).sum() > 0:
                 balance_backtest, sell_result = finance_calculation(balance=balance_backtest,saldo_inicial=operacao_info[1],
                                                                     saldo_final=operacao_info[3], eur = eur,
                                                                     preco_eur=1)
@@ -165,7 +153,7 @@ def single_backtest(array, multiply_tp, multiply_sl, fix_tpsl = False, jpy = Fal
                 buy_sell_tot_trades_indi[1] += 1
                 buy_sell_tot_trades_indi[2] += 1
                 buy_sell[1] = True
-            elif buy_sell[1] == False and check_sell_buy:
+            elif buy_sell[1] == False and (array[[0, 1, 2, 3], i] <= operacao_info[2]).sum() > 0:
                 balance_backtest, sell_result = finance_calculation(balance=balance_backtest, saldo_inicial=operacao_info[1],
                                                                     saldo_final=operacao_info[2], eur = eur,
                                                                     preco_eur=1)

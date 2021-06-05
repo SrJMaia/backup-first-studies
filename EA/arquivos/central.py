@@ -32,8 +32,13 @@ class Central(Signals, Analysis):
         return df
 
 
-    def prepare_otimization(self, period):
-        self.tpsl_calculation_otimization_single(period)
+    def prepare_otimization(self, period, fix_tpsl=False):
+        if fix_tpsl:
+            df = self.get_normal_data()
+            df['TPSL'] = 0
+            self.set_normal_data(df)
+        else:
+            self.tpsl_calculation_otimization_single(period)
         self.normal_data_to_array()
 
 
@@ -45,6 +50,7 @@ class Central(Signals, Analysis):
                 multiply_tp,
                 multiply_sl,
                 tpsl_mean=14,
+                fix_tpsl=False,
                 is_jpy=False,
                 analyse=True,
                 plot=False,
@@ -65,7 +71,7 @@ class Central(Signals, Analysis):
         if single_test:
 
             if otimization and self.otimization_flag:
-                self.prepare_otimization(tpsl_mean)
+                self.prepare_otimization(tpsl_mean, fix_tpsl=fix_tpsl)
                 self.otimization_flag = False
 
             tot, sell, buy = bt.single_backtest(self.get_numpy_normal_data(),
