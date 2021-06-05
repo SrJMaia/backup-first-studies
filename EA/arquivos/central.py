@@ -15,6 +15,7 @@ class Central(Signals, Analysis):
     def __init__(self, login=5528104, senha='YUWNehok', servidor='ActivTradesCorp-Server', balance=1000):
         super().__init__(login, senha, servidor)
         self.balance_backtest = balance
+        self.otimization_flag = True
 
 
     def clean_results(self, tot, sell, buy, each_pair=[], multi_pairs=False, multi_tf=False):
@@ -31,27 +32,52 @@ class Central(Signals, Analysis):
         return df
 
 
-    def back_tpsl(self, multiply_tp, multiply_sl, tpsl_mean=14, analyse=True, multi_test=False, plot=False):
+    def prepare_otimization(self, period):
+        self.tpsl_calculation_otimization_single(period)
+        self.normal_data_to_array()
+
+
+    def otimization_exit(self):
+        self.otimization_flag = True
+
+
+    def back_tpsl(self,
+                multiply_tp,
+                multiply_sl,
+                tpsl_mean=14,
+                is_jpy=False,
+                analyse=True,
+                plot=False,
+                single_test=False,
+                omitimization=False):
         """
-        se for um multi_test tpsl devera ser uma lista dos take profit e stop loss
+        single_test = True
+            Deverá ser chamado antes robot.tpsl_calculation_otimization_single(periodo)
+                                    robot.normal_data_to_array()
+        otimization = True
+            Apenas passar tpsl_mean
         Returns
         list_backtest = Todos os trades
         sell_orders
         buy_orders
         each_pair = resultado de cada par
         """
-        if not multi_test:
-            self.tpsl_calculation_otimization(tpsl_mean)
-            self.normal_data_to_array()
-            tot, sell, buy =  bt.single_backtest(self.get_numpy_normal_data(),
+        if single_test:
+
+            if otimization and self.otimization_flag:
+                self.prepare_otimization(tpsl_mean)
+                self.otimization_flag = False
+
+            tot, sell, buy = bt.single_backtest(self.get_numpy_normal_data(),
                                                 multiply_tp=multiply_tp,
-                                                multiply_sl=multiply_sl)
-            self.del_numpy_normal_data()
+                                                multiply_sl=multiply_sl,
+                                                jpy=is_jpy)
+
             if analyse:
                 return self.analysis_backtest(self.clean_results(tot, sell, buy))
             else:
                 return self.clean_results(tot, sell, buy)
-        else:
+        elif not single_test:
             # wfe_tot = pd.DataFrame()
             # c = 0
             # self.walk_forward_split()

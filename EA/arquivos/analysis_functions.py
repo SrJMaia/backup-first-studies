@@ -10,11 +10,11 @@ class Analysis:
 
     def set_period(self, length, multi=False):
         period = 0
-        if self.__data_timeframe == 'D1':
+        if self._Data__data_timeframe == 'D1':
             period = 250 / length
-        elif self.__data_timeframe == 'H4':
+        elif self._Data__data_timeframe == 'H4':
             period = 250 / (length / 6)
-        elif self.__data_timeframe == 'H1':
+        elif self._Data__data_timeframe == 'H1':
             period = 250 / (length / 24)
 
 

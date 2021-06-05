@@ -23,11 +23,12 @@ class Data(MetaTrader, Pairs):
 
 
     def normal_data_to_array(self):
-        array = self.get_normal_data()[[f'{__single_pair_name}_Open',
-                                        f'{__single_pair_name}_High',
-                                        f'{__single_pair_name}_Low',
-                                        f'{__single_pair_name}_Close',
-                                        f'{__data_timeframe}',
+        array = self.get_normal_data()[[f'{self.__single_pair_name}_Open',
+                                        f'{self.__single_pair_name}_High',
+                                        f'{self.__single_pair_name}_Low',
+                                        f'{self.__single_pair_name}_Close',
+                                        f'{self.__data_timeframe}',
+                                        'TPSL',
                                         'Sell_Flag',
                                         'Buy_Flag']].to_numpy().T
 
@@ -69,20 +70,47 @@ class Data(MetaTrader, Pairs):
         """
         if single_currency:
             self.__single_pair_name = pair
+
         self.__data_timeframe = timeframe
+
         if drop:
             self.__normal_data = pd.read_csv(path, sep=separator).drop(columns=drop_list)
         else:
             self.__normal_data = pd.read_csv(path, sep=separator)
 
+        self.__normal_data['time'] = pd.to_datetime(self.__normal_data['time'])
+
         if timeframe == 'H1':
-            self.__tf_data = self.get_normal_data().loc[self.get_normal_data()['time'].dt.minute == 0, f'{pair}_Open']
+            self.__tf_data = self.get_normal_data().loc[self.get_normal_data()['time'].dt.minute == 0, f'{pair}_Open'].reset_index(drop=True).to_numpy()
+            self.__normal_data.loc[self.__normal_data['time'].dt.minute == 0, 'H1'] = self.__tf_data
         elif timeframe == 'H4':
-            self.__tf_data = self.get_normal_data().loc[(self.get_normal_data()['time'].dt.hour.isin([0, 4, 8, 12, 16, 20])) & (self.get_normal_data()['time'].dt.minute == 0), f'{pair}_Open']
-        elif tiemframe == 'D1':
-            self.__tf_data = self.get_normal_data().loc[(self.get_normal_data()['time'].dt.hour == 0) & (self.get_normal_data()['time'].dt.minute == 0), f'{pair}_Open']
+            self.__tf_data = self.get_normal_data().loc[(self.get_normal_data()['time'].dt.hour.isin([0, 4, 8, 12, 16, 20])) & (self.get_normal_data()['time'].dt.minute == 0), f'{pair}_Open'].reset_index(drop=True).to_numpy()
+            self.__normal_data.loc[(self.get_normal_data()['time'].dt.hour.isin([0, 4, 8, 12, 16, 20])) & (self.get_normal_data()['time'].dt.minute == 0), 'H4'] = self.__tf_data
+        elif timeframe == 'D1':
+            self.__tf_data = self.get_normal_data().loc[(self.get_normal_data()['time'].dt.hour == 0) & (self.get_normal_data()['time'].dt.minute == 0), f'{pair}_Open'].reset_index(drop=True).to_numpy()
+            self.__normal_data.loc[(self.get_normal_data()['time'].dt.hour == 0) & (self.get_normal_data()['time'].dt.minute == 0), 'D1'] = self.__tf_data
 
         print('Dados Carregados com Sucesso.')
+
+
+    def tpsl_calculation_otimization_single(self, periodo):
+
+        df = self.get_normal_data()
+
+        at = pd.DataFrame()
+
+        high = df[f'{self.__single_pair_name}_High'].shift()
+        low = df[f'{self.__single_pair_name}_Low'].shift()
+        close = df[f'{self.__single_pair_name}_Open'].shift(2)
+
+        at['a1'] = high-low
+        at['a2'] = abs(high - close)
+        at['a3'] = abs(low - close)
+        atr = pd.Series(at.values.max(1)).rolling(periodo).mean()
+
+        atr = atr.fillna(atr.mean())
+
+        self.__normal_data.loc[df.loc[self.__data_timeframe].index, 'TPSL'] = atr
 
 
     def walk_forward_split(self):

@@ -25,7 +25,7 @@ def finance_calculation(balance, saldo_inicial, saldo_final, preco_eur, eur):
 
 
 @njit(parallel=True)
-def single_backtest(array, multiply_tp, multiply_sl, eur = True, balance = 1000):
+def single_backtest(array, multiply_tp, multiply_sl, fix_tpsl = False, jpy = False, balance = 1000):
     """
     Caso for operar moedas nao eur, mudar o sistema do array
     array = [0] Open
@@ -40,6 +40,7 @@ def single_backtest(array, multiply_tp, multiply_sl, eur = True, balance = 1000)
     multiply_tpsl = float > 0
                     Será o valor que irá dividir SL
                     Se 1 significa risco 1:1, se 2, 2:1 and so on
+    fix_tpsl = Se True, multiply_tp e sl deverão ser um valor fixo para calculo
     ---
     buy_sell: 0 = Compra
               1 = Venda
@@ -58,14 +59,14 @@ def single_backtest(array, multiply_tp, multiply_sl, eur = True, balance = 1000)
 
     buy_sell_tot_trades_indi = np.zeros(3, dtype=np.int32)
 
-    buy_orders = np.zeros((array[0].size), dtype=np.float32)
-    sell_orders = np.zeros((array[0].size), dtype=np.float32)
+    buy_orders = np.zeros((array[7].size), dtype=np.float32)
+    sell_orders = np.zeros((array[6].size), dtype=np.float32)
     buy_orders[0] = balance_backtest
     sell_orders[0] = balance_backtest
     buy_sell_tot_trades_indi[0] += 1
     buy_sell_tot_trades_indi[1] += 1
 
-    tot_trades = np.zeros((array[0].size), dtype=np.float32)
+    tot_trades = np.zeros(((array[7].size+array[6].size)), dtype=np.float32)
     tot_trades[0] = balance_backtest
     buy_sell_tot_trades_indi[2] += 1
 
@@ -77,15 +78,39 @@ def single_backtest(array, multiply_tp, multiply_sl, eur = True, balance = 1000)
     for i in np.arange(array[0].size): # Array tamanho
 
         if not np.isnan(array[4][i]):
+
+            def tpsl_calc(price, multiply_tp, multiply_sl, tpsl_value=0, jpy=False, buy=True, fix_tpsl = False):
+                tp, sl = 0, 0
+                round_tpsl = 3 if jpy else 5
+                if fix_tpsl:
+                    if buy:
+                        tp = round(price + multiply_tp, round_tpsl)
+                        sl = round(price - multiply_sl, round_tpsl)
+                    elif not buy:
+                        tp = round(price - multiply_tp, round_tpsl)
+                        sl = round(price + multiply_sl, round_tpsl)
+                else:
+                    if buy:
+                        tp = price + round(multiply_tp * tpsl_value, round_tpsl)
+                        sl = price - round(multiply_sl * tpsl_value, round_tpsl)
+                    elif not buy:
+                        tp = price - round(multiply_tp * tpsl_value, round_tpsl)
+                        sl = price + round(multiply_sl * tpsl_value, round_tpsl)
+
+                return tp, sl
+
             if array[7][i] == 1. and buy_sell[0] == 1.: #Compra
                 operacao_info[0] = array[4][i]
                 buy_sell[0] = False
-                if eur:
+                # fix_tpsl
+                if fix_tpsl:
+                    tpsl_calc(price=array[4][i], multiply_tp=multiply_tp, multiply_sl=multiply_sl, jpy=jpy, buy=True, fix_tpsl=True)
                     operacao_info[4] = array[4][i] + round(multiply_tp * array[5][i],3) # TP
                     #operacao_info[4] = array[0][i] + tk_jpy
                     operacao_info[5] = array[4][i] - round(multiply_sl * array[5][i],3) # SL
                     #operacao_info[5] = array[0][i] - sl_jpy
-                else:
+                elif not fix_tpsl:
+                    tpsl_calc(price=array[4][i], multiply_tp=multiply_tp, multiply_sl=multiply_sl, tpsl_value=array[5][i], jpy=jpy, buy=True, fix_tpsl=True)
                     operacao_info[4] = array[4][i] + round(multiply_tp * array[5][i],5) # TP
                     #operacao_info[4] = array[0][i] + tk_normal
                     operacao_info[5] = array[4][i] - round(multiply_sl * array[5][i],5) # SL
@@ -93,12 +118,14 @@ def single_backtest(array, multiply_tp, multiply_sl, eur = True, balance = 1000)
             elif array[6][i] == 1. and buy_sell[1] == 1.:
                 operacao_info[1] = array[4][i]
                 buy_sell[1] = False
-                if eur:
+                if fix_tpsl:
+                    tpsl_calc(price=array[4][i], multiply_tp=multiply_tp, multiply_sl=multiply_sl, jpy=jpy, buy=False, fix_tpsl=True)
                     operacao_info[2] = array[4][i] - round(multiply_tp * array[5][i],3) # TP
                     #operacao_info[2] = array[0][i] - tk_jpy
                     operacao_info[3] = array[4][i] + round(multiply_sl * array[5][i],3) # SL
                     #operacao_info[3] = array[0][i] + sl_jpy
-                else:
+                elif not fix_tpsl:
+                    tpsl_calc(price=array[4][i], multiply_tp=multiply_tp, multiply_sl=multiply_sl, tpsl_value=array[5][i], jpy=jpy, buy=False, fix_tpsl=True)
                     operacao_info[2] = array[4][i] - round(multiply_tp * array[5][i],5) # TP
                     #operacao_info[2] = array[0][i] - tk_normal
                     operacao_info[3] = array[4][i] + round(multiply_sl * array[5][i],5) # SL
