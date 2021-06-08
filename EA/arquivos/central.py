@@ -40,6 +40,10 @@ class Central(Signals, Analysis):
         else:
             self.tpsl_calculation_otimization_single(period)
         self.normal_data_to_array()
+        np.nan_to_num(self.get_numpy_normal_data()[6], copy=False, nan=0.0)
+        np.nan_to_num(self.get_numpy_normal_data()[7], copy=False, nan=0.0)
+        self.size_buy = int(self.get_numpy_normal_data()[7].sum() + 1)
+        self.size_sell = int(self.get_numpy_normal_data()[6].sum() + 1)
 
 
     def otimization_exit(self):
@@ -51,11 +55,12 @@ class Central(Signals, Analysis):
                 multiply_sl,
                 tpsl_mean=14,
                 fix_tpsl=False,
-                is_jpy=False,
+                uni_flag=False,
+                jpy=False,
                 analyse=True,
                 plot=False,
                 single_test=False,
-                omitimization=False):
+                otimization=False):
         """
         single_test = True
             Deverá ser chamado antes robot.tpsl_calculation_otimization_single(periodo)
@@ -77,7 +82,11 @@ class Central(Signals, Analysis):
             tot, sell, buy = bt.single_backtest(self.get_numpy_normal_data(),
                                                 multiply_tp=multiply_tp,
                                                 multiply_sl=multiply_sl,
-                                                jpy=is_jpy)
+                                                size_buy=self.size_buy,
+                                                size_sell=self.size_sell,
+                                                fix_tpsl=fix_tpsl,
+                                                universal_flag=uni_flag,
+                                                jpy=jpy)
 
             if analyse:
                 return self.analysis_backtest(self.clean_results(tot, sell, buy))
