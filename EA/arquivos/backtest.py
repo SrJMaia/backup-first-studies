@@ -74,6 +74,8 @@ def single_backtest(array, multiply_tp, multiply_sl, size_buy=0, size_sell=0, jp
     buy_sell: 0 = Compra
               1 = Venda
               2 = uni_flag
+              PS: Universal Flag usa 0 e 1 mas por questões tecnicas
+              para uma compra não ser fechada em uma venda
     operacao_info: 0 = Preço de Compra
                    1 = Preço de Venda
                    2 = TP Venda
@@ -108,11 +110,8 @@ def single_backtest(array, multiply_tp, multiply_sl, size_buy=0, size_sell=0, jp
         buy_result, sell_result = 0, 0
 
         if universal_flag:
-            """
-            Há um bug que nao funciona, não sei o motivo
-            """
             if not np.isnan(array[4, i]):
-                if array[7, i] and buy_sell[0]: #Compra
+                if array[7, i] and buy_sell[2]: #Compra
                     operacao_info[0] = array[4, i]
                     operacao_info[4], operacao_info[5] = tpsl_calc(price=array[4, i],
                                                                     multiply_tp=multiply_tp,
@@ -122,7 +121,8 @@ def single_backtest(array, multiply_tp, multiply_sl, size_buy=0, size_sell=0, jp
                                                                     buy=True,
                                                                     fix_tpsl=fix_tpsl)
                     buy_sell[2] = False
-                elif array[6, i] and buy_sell[1]:
+                    buy_sell[0] = True
+                elif array[6, i] and buy_sell[2]:
                     operacao_info[1] = array[4, i]
                     operacao_info[2], operacao_info[3] = tpsl_calc(price=array[4, i],
                                                                     multiply_tp=multiply_tp,
@@ -132,47 +132,54 @@ def single_backtest(array, multiply_tp, multiply_sl, size_buy=0, size_sell=0, jp
                                                                     buy=False,
                                                                     fix_tpsl=fix_tpsl)
                     buy_sell[2] = False
+                    buy_sell[1] = True
             elif np.isnan(array[4, i]):
-                if buy_sell[2] == False and check_tpsl_exit(array[0][i], array[1][i], array[2][i], operacao_info[5], higher=False):
-                    balance_backtest, buy_result = finance_calculation(balance=balance_backtest,
-                                                                        saldo_inicial=operacao_info[5],
-                                                                        saldo_final=operacao_info[0],
-                                                                        preco_eur=operacao_info[5])
-                    tot_trades[tot_trades_indi] = balance_backtest
-                    buy_orders[buy_indi] = buy_orders[buy_indi-1] + buy_result
-                    buy_indi += 1
-                    tot_trades_indi += 1
-                    buy_sell[2] = True
-                elif buy_sell[2] == False and check_tpsl_exit(array[0][i], array[1][i], array[2][i], operacao_info[4], higher=True):
-                    balance_backtest, buy_result = finance_calculation(balance=balance_backtest,
-                                                                        saldo_inicial=operacao_info[4],
-                                                                        saldo_final=operacao_info[0],
-                                                                        preco_eur=operacao_info[4])
-                    tot_trades[tot_trades_indi] = balance_backtest
-                    buy_orders[buy_indi] = buy_orders[buy_indi-1] + buy_result
-                    buy_indi += 1
-                    tot_trades_indi += 1
-                    buy_sell[2] = True
-                elif buy_sell[2] == False and check_tpsl_exit(array[0][i], array[1][i], array[2][i], operacao_info[3], higher=True):
-                    balance_backtest, sell_result = finance_calculation(balance=balance_backtest,
-                                                                        saldo_inicial=operacao_info[1],
-                                                                        saldo_final=operacao_info[3],
-                                                                        preco_eur=operacao_info[1])
-                    tot_trades[tot_trades_indi] = balance_backtest
-                    sell_orders[sell_indi] = sell_orders[sell_indi-1] + sell_result
-                    sell_indi += 1
-                    tot_trades_indi += 1
-                    buy_sell[2] = True
-                elif buy_sell[2] == False and check_tpsl_exit(array[0][i], array[1][i], array[2][i], operacao_info[2], higher=False):
-                    balance_backtest, sell_result = finance_calculation(balance=balance_backtest,
-                                                                        saldo_inicial=operacao_info[1],
-                                                                        saldo_final=operacao_info[2],
-                                                                        preco_eur=operacao_info[1])
-                    tot_trades[tot_trades_indi] = balance_backtest
-                    sell_orders[sell_indi] = sell_orders[sell_indi-1] + sell_result
-                    sell_indi += 1
-                    tot_trades_indi += 1
-                    buy_sell[2] = True
+                if buy_sell[0]:
+                    if buy_sell[2] == False and check_tpsl_exit(array[0][i], array[1][i], array[2][i], operacao_info[5], higher=False):
+                        balance_backtest, buy_result = finance_calculation(balance=balance_backtest,
+                                                                            saldo_inicial=operacao_info[5],
+                                                                            saldo_final=operacao_info[0],
+                                                                            preco_eur=operacao_info[5])
+                        tot_trades[tot_trades_indi] = balance_backtest
+                        buy_orders[buy_indi] = buy_orders[buy_indi-1] + buy_result
+                        buy_indi += 1
+                        tot_trades_indi += 1
+                        buy_sell[2] = True
+                        buy_sell[0] = False
+                    elif buy_sell[2] == False and check_tpsl_exit(array[0][i], array[1][i], array[2][i], operacao_info[4], higher=True):
+                        balance_backtest, buy_result = finance_calculation(balance=balance_backtest,
+                                                                            saldo_inicial=operacao_info[4],
+                                                                            saldo_final=operacao_info[0],
+                                                                            preco_eur=operacao_info[4])
+                        tot_trades[tot_trades_indi] = balance_backtest
+                        buy_orders[buy_indi] = buy_orders[buy_indi-1] + buy_result
+                        buy_indi += 1
+                        tot_trades_indi += 1
+                        buy_sell[2] = True
+                        buy_sell[0] = False
+                elif buy_sell[1]:
+                    if buy_sell[2] == False and check_tpsl_exit(array[0][i], array[1][i], array[2][i], operacao_info[3], higher=True):
+                        balance_backtest, sell_result = finance_calculation(balance=balance_backtest,
+                                                                            saldo_inicial=operacao_info[1],
+                                                                            saldo_final=operacao_info[3],
+                                                                            preco_eur=operacao_info[1])
+                        tot_trades[tot_trades_indi] = balance_backtest
+                        sell_orders[sell_indi] = sell_orders[sell_indi-1] + sell_result
+                        sell_indi += 1
+                        tot_trades_indi += 1
+                        buy_sell[2] = True
+                        buy_sell[1] = False
+                    elif buy_sell[2] == False and check_tpsl_exit(array[0][i], array[1][i], array[2][i], operacao_info[2], higher=False):
+                        balance_backtest, sell_result = finance_calculation(balance=balance_backtest,
+                                                                            saldo_inicial=operacao_info[1],
+                                                                            saldo_final=operacao_info[2],
+                                                                            preco_eur=operacao_info[1])
+                        tot_trades[tot_trades_indi] = balance_backtest
+                        sell_orders[sell_indi] = sell_orders[sell_indi-1] + sell_result
+                        sell_indi += 1
+                        tot_trades_indi += 1
+                        buy_sell[2] = True
+                        buy_sell[1] = False
         elif not universal_flag: # UNIVERSAL FLAG
             if not np.isnan(array[4, i]):
                 if array[7, i] and buy_sell[0]: #Compra
