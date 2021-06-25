@@ -1,0 +1,144 @@
+def test_backtest(first_currency,second_currency,pair,balance,risk,leverage,jpy=False):
+    best_buy_pip = 0
+    best_sell_pip = 0
+    fix_best_value = 0
+    best_balance = balance
+    risk = risk
+    leverage = leverage
+    balance_dt = pd.DataFrame()
+    for j in range(101):
+        clear_output(wait=True)
+        print(f'{j}/100')
+        flag_buy = True
+        flag_sell = True
+        price_bought = 0.0
+        price_sold = 0.0
+        pip_buy = 0
+        pip_sell = 0
+        balance_backtest = balance
+        list_backtest = [balance]
+        for i in range(len(pair)):
+            if first_currency.iloc[i] < -j and second_currency.iloc[i] > j and flag_buy:
+                if flag_sell == False:
+                    balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold,pair.iloc[i],jpy=jpy)
+                    list_backtest.append(balance_backtest)
+                    pip_sell = price_sold - pair.iloc[i]
+                    flag_sell = True
+                    price_sold = 0
+                    flag_buy = False
+                    price_bought = pair.iloc[i]
+                else:
+                    flag_buy = False
+                    price_bought = pair.iloc[i]
+            elif first_currency.iloc[i] > j and second_currency.iloc[i] < -j and flag_sell:
+                if flag_buy == False:
+                    balance_backtest = account_balance(balance_backtest,risk,leverage,pair.iloc[i],price_bought,jpy=jpy)
+                    list_backtest.append(balance_backtest)
+                    pip_buy = pair.iloc[i] - price_bought
+                    flag_buy = True
+                    price_bought = 0
+                    flag_sell = False
+                    price_sold = pair.iloc[i]
+                else:
+                    flag_sell = False
+                    price_sold = pair.iloc[i]
+        if balance_backtest > best_balance:
+            balance_dt[f'{j}'] = pd.Series(list_backtest)
+            best_buy_pip = pip_buy
+            best_sell_pip = pip_sell
+            best_balance = balance_backtest
+            fix_best_value = j
+
+    return best_balance, fix_best_value, best_buy_pip, best_sell_pip, balance_dt
+
+# EUR
+balance_dt_eurusd = pd.DataFrame()
+balance_eurusd, eurusd_fix_value, eurusd_buy_pip, eurusd_sell_pip, balance_dt_eurusd = test_backtest(data['eur'],data['usd'],data['EURUSD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_eurusd, eurusd_fix_value
+balance_dt_eurgbp = pd.DataFrame()
+balance_eurgbp, eurgbp_fix_value, eurgbp_buy_pip, eurgbp_sell_pip, balance_dt_eurgbp = test_backtest(data['eur'],data['gbp'],data['EURGBP'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_eurgbp, eurgbp_fix_value
+balance_dt_eurchf = pd.DataFrame()
+balance_eurchf, eurchf_fix_value, eurchf_buy_pip, eurchf_sell_pip, balance_dt_eurchf = test_backtest(data['eur'],data['chf'],data['EURCHF'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_eurchf, eurchf_fix_value
+balance_dt_eurnzd = pd.DataFrame()
+balance_eurnzd, eurnzd_fix_value, eurnzd_buy_pip, eurnzd_sell_pip, balance_dt_eurnzd = test_backtest(data['eur'],data['nzd'],data['EURNZD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_eurnzd, eurnzd_fix_value
+balance_dt_euraud = pd.DataFrame()
+balance_euraud, euraud_fix_value, euraud_buy_pip, euraud_sell_pip, balance_dt_euraud = test_backtest(data['eur'],data['aud'],data['EURAUD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_euraud, euraud_fix_value
+balance_dt_eurcad = pd.DataFrame()
+balance_eurcad, eurcad_fix_value, eurcad_buy_pip, eurcad_sell_pip, balance_dt_eurcad = test_backtest(data['eur'],data['cad'],data['EURCAD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_eurcad, eurcad_fix_value
+balance_dt_eurjpy = pd.DataFrame()
+balance_eurjpy, eurjpy_fix_value, eurjpy_buy_pip, eurjpy_sell_pip, balance_dt_eurjpy = test_backtest(data['eur'],data['jpy'],data['EURJPY'],balance=balance_test,risk=risk_test,leverage=leverage_test,jpy=True)
+balance_eurjpy, eurjpy_fix_value
+# USD
+balance_dt_usdcad = pd.DataFrame()
+balance_usdcad, usdcad_fix_value, usdcad_buy_pip, usdcad_sell_pip, balance_dt_usdcad = test_backtest(data['usd'],data['cad'],data['USDCAD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_usdcad, usdcad_fix_value
+balance_dt_gbpusd = pd.DataFrame()
+balance_gbpusd, gbpusd_fix_value, gbpusd_buy_pip, gbpusd_sell_pip, balance_dt_gbpusd = test_backtest(data['gbp'],data['usd'],data['GBPUSD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_gbpusd, gbpusd_fix_value
+balance_dt_usdchf = pd.DataFrame()
+balance_usdchf, usdchf_fix_value, usdchf_buy_pip, usdchf_sell_pip, balance_dt_usdchf = test_backtest(data['usd'],data['chf'],data['USDCHF'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_usdchf, usdchf_fix_value
+balance_dt_audusd = pd.DataFrame()
+balance_audusd, audusd_fix_value, audusd_buy_pip, audusd_sell_pip, balance_dt_audusd = test_backtest(data['aud'],data['usd'],data['AUDUSD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_audusd, audusd_fix_value
+balance_dt_nzdusd = pd.DataFrame()
+balance_nzdusd, nzdusd_fix_value, nzdusd_buy_pip, nzdusd_sell_pip, balance_dt_nzdusd = test_backtest(data['nzd'],data['usd'],data['NZDUSD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_nzdusd, nzdusd_fix_value
+balance_dt_usdjpy = pd.DataFrame()
+balance_usdjpy, usdjpy_fix_value, usdjpy_buy_pip, usdjpy_sell_pip, balance_dt_usdjpy = test_backtest(data['usd'],data['jpy'],data['USDJPY'],balance=balance_test,risk=risk_test,leverage=leverage_test,jpy=True)
+balance_usdjpy, usdjpy_fix_value
+# GBP
+balance_dt_gbpaud = pd.DataFrame()
+balance_gbpaud, gbpaud_fix_value, gbpaud_buy_pip, gbpaud_sell_pip, balance_dt_gbpaud = test_backtest(data['gbp'],data['aud'],data['GBPAUD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_gbpaud, gbpaud_fix_value
+balance_dt_gbpchf = pd.DataFrame()
+balance_gbpchf, gbpchf_fix_value, gbpchf_buy_pip, gbpchf_sell_pip, balance_dt_gbpchf = test_backtest(data['gbp'],data['chf'],data['GBPCHF'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_gbpchf, gbpchf_fix_value
+balance_dt_gbpjpy = pd.DataFrame()
+balance_gbpjpy, gbpjpy_fix_value, gbpjpy_buy_pip, gbpjpy_sell_pip, balance_dt_gbpjpy = test_backtest(data['gbp'],data['jpy'],data['GBPJPY'],balance=balance_test,risk=risk_test,leverage=leverage_test,jpy=True)
+balance_gbpjpy, gbpjpy_fix_value
+balance_dt_gbpcad = pd.DataFrame()
+balance_gbpcad, gbpcad_fix_value, gbpcad_buy_pip, gbpcad_sell_pip, balance_dt_gbpcad = test_backtest(data['gbp'],data['cad'],data['GBPCAD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_gbpcad, gbpcad_fix_value
+balance_dt_gbpnzd = pd.DataFrame()
+balance_gbpnzd, gbpnzd_fix_value, gbpnzd_buy_pip, gbpnzd_sell_pip, balance_dt_gbpnzd = test_backtest(data['gbp'],data['nzd'],data['GBPNZD'],balance=balance_test,risk=risk_test,leverage=leverage_test)
+balance_gbpnzd, gbpnzd_fix_value
+# JPY
+balance_dt_audjpy = pd.DataFrame()
+balance_audjpy, audjpy_fix_value, audjpy_buy_pip, audjpy_sell_pip, balance_dt_audjpy = test_backtest(data['aud'],data['jpy'],data['AUDJPY'],balance=balance_test,risk=risk_test,leverage=leverage_test,jpy=True)
+balance_audjpy, audjpy_fix_value
+balance_dt_cadjpy = pd.DataFrame()
+balance_cadjpy, cadjpy_fix_value, cadjpy_buy_pip, cadjpy_sell_pip, balance_dt_cadjpy = test_backtest(data['cad'],data['jpy'],data['CADJPY'],balance=balance_test,risk=risk_test,leverage=leverage_test,jpy=True)
+balance_cadjpy, cadjpy_fix_value
+balance_dt_chfjpy = pd.DataFrame()
+balance_chfjpy, chfjpy_fix_value, chfjpy_buy_pip, chfjpy_sell_pip, balance_dt_chfjpy = test_backtest(data['chf'],data['jpy'],data['CHFJPY'],balance=balance_test,risk=risk_test,leverage=leverage_test,jpy=True)
+balance_chfjpy, chfjpy_fix_value
+balance_dt_nzdjpy = pd.DataFrame()
+balance_nzdjpy, nzdjpy_fix_value, nzdjpy_buy_pip, nzdjpy_sell_pip, balance_dt_nzdjpy = test_backtest(data['nzd'],data['jpy'],data['NZDJPY'],balance=balance_test,risk=risk_test,leverage=leverage_test,jpy=True)
+balance_nzdjpy, nzdjpy_fix_value
+# CHF
+balance_dt_audchf = pd.DataFrame()
+balance_audchf, audchf_fix_value, audchf_buy_pip, audchf_sell_pip, balance_dt_audchf = test_backtest(data['aud'],data['chf'],data['AUDCHF'],balance=balance_test,risk=risk_test,leverage=leverage_test,)
+balance_audchf, audchf_fix_value
+balance_dt_cadchf = pd.DataFrame()
+balance_cadchf, cadchf_fix_value, cadchf_buy_pip, cadchf_sell_pip, balance_dt_cadchf = test_backtest(data['cad'],data['chf'],data['CADCHF'],balance=balance_test,risk=risk_test,leverage=leverage_test,)
+balance_cadchf, cadchf_fix_value
+balance_dt_nzdchf = pd.DataFrame()
+balance_nzdchf, nzdchf_fix_value, nzdchf_buy_pip, nzdchf_sell_pip, balance_dt_nzdchf = test_backtest(data['nzd'],data['chf'],data['NZDCHF'],balance=balance_test,risk=risk_test,leverage=leverage_test,)
+balance_nzdchf, nzdchf_fix_value
+# NZD
+balance_dt_audnzd = pd.DataFrame()
+balance_audnzd, audnzd_fix_value, audnzd_buy_pip, audnzd_sell_pip, balance_dt_audnzd = test_backtest(data['aud'],data['nzd'],data['AUDNZD'],balance=balance_test,risk=risk_test,leverage=leverage_test,)
+balance_audnzd, audnzd_fix_value
+balance_dt_nzdcad = pd.DataFrame()
+balance_nzdcad, nzdcad_fix_value, nzdcad_buy_pip, nzdcad_sell_pip, balance_dt_nzdcad = test_backtest(data['nzd'],data['cad'],data['NZDCAD'],balance=balance_test,risk=risk_test,leverage=leverage_test,)
+balance_nzdcad, nzdcad_fix_value
+# AUD
+balance_dt_audcad = pd.DataFrame()
+balance_audcad, audcad_fix_value, audcad_buy_pip, audcad_sell_pip, balance_dt_audcad = test_backtest(data['aud'],data['cad'],data['AUDCAD'],balance=balance_test,risk=risk_test,leverage=leverage_test,)
+balance_audcad, audcad_fix_value

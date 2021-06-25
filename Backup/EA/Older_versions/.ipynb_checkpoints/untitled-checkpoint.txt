@@ -1,0 +1,347 @@
+def new_single_backtest(k):
+
+    mt5.initialize()
+    if not mt5.initialize(login=40305620,password='x8dcteyv',server='MetaQuotes-Demo'):
+        print('MT5 não iniciado.')
+        mt5.shutdown()
+
+    initial_balance = 10_000
+
+    balance_bests_results = pd.DataFrame()
+
+    best_result = 0
+
+    eur = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD']
+    gbp = ['EURGBP','GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD']
+    usd = ['GBPUSD','USDCHF','USDJPY','AUDUSD','NZDUSD','USDCAD','EURUSD']
+    jpy = ['AUDJPY','CADJPY','CHFJPY','EURJPY','USDJPY','GBPJPY','NZDJPY']
+    chf = ['AUDCHF','CADCHF','CHFJPY','USDCHF','EURCHF','GBPCHF','NZDCHF']
+    nzd = ['AUDNZD','EURNZD','GBPNZD','NZDUSD','NZDCAD','NZDCHF','NZDJPY']
+    aud = ['AUDCAD','AUDCHF','AUDJPY','AUDUSD','AUDNZD','EURAUD','GBPAUD']
+    cad = ['AUDCAD','CADCHF','CADJPY','USDCAD','EURCAD','GBPCAD','NZDCAD']
+
+    all_pairs = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD',
+                 'GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD','USDCHF',
+                 'USDJPY','AUDUSD','NZDUSD','USDCAD','AUDJPY','CADJPY','CHFJPY',
+                 'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD']
+
+    all_pairs_close = ['EURCHF_Close','EURGBP_Close','EURJPY_Close','EURNZD_Close','EURUSD_Close','EURAUD_Close','EURCAD_Close',
+                      'GBPAUD_Close','GBPCHF_Close','GBPJPY_Close','GBPCAD_Close','GBPUSD_Close','GBPNZD_Close','USDCHF_Close',
+                      'USDJPY_Close','AUDUSD_Close','NZDUSD_Close','USDCAD_Close','AUDJPY_Close','CADJPY_Close','CHFJPY_Close',
+                      'NZDJPY_Close','AUDCHF_Close','CADCHF_Close','NZDCHF_Close','AUDNZD_Close','NZDCAD_Close','AUDCAD_Close']
+
+    all_pairs_high = ['EURCHF_High','EURGBP_High','EURJPY_High','EURNZD_High','EURUSD_High','EURAUD_High','EURCAD_High',
+                     'GBPAUD_High','GBPCHF_High','GBPJPY_High','GBPCAD_High','GBPUSD_High','GBPNZD_High','USDCHF_High',
+                     'USDJPY_High','AUDUSD_High','NZDUSD_High','USDCAD_High','AUDJPY_High','CADJPY_High','CHFJPY_High',
+                     'NZDJPY_High','AUDCHF_High','CADCHF_High','NZDCHF_High','AUDNZD_High','NZDCAD_High','AUDCAD_High']
+
+    all_pairs_low = ['EURCHF_Low','EURGBP_Low','EURJPY_Low','EURNZD_Low','EURUSD_Low','EURAUD_Low','EURCAD_Low',
+                    'GBPAUD_Low','GBPCHF_Low','GBPJPY_Low','GBPCAD_Low','GBPUSD_Low','GBPNZD_Low','USDCHF_Low',
+                    'USDJPY_Low','AUDUSD_Low','NZDUSD_Low','USDCAD_Low','AUDJPY_Low','CADJPY_Low','CHFJPY_Low',
+                    'NZDJPY_Low','AUDCHF_Low','CADCHF_Low','NZDCHF_Low','AUDNZD_Low','NZDCAD_Low','AUDCAD_Low']
+
+    data = pd.DataFrame()
+
+    data['eur'] = diff_data(eur,k)
+    #data['eur_high'] = diff_data_high(eur,k)
+    #data['eur_low'] = diff_data_low(eur,k)
+    data['usd'] = diff_data(usd,k)
+    #data['usd_high'] = diff_data_high(usd,k)
+    #data['usd_low'] = diff_data_low(usd,k)
+    data['gbp'] = diff_data(gbp,k)
+    #data['gbp_high'] = diff_data_high(gbp,k)
+    #data['gbp_low'] = diff_data_low(gbp,k)
+    data['jpy'] = diff_data(jpy,k)
+    #data['jpy_high'] = diff_data_high(jpy,k)
+    #data['jpy_low'] = diff_data_low(jpy,k)
+    data['chf'] = diff_data(chf,k)
+    #data['chf_high'] = diff_data_high(chf,k)
+    #data['chf_low'] = diff_data_low(chf,k)
+    data['nzd'] = diff_data(nzd,k)
+    #data['nzd_high'] = diff_data_high(nzd,k)
+    #data['nzd_low'] = diff_data_low(nzd,k)
+    data['aud'] = diff_data(aud,k)
+    #data['aud_high'] = diff_data_high(aud,k)
+    #data['aud_low'] = diff_data_low(aud,k)
+    data['cad'] = diff_data(cad,k)
+    #data['cad_high'] = diff_data_high(cad,k)
+    #data['cad_low'] = diff_data_low(cad,k)
+
+    for i in range(len(all_pairs)):
+        data[all_pairs[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['close']
+        #data[all_pairs_high[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['high']
+        #data[all_pairs_low[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['low']
+    
+    data['eur'].fillna(data['eur'].mean())
+    data['usd'].fillna(data['usd'].mean())
+    data['gbp'].fillna(data['gbp'].mean())
+    data['jpy'].fillna(data['jpy'].mean())
+    data['chf'].fillna(data['chf'].mean())
+    data['nzd'].fillna(data['nzd'].mean())
+    data['aud'].fillna(data['aud'].mean())
+    data['cad'].fillna(data['cad'].mean())
+    data.dropna(inplace=True)
+
+    risk = 0.01
+    leverage = 100
+    balance_backtest = 1_000
+    list_backtest = [balance_backtest]
+
+    my_events = events
+
+    for i in range(len(data)):
+        
+        clear_output(wait=True)
+        print(f'{i}/{len(data)}')
+        
+        for h in my_events.values():
+
+            if h['first_currency'] == 'eur':
+                if h['second_currency'] == 'jpy':
+                    if 0 > data[h['first_currency']].iloc[i] > -(data[h['first_currency']].std()*2) and 0 < data[h['second_currency']].iloc[i] < (data[h['second_currency']].std()*2) and  h['buy']:
+                        if not  h['sell']:
+                            balance_backtest = finance_calculation(balance_backtest,saldo_inicial=h['sell_price'],saldo_final=data[h['symbol']].iloc[i],jpy=True)
+                            list_backtest.append(balance_backtest)
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['sell_price'] = 0
+                            h['sell'] = True
+                            h['buy'] = False
+                        else:
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['buy'] = False
+                    elif 0 < data[h['first_currency']].iloc[i] < (data[h['first_currency']].std()*2) and 0 > data[h['second_currency']].iloc[i] > -(data[h['second_currency']].std()*2) and h['sell']:
+                        if not h['buy']:
+                            balance_backtest = finance_calculation(balance_backtest,saldo_inicial=data[h['symbol']].iloc[i],saldo_final=h['buy_price'],jpy=True)
+                            list_backtest.append(balance_backtest)
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['buy_price'] = 0
+                            h['buy'] = True
+                            h['sell'] = False
+                        else:
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['sell'] = False
+                elif not h['second_currency'] == 'jpy':
+                    if 0 > data[h['first_currency']].iloc[i] > -(data[h['first_currency']].std()*2) and 0 < data[h['second_currency']].iloc[i] < (data[h['second_currency']].std()*2) and  h['buy']:
+                        if not  h['sell']:
+                            balance_backtest = finance_calculation(balance_backtest,saldo_inicial=h['sell_price'],saldo_final=data[h['symbol']].iloc[i])
+                            list_backtest.append(balance_backtest)
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['sell_price'] = 0
+                            h['sell'] = True
+                            h['buy'] = False
+                        else:
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['buy'] = False
+                    elif 0 < data[h['first_currency']].iloc[i] < (data[h['first_currency']].std()*2) and 0 > data[h['second_currency']].iloc[i] > -(data[h['second_currency']].std()*2) and h['sell']:
+                        if not h['buy']:
+                            balance_backtest = finance_calculation(balance_backtest,saldo_inicial=data[h['symbol']].iloc[i],saldo_final=h['buy_price'])
+                            list_backtest.append(balance_backtest)
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['buy_price'] = 0
+                            h['buy'] = True
+                            h['sell'] = False
+                        else:
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['sell'] = False
+            elif not h['first_currency'] == 'eur':
+                if h['second_currency'] == 'jpy':
+                    if 0 > data[h['first_currency']].iloc[i] > -(data[h['first_currency']].std()*2) and 0 < data[h['second_currency']].iloc[i] < (data[h['second_currency']].std()*2) and  h['buy']:
+                        if not  h['sell']:
+                            balance_backtest = finance_calculation(balance_backtest,saldo_inicial=h['sell_price'],saldo_final=data[h['symbol']].iloc[i],eur=False,preco_eur=data[h['preco_eur']].iloc[i],jpy=True)
+                            list_backtest.append(balance_backtest)
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['sell_price'] = 0
+                            h['sell'] = True
+                            h['buy'] = False
+                        else:
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['buy'] = False
+                    elif 0 < data[h['first_currency']].iloc[i] < (data[h['first_currency']].std()*2) and 0 > data[h['second_currency']].iloc[i] > -(data[h['second_currency']].std()*2) and h['sell']:
+                        if not h['buy']:
+                            balance_backtest = finance_calculation(balance_backtest,saldo_inicial=data[h['symbol']].iloc[i],saldo_final=h['buy_price'],eur=False,preco_eur=data[h['preco_eur']].iloc[i],jpy=True)
+                            list_backtest.append(balance_backtest)
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['buy_price'] = 0
+                            h['buy'] = True
+                            h['sell'] = False
+                        else:
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['sell'] = False
+                elif not h['second_currency'] == 'jpy':
+                    if 0 > data[h['first_currency']].iloc[i] > -(data[h['first_currency']].std()*2) and 0 < data[h['second_currency']].iloc[i] < (data[h['second_currency']].std()*2) and  h['buy']:
+                        if not  h['sell']:
+                            balance_backtest = finance_calculation(balance_backtest,saldo_inicial=h['sell_price'],saldo_final=data[h['symbol']].iloc[i],eur=False,preco_eur=data[h['preco_eur']].iloc[i])
+                            list_backtest.append(balance_backtest)
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['sell_price'] = 0
+                            h['sell'] = True
+                            h['buy'] = False
+                        else:
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['buy'] = False
+                    elif 0 < data[h['first_currency']].iloc[i] < (data[h['first_currency']].std()*2) and 0 > data[h['second_currency']].iloc[i] > -(data[h['second_currency']].std()*2) and h['sell']:
+                        if not h['buy']:
+                            balance_backtest = finance_calculation(balance_backtest,saldo_inicial=data[h['symbol']].iloc[i],saldo_final=h['buy_price'],eur=False,preco_eur=data[h['preco_eur']].iloc[i])
+                            list_backtest.append(balance_backtest)
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['buy_price'] = 0
+                            h['buy'] = True
+                            h['sell'] = False
+                        else:
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['sell'] = False
+                            
+
+    balance_bests_results[k] = pd.Series(list_backtest)
+    mt5.shutdown()
+    return balance_bests_results
+
+
+
+def new_multi_backtest():
+
+    mt5.initialize()
+    if not mt5.initialize(login=41442678,password='0cxebqvs',server='MetaQuotes-Demo'):
+        print('MT5 não iniciado.')
+        mt5.shutdown()
+
+    initial_balance = 1_000
+
+    balance_bests_results = pd.DataFrame()
+
+    best_result = 0
+
+    eur = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD']
+    gbp = ['EURGBP','GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD']
+    usd = ['GBPUSD','USDCHF','USDJPY','AUDUSD','NZDUSD','USDCAD','EURUSD']
+    jpy = ['AUDJPY','CADJPY','CHFJPY','EURJPY','USDJPY','GBPJPY','NZDJPY']
+    chf = ['AUDCHF','CADCHF','CHFJPY','USDCHF','EURCHF','GBPCHF','NZDCHF']
+    nzd = ['AUDNZD','EURNZD','GBPNZD','NZDUSD','NZDCAD','NZDCHF','NZDJPY']
+    aud = ['AUDCAD','AUDCHF','AUDJPY','AUDUSD','AUDNZD','EURAUD','GBPAUD']
+    cad = ['AUDCAD','CADCHF','CADJPY','USDCAD','EURCAD','GBPCAD','NZDCAD']
+
+    all_pairs = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD',
+                 'GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD','USDCHF',
+                 'USDJPY','AUDUSD','NZDUSD','USDCAD','AUDJPY','CADJPY','CHFJPY',
+                 'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD']
+
+    all_pairs_close = ['EURCHF_Close','EURGBP_Close','EURJPY_Close','EURNZD_Close','EURUSD_Close','EURAUD_Close','EURCAD_Close',
+                      'GBPAUD_Close','GBPCHF_Close','GBPJPY_Close','GBPCAD_Close','GBPUSD_Close','GBPNZD_Close','USDCHF_Close',
+                      'USDJPY_Close','AUDUSD_Close','NZDUSD_Close','USDCAD_Close','AUDJPY_Close','CADJPY_Close','CHFJPY_Close',
+                      'NZDJPY_Close','AUDCHF_Close','CADCHF_Close','NZDCHF_Close','AUDNZD_Close','NZDCAD_Close','AUDCAD_Close']
+
+    all_pairs_high = ['EURCHF_High','EURGBP_High','EURJPY_High','EURNZD_High','EURUSD_High','EURAUD_High','EURCAD_High',
+                     'GBPAUD_High','GBPCHF_High','GBPJPY_High','GBPCAD_High','GBPUSD_High','GBPNZD_High','USDCHF_High',
+                     'USDJPY_High','AUDUSD_High','NZDUSD_High','USDCAD_High','AUDJPY_High','CADJPY_High','CHFJPY_High',
+                     'NZDJPY_High','AUDCHF_High','CADCHF_High','NZDCHF_High','AUDNZD_High','NZDCAD_High','AUDCAD_High']
+
+    all_pairs_low = ['EURCHF_Low','EURGBP_Low','EURJPY_Low','EURNZD_Low','EURUSD_Low','EURAUD_Low','EURCAD_Low',
+                    'GBPAUD_Low','GBPCHF_Low','GBPJPY_Low','GBPCAD_Low','GBPUSD_Low','GBPNZD_Low','USDCHF_Low',
+                    'USDJPY_Low','AUDUSD_Low','NZDUSD_Low','USDCAD_Low','AUDJPY_Low','CADJPY_Low','CHFJPY_Low',
+                    'NZDJPY_Low','AUDCHF_Low','CADCHF_Low','NZDCHF_Low','AUDNZD_Low','NZDCAD_Low','AUDCAD_Low']
+
+    for k in range(1,22):
+
+        data = pd.DataFrame()
+
+        data['eur'] = diff_data(eur,k)
+        #data['eur_high'] = diff_data_high(eur,k)
+        #data['eur_low'] = diff_data_low(eur,k)
+        data['usd'] = diff_data(usd,k)
+        #data['usd_high'] = diff_data_high(usd,k)
+        #data['usd_low'] = diff_data_low(usd,k)
+        data['gbp'] = diff_data(gbp,k)
+        #data['gbp_high'] = diff_data_high(gbp,k)
+        #data['gbp_low'] = diff_data_low(gbp,k)
+        data['jpy'] = diff_data(jpy,k)
+        #data['jpy_high'] = diff_data_high(jpy,k)
+        #data['jpy_low'] = diff_data_low(jpy,k)
+        data['chf'] = diff_data(chf,k)
+        #data['chf_high'] = diff_data_high(chf,k)
+        #data['chf_low'] = diff_data_low(chf,k)
+        data['nzd'] = diff_data(nzd,k)
+        #data['nzd_high'] = diff_data_high(nzd,k)
+        #data['nzd_low'] = diff_data_low(nzd,k)
+        data['aud'] = diff_data(aud,k)
+        #data['aud_high'] = diff_data_high(aud,k)
+        #data['aud_low'] = diff_data_low(aud,k)
+        data['cad'] = diff_data(cad,k)
+        #data['cad_high'] = diff_data_high(cad,k)
+        #data['cad_low'] = diff_data_low(cad,k)
+
+        for i in range(len(all_pairs)):
+            data[all_pairs[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=70_000,time_frame=mt5.TIMEFRAME_H1)['close']
+            #data[all_pairs_high[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['high']
+            #data[all_pairs_low[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['low']
+
+        data.dropna(inplace=True)
+
+        risk = 0.01
+        leverage = 100
+        balance_backtest = 1_000
+        list_backtest = [balance_backtest]
+
+        my_events = events
+
+        for i in range(len(data)):
+            
+            clear_output(wait=True)
+            print(f'{k}_21/{i}/{len(data)}')
+
+            for h in my_events.values():
+
+                if h['second_currency'] == 'jpy':
+                    if 0 > data[h['first_currency']].iloc[i] > -(data[h['first_currency']].std()*2) and 0 < data[h['second_currency']].iloc[i] < (data[h['second_currency']].std()*2) and  h['buy']:
+                        if not  h['sell']:
+                            balance_backtest = account_balance(balance_backtest,risk,leverage,h['sell_price'],data[h['symbol']].iloc[i],jpy=True)
+                            list_backtest.append(balance_backtest)
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['sell_price'] = 0
+                            h['sell'] = True
+                            h['buy'] = False
+                        else:
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['buy'] = False
+                    elif 0 < data[h['first_currency']].iloc[i] < (data[h['first_currency']].std()*2) and 0 > data[h['second_currency']].iloc[i] > -(data[h['second_currency']].std()*2) and h['sell']:
+                        if not h['buy']:
+                            balance_backtest = account_balance(balance_backtest,risk,leverage,data[h['symbol']].iloc[i],h['buy_price'],jpy=True)
+                            list_backtest.append(balance_backtest)
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['buy_price'] = 0
+                            h['buy'] = True
+                            h['sell'] = False
+                        else:
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['sell'] = False
+                elif not h['second_currency'] == 'jpy':
+                    if 0 > data[h['first_currency']].iloc[i] > -(data[h['first_currency']].std()*2) and 0 < data[h['second_currency']].iloc[i] < (data[h['second_currency']].std()*2) and  h['buy']:
+                        if not  h['sell']:
+                            balance_backtest = account_balance(balance_backtest,risk,leverage,h['sell_price'],data[h['symbol']].iloc[i])
+                            list_backtest.append(balance_backtest)
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['sell_price'] = 0
+                            h['sell'] = True
+                            h['buy'] = False
+                        else:
+                            h['buy_price'] = data[h['symbol']].iloc[i]
+                            h['buy'] = False
+                    elif 0 < data[h['first_currency']].iloc[i] < (data[h['first_currency']].std()*2) and 0 > data[h['second_currency']].iloc[i] > -(data[h['second_currency']].std()*2) and h['sell']:
+                        if not h['buy']:
+                            balance_backtest = account_balance(balance_backtest,risk,leverage,data[h['symbol']].iloc[i],h['buy_price'])
+                            list_backtest.append(balance_backtest)
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['buy_price'] = 0
+                            h['buy'] = True
+                            h['sell'] = False
+                        else:
+                            h['sell_price'] = data[h['symbol']].iloc[i]
+                            h['sell'] = False
+
+        if balance_backtest > best_result:
+            best_result = balance_backtest
+        balance_bests_results[f'{k}'] = pd.Series(list_backtest)
+        if k == 21:
+            mt5.shutdown()
+            return balance_bests_results
+
+        list_backtest.clear()

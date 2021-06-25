@@ -1,0 +1,981 @@
+
+def new_multi_backtest(initial,final):
+
+    mt5.initialize()
+    if not mt5.initialize(login=41442678,password='0cxebqvs',server='MetaQuotes-Demo'):
+        print('MT5 não iniciado.')
+        mt5.shutdown()
+
+    initial_balance = 1_000
+
+    balance_bests_results = pd.DataFrame()
+
+    best_result = 0
+
+    eur = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD']
+    gbp = ['EURGBP','GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD']
+    usd = ['GBPUSD','USDCHF','USDJPY','AUDUSD','NZDUSD','USDCAD','EURUSD']
+    jpy = ['AUDJPY','CADJPY','CHFJPY','EURJPY','USDJPY','GBPJPY','NZDJPY']
+    chf = ['AUDCHF','CADCHF','CHFJPY','USDCHF','EURCHF','GBPCHF','NZDCHF']
+    nzd = ['AUDNZD','EURNZD','GBPNZD','NZDUSD','NZDCAD','NZDCHF','NZDJPY']
+    aud = ['AUDCAD','AUDCHF','AUDJPY','AUDUSD','AUDNZD','EURAUD','GBPAUD']
+    cad = ['AUDCAD','CADCHF','CADJPY','USDCAD','EURCAD','GBPCAD','NZDCAD']
+
+    all_pairs = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD',
+                 'GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD','USDCHF',
+                 'USDJPY','AUDUSD','NZDUSD','USDCAD','AUDJPY','CADJPY','CHFJPY',
+                 'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD']
+
+    all_pairs_close = ['EURCHF_Close','EURGBP_Close','EURJPY_Close','EURNZD_Close','EURUSD_Close','EURAUD_Close','EURCAD_Close',
+                      'GBPAUD_Close','GBPCHF_Close','GBPJPY_Close','GBPCAD_Close','GBPUSD_Close','GBPNZD_Close','USDCHF_Close',
+                      'USDJPY_Close','AUDUSD_Close','NZDUSD_Close','USDCAD_Close','AUDJPY_Close','CADJPY_Close','CHFJPY_Close',
+                      'NZDJPY_Close','AUDCHF_Close','CADCHF_Close','NZDCHF_Close','AUDNZD_Close','NZDCAD_Close','AUDCAD_Close']
+
+    all_pairs_high = ['EURCHF_High','EURGBP_High','EURJPY_High','EURNZD_High','EURUSD_High','EURAUD_High','EURCAD_High',
+                     'GBPAUD_High','GBPCHF_High','GBPJPY_High','GBPCAD_High','GBPUSD_High','GBPNZD_High','USDCHF_High',
+                     'USDJPY_High','AUDUSD_High','NZDUSD_High','USDCAD_High','AUDJPY_High','CADJPY_High','CHFJPY_High',
+                     'NZDJPY_High','AUDCHF_High','CADCHF_High','NZDCHF_High','AUDNZD_High','NZDCAD_High','AUDCAD_High']
+
+    all_pairs_low = ['EURCHF_Low','EURGBP_Low','EURJPY_Low','EURNZD_Low','EURUSD_Low','EURAUD_Low','EURCAD_Low',
+                    'GBPAUD_Low','GBPCHF_Low','GBPJPY_Low','GBPCAD_Low','GBPUSD_Low','GBPNZD_Low','USDCHF_Low',
+                    'USDJPY_Low','AUDUSD_Low','NZDUSD_Low','USDCAD_Low','AUDJPY_Low','CADJPY_Low','CHFJPY_Low',
+                    'NZDJPY_Low','AUDCHF_Low','CADCHF_Low','NZDCHF_Low','AUDNZD_Low','NZDCAD_Low','AUDCAD_Low']
+
+    for k in range(1,22):
+
+        data = pd.DataFrame()
+
+        data['eur'] = diff_data(eur,k)
+        data['eur_high'] = diff_data_high(eur,k)
+        data['eur_low'] = diff_data_low(eur,k)
+        data['usd'] = diff_data(usd,k)
+        data['usd_high'] = diff_data_high(usd,k)
+        data['usd_low'] = diff_data_low(usd,k)
+        data['gbp'] = diff_data(gbp,k)
+        data['gbp_high'] = diff_data_high(gbp,k)
+        data['gbp_low'] = diff_data_low(gbp,k)
+        data['jpy'] = diff_data(jpy,k)
+        data['jpy_high'] = diff_data_high(jpy,k)
+        data['jpy_low'] = diff_data_low(jpy,k)
+        data['chf'] = diff_data(chf,k)
+        data['chf_high'] = diff_data_high(chf,k)
+        data['chf_low'] = diff_data_low(chf,k)
+        data['nzd'] = diff_data(nzd,k)
+        data['nzd_high'] = diff_data_high(nzd,k)
+        data['nzd_low'] = diff_data_low(nzd,k)
+        data['aud'] = diff_data(aud,k)
+        data['aud_high'] = diff_data_high(aud,k)
+        data['aud_low'] = diff_data_low(aud,k)
+        data['cad'] = diff_data(cad,k)
+        data['cad_high'] = diff_data_high(cad,k)
+        data['cad_low'] = diff_data_low(cad,k)
+
+        for i in range(len(all_pairs)):
+            data[all_pairs[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['close']
+            data[all_pairs_high[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['high']
+            data[all_pairs_low[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['low']
+
+        data.dropna(inplace=True)
+
+        for j in range(initial,final):
+
+            best_time = j
+
+            clear_output(wait=True)
+            print(f'{k}_21/{j}_{final-1}')
+
+            risk = 0.01
+            leverage = 100
+            balance_backtest = 1_000
+            list_backtest = [balance_backtest]
+
+            my_events = events
+
+            for i in range(len(data)):
+
+                for h in my_events.values():
+
+                    if h['second_currency_low'] in ['jpy_low']:
+                        if data[h['first_currency_low']].iloc[i] < -best_time and data[h['second_currency_high']].iloc[i] > best_time and  h['buy']:
+                            if not  h['sell']:
+                                balance_backtest = account_balance(balance_backtest,risk,leverage,h['sell_price'],data[h['symbol_low']].iloc[i],jpy=True)
+                                list_backtest.append(balance_backtest)
+                                h['buy_price'] = data[h['symbol_low']].iloc[i]
+                                h['sell_price'] = 0
+                                h['sell'] = True
+                                h['buy'] = False
+                            else:
+                                h['buy_price'] = data[h['symbol_low']].iloc[i]
+                                h['buy'] = False
+                        elif data[h['first_currency_high']].iloc[i] > best_time and data[h['second_currency_low']].iloc[i] < -best_time and h['sell']:
+                            if not h['buy']:
+                                balance_backtest = account_balance(balance_backtest,risk,leverage,data[h['symbol_high']].iloc[i],h['buy_price'],jpy=True)
+                                list_backtest.append(balance_backtest)
+                                h['sell_price'] = data[h['symbol_high']].iloc[i]
+                                h['buy_price'] = 0
+                                h['buy'] = True
+                                h['sell'] = False
+                            else:
+                                h['sell_price'] = data[h['symbol_high']].iloc[i]
+                                h['sell'] = False
+                    elif not h['second_currency_low'] in ['jpy_low']:
+                        if data[h['first_currency_low']].iloc[i] < -best_time and data[h['second_currency_high']].iloc[i] > best_time and  h['buy']:
+                            if not  h['sell']:
+                                balance_backtest = account_balance(balance_backtest,risk,leverage,h['sell_price'],data[h['symbol_low']].iloc[i])
+                                list_backtest.append(balance_backtest)
+                                h['buy_price'] = data[h['symbol_low']].iloc[i]
+                                h['sell_price'] = 0
+                                h['sell'] = True
+                                h['buy'] = False
+                            else:
+                                h['buy_price'] = data[h['symbol_low']].iloc[i]
+                                h['buy'] = False
+                        elif data[h['first_currency_high']].iloc[i] > best_time and data[h['second_currency_low']].iloc[i] < -best_time and h['sell']:
+                            if not h['buy']:
+                                balance_backtest = account_balance(balance_backtest,risk,leverage,data[h['symbol_high']].iloc[i],h['buy_price'])
+                                list_backtest.append(balance_backtest)
+                                h['sell_price'] = data[h['symbol_high']].iloc[i]
+                                h['buy_price'] = 0
+                                h['buy'] = True
+                                h['sell'] = False
+                            else:
+                                h['sell_price'] = data[h['symbol_high']].iloc[i]
+                                h['sell'] = False
+
+            if balance_backtest > best_result:
+                best_result = balance_backtest
+                balance_bests_results[f'{k}_{j}'] = pd.Series(list_backtest)
+            if j == final-1 and k == 21:
+                mt5.shutdown()
+                return balance_bests_results
+
+            list_backtest.clear()
+
+
+
+def new_multi_backtest(initial,final):
+
+    mt5.initialize()
+    if not mt5.initialize(login=41442678,password='0cxebqvs',server='MetaQuotes-Demo'):
+        print('MT5 não iniciado.')
+        mt5.shutdown()
+
+    initial_balance = 1_000
+
+    balance_bests_results = pd.DataFrame()
+
+    best_result = 0
+
+    eur = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD']
+    gbp = ['EURGBP','GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD']
+    usd = ['GBPUSD','USDCHF','USDJPY','AUDUSD','NZDUSD','USDCAD','EURUSD']
+    jpy = ['AUDJPY','CADJPY','CHFJPY','EURJPY','USDJPY','GBPJPY','NZDJPY']
+    chf = ['AUDCHF','CADCHF','CHFJPY','USDCHF','EURCHF','GBPCHF','NZDCHF']
+    nzd = ['AUDNZD','EURNZD','GBPNZD','NZDUSD','NZDCAD','NZDCHF','NZDJPY']
+    aud = ['AUDCAD','AUDCHF','AUDJPY','AUDUSD','AUDNZD','EURAUD','GBPAUD']
+    cad = ['AUDCAD','CADCHF','CADJPY','USDCAD','EURCAD','GBPCAD','NZDCAD']
+
+    all_pairs = ['EURCHF','EURGBP','EURJPY','EURNZD','EURUSD','EURAUD','EURCAD',
+                 'GBPAUD','GBPCHF','GBPJPY','GBPCAD','GBPUSD','GBPNZD','USDCHF',
+                 'USDJPY','AUDUSD','NZDUSD','USDCAD','AUDJPY','CADJPY','CHFJPY',
+                 'NZDJPY','AUDCHF','CADCHF','NZDCHF','AUDNZD','NZDCAD','AUDCAD']
+
+    all_pairs_close = ['EURCHF_Close','EURGBP_Close','EURJPY_Close','EURNZD_Close','EURUSD_Close','EURAUD_Close','EURCAD_Close',
+                      'GBPAUD_Close','GBPCHF_Close','GBPJPY_Close','GBPCAD_Close','GBPUSD_Close','GBPNZD_Close','USDCHF_Close',
+                      'USDJPY_Close','AUDUSD_Close','NZDUSD_Close','USDCAD_Close','AUDJPY_Close','CADJPY_Close','CHFJPY_Close',
+                      'NZDJPY_Close','AUDCHF_Close','CADCHF_Close','NZDCHF_Close','AUDNZD_Close','NZDCAD_Close','AUDCAD_Close']
+
+    all_pairs_high = ['EURCHF_High','EURGBP_High','EURJPY_High','EURNZD_High','EURUSD_High','EURAUD_High','EURCAD_High',
+                     'GBPAUD_High','GBPCHF_High','GBPJPY_High','GBPCAD_High','GBPUSD_High','GBPNZD_High','USDCHF_High',
+                     'USDJPY_High','AUDUSD_High','NZDUSD_High','USDCAD_High','AUDJPY_High','CADJPY_High','CHFJPY_High',
+                     'NZDJPY_High','AUDCHF_High','CADCHF_High','NZDCHF_High','AUDNZD_High','NZDCAD_High','AUDCAD_High']
+
+    all_pairs_low = ['EURCHF_Low','EURGBP_Low','EURJPY_Low','EURNZD_Low','EURUSD_Low','EURAUD_Low','EURCAD_Low',
+                    'GBPAUD_Low','GBPCHF_Low','GBPJPY_Low','GBPCAD_Low','GBPUSD_Low','GBPNZD_Low','USDCHF_Low',
+                    'USDJPY_Low','AUDUSD_Low','NZDUSD_Low','USDCAD_Low','AUDJPY_Low','CADJPY_Low','CHFJPY_Low',
+                    'NZDJPY_Low','AUDCHF_Low','CADCHF_Low','NZDCHF_Low','AUDNZD_Low','NZDCAD_Low','AUDCAD_Low']
+
+    for k in range(1,22):
+
+        data = pd.DataFrame()
+
+        data['eur'] = diff_data(eur,k)
+        data['eur_high'] = diff_data_high(eur,k)
+        data['eur_low'] = diff_data_low(eur,k)
+        data['usd'] = diff_data(usd,k)
+        data['usd_high'] = diff_data_high(usd,k)
+        data['usd_low'] = diff_data_low(usd,k)
+        data['gbp'] = diff_data(gbp,k)
+        data['gbp_high'] = diff_data_high(gbp,k)
+        data['gbp_low'] = diff_data_low(gbp,k)
+        data['jpy'] = diff_data(jpy,k)
+        data['jpy_high'] = diff_data_high(jpy,k)
+        data['jpy_low'] = diff_data_low(jpy,k)
+        data['chf'] = diff_data(chf,k)
+        data['chf_high'] = diff_data_high(chf,k)
+        data['chf_low'] = diff_data_low(chf,k)
+        data['nzd'] = diff_data(nzd,k)
+        data['nzd_high'] = diff_data_high(nzd,k)
+        data['nzd_low'] = diff_data_low(nzd,k)
+        data['aud'] = diff_data(aud,k)
+        data['aud_high'] = diff_data_high(aud,k)
+        data['aud_low'] = diff_data_low(aud,k)
+        data['cad'] = diff_data(cad,k)
+        data['cad_high'] = diff_data_high(cad,k)
+        data['cad_low'] = diff_data_low(cad,k)
+
+        for i in range(len(all_pairs)):
+            data[all_pairs[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['close']
+            data[all_pairs_high[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['high']
+            data[all_pairs_low[i]] = preprocess_mt5_2(symbol=all_pairs[i],mt5=mt5,start=0,end=3_000,time_frame=mt5.TIMEFRAME_D1)['low']
+
+        data.dropna(inplace=True)
+
+        for j in range(initial,final):
+
+            clear_output(wait=True)
+            print(f'{k}_{j}/21_{final-1}')
+
+            risk = 0.01
+            leverage = 100
+            balance_backtest = 1_000
+            list_backtest = [balance_backtest]
+
+            # EUR
+            eur_best_time = j
+            flag_buy_eurusd, flag_sell_eurusd = True, True
+            flag_buy_eurgbp, flag_sell_eurgbp = True, True
+            flag_buy_eurchf, flag_sell_eurchf = True, True
+            flag_buy_eurnzd, flag_sell_eurnzd = True, True
+            flag_buy_euraud, flag_sell_euraud = True, True
+            flag_buy_eurcad, flag_sell_eurcad = True, True
+            flag_buy_eurjpy, flag_sell_eurjpy = True, True
+            price_bought_eurusd, price_sold_eurusd = 0.0, 0.0
+            price_bought_eurgbp, price_sold_eurgbp = 0.0, 0.0
+            price_bought_eurchf, price_sold_eurchf = 0.0, 0.0
+            price_bought_eurnzd, price_sold_eurnzd = 0.0, 0.0
+            price_bought_euraud, price_sold_euraud = 0.0, 0.0
+            price_bought_eurcad, price_sold_eurcad = 0.0, 0.0
+            price_bought_eurjpy, price_sold_eurjpy = 0.0, 0.0
+
+            # USD
+            usd_best_time = j
+            flag_buy_gbpusd, flag_sell_gbpusd = True, True
+            flag_buy_usdchf, flag_sell_usdchf = True, True
+            flag_buy_usdjpy, flag_sell_usdjpy = True, True
+            flag_buy_audusd, flag_sell_audusd = True, True
+            flag_buy_nzdusd, flag_sell_nzdusd = True, True
+            flag_buy_usdcad, flag_sell_usdcad = True, True
+            price_bought_gbpusd, price_sold_gbpusd = 0.0, 0.0
+            price_bought_usdchf, price_sold_usdchf = 0.0, 0.0
+            price_bought_usdjpy, price_sold_usdjpy = 0.0, 0.0
+            price_bought_audusd, price_sold_audusd = 0.0, 0.0
+            price_bought_nzdusd, price_sold_nzdusd = 0.0, 0.0
+            price_bought_usdcad, price_sold_usdcad = 0.0, 0.0
+
+            # GBP
+            gbp_best_time = j
+            flag_buy_gbpaud, flag_sell_gbpaud = True, True
+            flag_buy_gbpchf, flag_sell_gbpchf = True, True
+            flag_buy_gbpjpy, flag_sell_gbpjpy = True, True
+            flag_buy_gbpcad, flag_sell_gbpcad = True, True
+            flag_buy_gbpnzd, flag_sell_gbpnzd = True, True
+            price_bought_gbpaud, price_sold_gbpaud = 0.0, 0.0
+            price_bought_gbpchf, price_sold_gbpchf = 0.0, 0.0
+            price_bought_gbpjpy, price_sold_gbpjpy = 0.0, 0.0
+            price_bought_gbpcad, price_sold_gbpcad = 0.0, 0.0
+            price_bought_gbpnzd, price_sold_gbpnzd = 0.0, 0.0
+
+            # JPY
+            jpy_best_time = j
+            flag_buy_audjpy, flag_sell_audjpy = True, True
+            flag_buy_cadjpy, flag_sell_cadjpy = True, True
+            flag_buy_chfjpy, flag_sell_chfjpy = True, True
+            flag_buy_nzdjpy, flag_sell_nzdjpy = True, True
+            price_bought_audjpy, price_sold_audjpy = 0.0, 0.0
+            price_bought_cadjpy, price_sold_cadjpy = 0.0, 0.0
+            price_bought_chfjpy, price_sold_chfjpy = 0.0, 0.0
+            price_bought_nzdjpy, price_sold_nzdjpy = 0.0, 0.0
+
+            # CHF
+            chf_besttime = j
+            flag_buy_audchf, flag_sell_audchf = True, True
+            flag_buy_cadchf, flag_sell_cadchf = True, True
+            flag_buy_nzdchf, flag_sell_nzdchf = True, True
+            price_bought_audchf, price_sold_audchf = 0.0, 0.0
+            price_bought_cadchf, price_sold_cadchf = 0.0, 0.0
+            price_bought_nzdchf, price_sold_nzdchf = 0.0, 0.0
+
+            # NZD
+            nzd_best_time = j
+            flag_buy_audnzd, flag_sell_audnzd = True, True
+            flag_buy_nzdcad, flag_sell_nzdcad = True, True
+            price_bought_audnzd, price_sold_audnzd = 0.0, 0.0
+            price_bought_nzdcad, price_sold_nzdcad = 0.0, 0.0
+
+            # AUD
+            aud_best_time = j
+            flag_buy_audcad, flag_sell_audcad = True, True
+            price_bought_audcad, price_sold_audcad = 0.0, 0.0
+
+            for i in range(len(data)):
+                        #EUR
+                # EURUSD
+                if data['eur_low'].iloc[i] < -eur_best_time and data['usd_high'].iloc[i] > eur_best_time and flag_buy_eurusd:
+                    if not flag_sell_eurusd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_eurusd,data['EURUSD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_eurusd = data['EURUSD_Low'].iloc[i]
+                        price_sold_eurusd = 0
+                        flag_sell_eurusd = True
+                        flag_buy_eurusd = False
+                    else:
+                        price_bought_eurusd = data['EURUSD_Low'].iloc[i]
+                        flag_buy_eurusd = False
+                elif data['eur_high'].iloc[i] > eur_best_time and data['usd_low'].iloc[i] < -eur_best_time and flag_sell_eurusd:
+                    if not flag_buy_eurusd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['EURUSD_High'].iloc[i],price_bought_eurusd)
+                        list_backtest.append(balance_backtest)
+                        price_sold_eurusd = data['EURUSD_High'].iloc[i]
+                        price_bought_eurusd = 0
+                        flag_buy_eurusd = True
+                        flag_sell_eurusd = False
+                    else:
+                        price_sold_eurusd = data['EURUSD_High'].iloc[i]
+                        flag_sell_eurusd = False
+                #EURGBP
+                elif data['eur_low'].iloc[i] < -eur_best_time and data['gbp_high'].iloc[i] > eur_best_time and flag_buy_eurgbp:
+                    if not flag_sell_eurgbp:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_eurgbp,data['EURGBP_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_eurgbp = data['EURGBP_Low'].iloc[i]
+                        price_sold_eurgbp = 0
+                        flag_sell_eurgbp = True
+                        flag_buy_eurgbp = False
+                    else:
+                        price_bought_eurgbp = data['EURGBP_Low'].iloc[i]
+                        flag_buy_eurgbp = False
+                elif data['eur_high'].iloc[i] > eur_best_time and data['gbp_low'].iloc[i] < -eur_best_time and flag_sell_eurgbp:
+                    if not flag_buy_eurgbp:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['EURGBP_High'].iloc[i],price_bought_eurgbp)
+                        list_backtest.append(balance_backtest)
+                        price_sold_eurgbp = data['EURGBP_High'].iloc[i]
+                        price_bought_eurgbp = 0
+                        flag_buy_eurgbp = True
+                        flag_sell_eurgbp = False
+                    else:
+                        price_sold_eurgbp = data['EURGBP_High'].iloc[i]
+                        flag_sell_eurgbp = False
+                #EURCHF
+                elif data['eur_low'].iloc[i] < -eur_best_time and data['chf_high'].iloc[i] > eur_best_time and flag_buy_eurchf:
+                    if not flag_sell_eurchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_eurchf,data['EURCHF_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_eurchf = data['EURCHF_Low'].iloc[i]
+                        price_sold_eurchf = 0
+                        flag_sell_eurchf = True
+                        flag_buy_eurchf = False
+                    else:
+                        price_bought_eurchf = data['EURCHF_Low'].iloc[i]
+                        flag_buy_eurchf = False
+                elif data['eur_high'].iloc[i] > eur_best_time and data['chf_low'].iloc[i] < -eur_best_time and flag_sell_eurchf:
+                    if not flag_buy_eurchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['EURCHF_High'].iloc[i],price_bought_eurchf)
+                        list_backtest.append(balance_backtest)
+                        price_sold_eurchf = data['EURCHF_High'].iloc[i]
+                        price_bought_eurchf = 0
+                        flag_buy_eurchf = True
+                        flag_sell_eurchf = False
+                    else:
+                        price_sold_eurchf = data['EURCHF_High'].iloc[i]
+                        flag_sell_eurchf = False
+                #EURNZD
+                elif data['eur_low'].iloc[i] < -eur_best_time and data['nzd_high'].iloc[i] > eur_best_time and flag_buy_eurnzd:
+                    if not flag_sell_eurnzd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_eurnzd,data['EURNZD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_eurnzd = data['EURNZD_Low'].iloc[i]
+                        price_sold_eurnzd = 0
+                        flag_sell_eurnzd = True
+                        flag_buy_eurnzd = False
+                    else:
+                        price_bought_eurnzd = data['EURNZD_Low'].iloc[i]
+                        flag_buy_eurnzd = False
+                elif data['eur_high'].iloc[i] > eur_best_time and data['nzd_low'].iloc[i] < -eur_best_time and flag_sell_eurnzd:
+                    if not flag_buy_eurnzd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['EURNZD_High'].iloc[i],price_bought_eurnzd)
+                        list_backtest.append(balance_backtest)
+                        price_sold_eurnzd = data['EURNZD_High'].iloc[i]
+                        price_bought_eurnzd = 0
+                        flag_buy_eurnzd = True
+                        flag_sell_eurnzd = False
+                    else:
+                        price_sold_eurnzd = data['EURNZD_High'].iloc[i]
+                        flag_sell_eurnzd = False
+                #EURAUD
+                elif data['eur_low'].iloc[i] < -eur_best_time and data['aud_high'].iloc[i] > eur_best_time and flag_buy_euraud:
+                    if not flag_sell_euraud:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_euraud,data['EURAUD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_euraud = data['EURAUD_Low'].iloc[i]
+                        price_sold_euraud = 0
+                        flag_sell_euraud = True
+                        flag_buy_euraud = False
+                    else:
+                        price_bought_euraud = data['EURAUD_Low'].iloc[i]
+                        flag_buy_euraud = False
+                elif data['eur_high'].iloc[i] > eur_best_time and data['aud_low'].iloc[i] < -eur_best_time and flag_sell_euraud:
+                    if not flag_buy_euraud:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['EURAUD_High'].iloc[i],price_bought_euraud)
+                        list_backtest.append(balance_backtest)
+                        price_sold_euraud = data['EURAUD_High'].iloc[i]
+                        price_bought_euraud = 0
+                        flag_buy_euraud = True
+                        flag_sell_euraud = False
+                    else:
+                        price_sold_euraud = data['EURAUD_High'].iloc[i]
+                        flag_sell_euraud = False
+                #EURCAD
+                elif data['eur_low'].iloc[i] < -eur_best_time and data['cad_high'].iloc[i] > eur_best_time and flag_buy_eurcad:
+                    if not flag_sell_eurcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_eurcad,data['EURCAD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_eurcad = data['EURCAD_Low'].iloc[i]
+                        price_sold_eurcad = 0
+                        flag_sell_eurcad = True
+                        flag_buy_eurcad = False
+                    else:
+                        price_bought_eurcad = data['EURCAD_Low'].iloc[i]
+                        flag_buy_eurcad = False
+                elif data['eur_high'].iloc[i] > eur_best_time and data['cad_low'].iloc[i] < -eur_best_time and flag_sell_eurcad:
+                    if not flag_buy_eurcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['EURCAD_High'].iloc[i],price_bought_eurcad)
+                        list_backtest.append(balance_backtest)
+                        price_sold_eurcad = data['EURCAD_High'].iloc[i]
+                        price_bought_eurcad = 0
+                        flag_buy_eurcad = True
+                        flag_sell_eurcad = False
+                    else:
+                        price_sold_eurcad = data['EURCAD_High'].iloc[i]
+                        flag_sell_eurcad = False
+                #EURJPY
+                elif data['eur_low'].iloc[i] < -eur_best_time and data['jpy_high'].iloc[i] > eur_best_time and flag_buy_eurjpy:
+                    if not flag_sell_eurjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_eurjpy,data['EURJPY_Low'].iloc[i],jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_bought_eurjpy = data['EURJPY_Low'].iloc[i]
+                        price_sold_eurjpy = 0
+                        flag_sell_eurjpy = True
+                        flag_buy_eurjpy = False
+                    else:
+                        price_bought_eurjpy = data['EURJPY_Low'].iloc[i]
+                        flag_buy_eurjpy = False
+                elif data['eur_high'].iloc[i] > eur_best_time and data['jpy_low'].iloc[i] < -eur_best_time and flag_sell_eurjpy:
+                    if not flag_buy_eurjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['EURJPY_High'].iloc[i],price_bought_eurjpy,jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_sold_eurjpy = data['EURJPY_High'].iloc[i]
+                        price_bought_eurjpy = 0
+                        flag_buy_eurjpy = True
+                        flag_sell_eurjpy = False
+                    else:
+                        price_sold_eurjpy = data['EURJPY_High'].iloc[i]
+                        flag_sell_eurjpy = False
+                        # USD
+               # GBPUSD
+                elif data['gbp_low'].iloc[i] < -usd_best_time and data['usd_high'].iloc[i] > usd_best_time and flag_buy_gbpusd:
+                    if not flag_sell_gbpusd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_gbpusd,data['GBPUSD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_gbpusd = data['GBPUSD_Low'].iloc[i]
+                        price_sold_gbpusd = 0
+                        flag_sell_gbpusd = True
+                        flag_buy_gbpusd = False
+                    else:
+                        price_bought_gbpusd = data['GBPUSD_Low'].iloc[i]
+                        flag_buy_gbpusd = False
+                elif data['gbp_high'].iloc[i] > usd_best_time and data['usd_low'].iloc[i] < -usd_best_time and flag_sell_gbpusd:
+                    if not flag_buy_gbpusd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['GBPUSD_High'].iloc[i],price_bought_gbpusd)
+                        list_backtest.append(balance_backtest)
+                        price_sold_gbpusd = data['GBPUSD_High'].iloc[i]
+                        price_bought_gbpusd = 0
+                        flag_buy_gbpusd = True
+                        flag_sell_gbpusd = False
+                    else:
+                        price_sold_gbpusd = data['GBPUSD_High'].iloc[i]
+                        flag_sell_gbpusd = False
+                # USDCHF
+                elif data['usd_low'].iloc[i] < -usd_best_time and data['chf_high'].iloc[i] > usd_best_time and flag_buy_usdchf:
+                    if not flag_sell_usdchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_usdchf,data['USDCHF_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_usdchf = data['USDCHF_Low'].iloc[i]
+                        price_sold_usdchf = 0
+                        flag_sell_usdchf = True
+                        flag_buy_usdchf = False
+                    else:
+                        price_bought_usdchf = data['USDCHF_Low'].iloc[i]
+                        flag_buy_usdchf = False
+                elif data['usd_high'].iloc[i] > usd_best_time and data['chf_low'].iloc[i] < -usd_best_time and flag_sell_usdchf:
+                    if not flag_buy_usdchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['USDCHF_High'].iloc[i],price_bought_usdchf)
+                        list_backtest.append(balance_backtest)
+                        price_sold_usdchf = data['USDCHF_High'].iloc[i]
+                        price_bought_usdchf = 0
+                        flag_buy_usdchf = True
+                        flag_sell_usdchf = False
+                    else:
+                        price_sold_usdchf = data['USDCHF_High'].iloc[i]
+                        flag_sell_usdchf = False
+                # USDJPY
+                elif data['usd_low'].iloc[i] < -usd_best_time and data['jpy_high'].iloc[i] > usd_best_time and flag_buy_usdjpy:
+                    if not flag_sell_usdjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_usdjpy,data['USDJPY_Low'].iloc[i],jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_bought_usdjpy = data['USDJPY_Low'].iloc[i]
+                        price_sold_usdjpy = 0
+                        flag_sell_usdjpy = True
+                        flag_buy_usdjpy = False
+                    else:
+                        price_bought_usdjpy = data['USDJPY_Low'].iloc[i]
+                        flag_buy_usdjpy = False
+                elif data['usd_high'].iloc[i] > usd_best_time and data['jpy_low'].iloc[i] < -usd_best_time and flag_sell_usdjpy:
+                    if not flag_buy_usdjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['USDJPY_High'].iloc[i],price_bought_usdjpy,jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_sold_usdjpy = data['USDJPY_High'].iloc[i]
+                        price_bought_usdjpy = 0
+                        flag_buy_usdjpy = True
+                        flag_sell_usdjpy = False
+                    else:
+                        price_sold_usdjpy = data['USDJPY_High'].iloc[i]
+                        flag_sell_usdjpy = False
+                # AUDUSD
+                elif data['aud_low'].iloc[i] < -usd_best_time and data['usd_high'].iloc[i] > usd_best_time and flag_buy_audusd:
+                    if not flag_sell_audusd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_audusd,data['AUDUSD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_audusd = data['AUDUSD_Low'].iloc[i]
+                        price_sold_audusd = 0
+                        flag_sell_audusd = True
+                        flag_buy_audusd = False
+                    else:
+                        price_bought_audusd = data['AUDUSD_Low'].iloc[i]
+                        flag_buy_audusd = False
+                elif data['aud_high'].iloc[i] > usd_best_time and data['usd_low'].iloc[i] < -usd_best_time and flag_sell_audusd:
+                    if not flag_buy_audusd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['AUDUSD_High'].iloc[i],price_bought_audusd)
+                        list_backtest.append(balance_backtest)
+                        price_sold_audusd = data['AUDUSD_High'].iloc[i]
+                        price_bought_audusd = 0
+                        flag_buy_audusd = True
+                        flag_sell_audusd = False
+                    else:
+                        price_sold_audusd = data['AUDUSD_High'].iloc[i]
+                        flag_sell_audusd = False
+                # NZDUSD
+                elif data['nzd_low'].iloc[i] < -usd_best_time and data['usd_high'].iloc[i] > usd_best_time and flag_buy_nzdusd:
+                    if not flag_sell_nzdusd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_nzdusd,data['NZDUSD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_nzdusd = data['NZDUSD_Low'].iloc[i]
+                        price_sold_nzdusd = 0
+                        flag_sell_nzdusd = True
+                        flag_buy_nzdusd = False
+                    else:
+                        price_bought_nzdusd = data['NZDUSD_Low'].iloc[i]
+                        flag_buy_nzdusd = False
+                elif data['nzd_high'].iloc[i] > usd_best_time and data['usd_low'].iloc[i] < -usd_best_time and flag_sell_nzdusd:
+                    if not flag_buy_nzdusd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['NZDUSD_High'].iloc[i],price_bought_nzdusd)
+                        list_backtest.append(balance_backtest)
+                        price_sold_nzdusd = data['NZDUSD_High'].iloc[i]
+                        price_bought_nzdusd = 0
+                        flag_buy_nzdusd = True
+                        flag_sell_nzdusd = False
+                    else:
+                        price_sold_nzdusd = data['NZDUSD_High'].iloc[i]
+                        flag_sell_nzdusd = False
+                # USDCAD
+                elif data['usd_low'].iloc[i] < -usd_best_time and data['cad_high'].iloc[i] > usd_best_time and flag_buy_usdcad:
+                    if not flag_sell_usdcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_usdcad,data['USDCAD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_usdcad = data['USDCAD_Low'].iloc[i]
+                        price_sold_usdcad = 0
+                        flag_sell_usdcad = True
+                        flag_buy_usdcad = False
+                    else:
+                        price_bought_usdcad = data['USDCAD_Low'].iloc[i]
+                        flag_buy_usdcad = False
+                elif data['usd_high'].iloc[i] > usd_best_time and data['cad_low'].iloc[i] < -usd_best_time and flag_sell_usdcad:
+                    if not flag_buy_usdcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['USDCAD_High'].iloc[i],price_bought_usdcad)
+                        list_backtest.append(balance_backtest)
+                        price_sold_usdcad = data['USDCAD_High'].iloc[i]
+                        price_bought_usdcad = 0
+                        flag_buy_usdcad = True
+                        flag_sell_usdcad = False
+                    else:
+                        price_sold_usdcad = data['USDCAD_High'].iloc[i]
+                        flag_sell_usdcad = False
+                        # GBP
+                # GBPAUD
+                elif data['gbp_low'].iloc[i] < -gbp_best_time and data['aud_high'].iloc[i] > gbp_best_time and flag_buy_gbpaud:
+                    if not flag_sell_gbpaud:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_gbpaud,data['GBPAUD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_gbpaud = data['GBPAUD_Low'].iloc[i]
+                        price_sold_gbpaud = 0
+                        flag_sell_gbpaud = True
+                        flag_buy_gbpaud = False
+                    else:
+                        price_bought_gbpaud = data['GBPAUD_Low'].iloc[i]
+                        flag_buy_gbpaud = False
+                elif data['gbp_high'].iloc[i] > gbp_best_time and data['aud_low'].iloc[i] < -gbp_best_time and flag_sell_gbpaud:
+                    if not flag_buy_gbpaud:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['GBPAUD_High'].iloc[i],price_bought_gbpaud)
+                        list_backtest.append(balance_backtest)
+                        price_sold_gbpaud = data['GBPAUD_High'].iloc[i]
+                        price_bought_gbpaud = 0
+                        flag_buy_gbpaud = True
+                        flag_sell_gbpaud = False
+                    else:
+                        price_sold_gbpaud = data['GBPAUD_High'].iloc[i]
+                        flag_sell_gbpaud = False
+                # GBPCHF
+                elif data['gbp_low'].iloc[i] < -gbp_best_time and data['chf_high'].iloc[i] > gbp_best_time and flag_buy_gbpchf:
+                    if not flag_sell_gbpchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_gbpchf,data['GBPCHF_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_gbpchf = data['GBPCHF_Low'].iloc[i]
+                        price_sold_gbpchf = 0
+                        flag_sell_gbpchf = True
+                        flag_buy_gbpchf = False
+                    else:
+                        price_bought_gbpchf = data['GBPCHF_Low'].iloc[i]
+                        flag_buy_gbpchf = False
+                elif data['gbp_high'].iloc[i] > gbp_best_time and data['chf_low'].iloc[i] < -gbp_best_time and flag_sell_gbpchf:
+                    if not flag_buy_gbpchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['GBPCHF_High'].iloc[i],price_bought_gbpchf)
+                        list_backtest.append(balance_backtest)
+                        price_sold_gbpchf = data['GBPCHF_High'].iloc[i]
+                        price_bought_gbpchf = 0
+                        flag_buy_gbpchf = True
+                        flag_sell_gbpchf = False
+                    else:
+                        price_sold_gbpchf = data['GBPCHF_High'].iloc[i]
+                        flag_sell_gbpchf = False
+                # GBPJPY
+                elif data['gbp_low'].iloc[i] < -gbp_best_time and data['jpy_high'].iloc[i] > gbp_best_time and flag_buy_gbpjpy:
+                    if not flag_sell_gbpjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_gbpjpy,data['GBPJPY_Low'].iloc[i],jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_bought_gbpjpy = data['GBPJPY_Low'].iloc[i]
+                        price_sold_gbpjpy = 0
+                        flag_sell_gbpjpy = True
+                        flag_buy_gbpjpy = False
+                    else:
+                        price_bought_gbpjpy = data['GBPJPY_Low'].iloc[i]
+                        flag_buy_gbpjpy = False
+                elif data['gbp_high'].iloc[i] > gbp_best_time and data['jpy_low'].iloc[i] < -gbp_best_time and flag_sell_gbpjpy:
+                    if not flag_buy_gbpjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['GBPJPY_High'].iloc[i],price_bought_gbpjpy,jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_sold_gbpjpy = data['GBPJPY_High'].iloc[i]
+                        price_bought_gbpjpy = 0
+                        flag_buy_gbpjpy = True
+                        flag_sell_gbpjpy = False
+                    else:
+                        price_sold_gbpjpy = data['GBPJPY_High'].iloc[i]
+                        flag_sell_gbpjpy = False
+                # GBPCAD
+                elif data['gbp_low'].iloc[i] < -gbp_best_time and data['cad_high'].iloc[i] > gbp_best_time and flag_buy_gbpcad:
+                    if not flag_sell_gbpcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_gbpcad,data['GBPCAD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_gbpcad = data['GBPCAD_Low'].iloc[i]
+                        price_sold_gbpcad = 0
+                        flag_sell_gbpcad = True
+                        flag_buy_gbpcad = False
+                    else:
+                        price_bought_gbpcad = data['GBPCAD_Low'].iloc[i]
+                        flag_buy_gbpcad = False
+                elif data['gbp_high'].iloc[i] > gbp_best_time and data['cad_low'].iloc[i] < -gbp_best_time and flag_sell_gbpcad:
+                    if not flag_buy_gbpcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['GBPCAD_High'].iloc[i],price_bought_gbpcad)
+                        list_backtest.append(balance_backtest)
+                        price_sold_gbpcad = data['GBPCAD_High'].iloc[i]
+                        price_bought_gbpcad = 0
+                        flag_buy_gbpcad = True
+                        flag_sell_gbpcad = False
+                    else:
+                        price_sold_gbpcad = data['GBPCAD_High'].iloc[i]
+                        flag_sell_gbpcad = False
+                # GBPNZD
+                elif data['gbp_low'].iloc[i] < -gbp_best_time and data['nzd_high'].iloc[i] > gbp_best_time and flag_buy_gbpnzd:
+                    if not flag_sell_gbpnzd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_gbpnzd,data['GBPNZD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_gbpnzd = data['GBPNZD_Low'].iloc[i]
+                        price_sold_gbpnzd = 0
+                        flag_sell_gbpnzd = True
+                        flag_buy_gbpnzd = False
+                    else:
+                        price_bought_gbpnzd = data['GBPNZD_Low'].iloc[i]
+                        flag_buy_gbpnzd = False
+                elif data['gbp_high'].iloc[i] > gbp_best_time and data['nzd_low'].iloc[i] < -gbp_best_time and flag_sell_gbpnzd:
+                    if not flag_buy_gbpnzd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['GBPNZD_High'].iloc[i],price_bought_gbpnzd)
+                        list_backtest.append(balance_backtest)
+                        price_sold_gbpnzd = data['GBPNZD_High'].iloc[i]
+                        price_bought_gbpnzd = 0
+                        flag_buy_gbpnzd = True
+                        flag_sell_gbpnzd = False
+                    else:
+                        price_sold_gbpnzd = data['GBPNZD_High'].iloc[i]
+                        flag_sell_gbpnzd = False
+                        # JPY
+                # AUDJPY
+                elif data['aud_low'].iloc[i] < -jpy_best_time and data['jpy_high'].iloc[i] > jpy_best_time and flag_buy_audjpy:
+                    if not flag_sell_audjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_audjpy,data['AUDJPY_Low'].iloc[i],jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_bought_audjpy = data['AUDJPY_Low'].iloc[i]
+                        price_sold_audjpy = 0
+                        flag_sell_audjpy = True
+                        flag_buy_audjpy = False
+                    else:
+                        price_bought_audjpy = data['AUDJPY_Low'].iloc[i]
+                        flag_buy_audjpy = False
+                elif data['aud_high'].iloc[i] > jpy_best_time and data['jpy_low'].iloc[i] < -jpy_best_time and flag_sell_audjpy:
+                    if not flag_buy_audjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['AUDJPY_High'].iloc[i],price_bought_audjpy,jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_sold_audjpy = data['AUDJPY_High'].iloc[i]
+                        price_bought_audjpy = 0
+                        flag_buy_audjpy = True
+                        flag_sell_audjpy = False
+                    else:
+                        price_sold_audjpy = data['AUDJPY_High'].iloc[i]
+                        flag_sell_audjpy = False
+                # CADJPY
+                elif data['cad_low'].iloc[i] < -jpy_best_time and data['jpy_high'].iloc[i] > jpy_best_time and flag_buy_cadjpy:
+                    if not flag_sell_cadjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_cadjpy,data['CADJPY_Low'].iloc[i],jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_bought_cadjpy = data['CADJPY_Low'].iloc[i]
+                        price_sold_cadjpy = 0
+                        flag_sell_cadjpy = True
+                        flag_buy_cadjpy = False
+                    else:
+                        price_bought_cadjpy = data['CADJPY_Low'].iloc[i]
+                        flag_buy_cadjpy = False
+                elif data['cad_high'].iloc[i] > jpy_best_time and data['jpy_low'].iloc[i] < -jpy_best_time and flag_sell_cadjpy:
+                    if not flag_buy_cadjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['CADJPY_High'].iloc[i],price_bought_cadjpy,jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_sold_cadjpy = data['CADJPY_High'].iloc[i]
+                        price_bought_cadjpy = 0
+                        flag_buy_cadjpy = True
+                        flag_sell_cadjpy = False
+                    else:
+                        price_sold_cadjpy = data['CADJPY_High'].iloc[i]
+                        flag_sell_cadjpy = False
+                # CHFJPY
+                elif data['chf_low'].iloc[i] < -jpy_best_time and data['jpy_high'].iloc[i] > jpy_best_time and flag_buy_chfjpy:
+                    if not flag_sell_chfjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_chfjpy,data['CHFJPY_Low'].iloc[i],jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_bought_chfjpy = data['CHFJPY_Low'].iloc[i]
+                        price_sold_chfjpy = 0
+                        flag_sell_chfjpy = True
+                        flag_buy_chfjpy = False
+                    else:
+                        price_bought_chfjpy = data['CHFJPY_Low'].iloc[i]
+                        flag_buy_chfjpy = False
+                elif data['chf_high'].iloc[i] > jpy_best_time and data['jpy_low'].iloc[i] < -jpy_best_time and flag_sell_chfjpy:
+                    if not flag_buy_chfjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['CHFJPY_High'].iloc[i],price_bought_chfjpy,jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_sold_chfjpy = data['CHFJPY_High'].iloc[i]
+                        price_bought_chfjpy = 0
+                        flag_buy_chfjpy = True
+                        flag_sell_chfjpy = False
+                    else:
+                        flag_sell_chfjpy = False
+                        price_sold_chfjpy = data['CHFJPY_High'].iloc[i]
+                # NZDJPY
+                elif data['nzd_low'].iloc[i] < -jpy_best_time and data['jpy_high'].iloc[i] > jpy_best_time and flag_buy_nzdjpy:
+                    if not flag_sell_nzdjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_nzdjpy,data['NZDJPY_Low'].iloc[i],jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_bought_nzdjpy = data['NZDJPY_Low'].iloc[i]
+                        price_sold_nzdjpy = 0
+                        flag_sell_nzdjpy = True
+                        flag_buy_nzdjpy = False
+                    else:
+                        price_bought_nzdjpy = data['NZDJPY_Low'].iloc[i]
+                        flag_buy_nzdjpy = False
+                elif data['nzd_high'].iloc[i] > jpy_best_time and data['jpy_low'].iloc[i] < -jpy_best_time and flag_sell_nzdjpy:
+                    if not flag_buy_nzdjpy:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['NZDJPY_High'].iloc[i],price_bought_nzdjpy,jpy=True)
+                        list_backtest.append(balance_backtest)
+                        price_sold_nzdjpy = data['NZDJPY_High'].iloc[i]
+                        price_bought_nzdjpy = 0
+                        flag_buy_nzdjpy = True
+                        flag_sell_nzdjpy = False
+                    else:
+                        price_sold_nzdjpy = data['NZDJPY_High'].iloc[i]
+                        flag_sell_nzdjpy = False
+                        # CHF
+                # AUDCHF
+                elif data['aud_low'].iloc[i] < -chf_besttime and data['chf_high'].iloc[i] > chf_besttime and flag_buy_audchf:
+                    if not flag_sell_audchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_audchf,data['AUDCHF_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_audchf = data['AUDCHF_Low'].iloc[i]
+                        price_sold_audchf = 0
+                        flag_sell_audchf = True
+                        flag_buy_audchf = False
+                    else:
+                        price_bought_audchf = data['AUDCHF_Low'].iloc[i]
+                        flag_buy_audchf = False
+                elif data['aud_high'].iloc[i] > chf_besttime and data['chf_low'].iloc[i] < -chf_besttime and flag_sell_audchf:
+                    if not flag_buy_audchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['AUDCHF_High'].iloc[i],price_bought_audchf)
+                        list_backtest.append(balance_backtest)
+                        price_sold_audchf = data['AUDCHF_High'].iloc[i]
+                        price_bought_audchf = 0
+                        flag_buy_audchf = True
+                        flag_sell_audchf = False
+                    else:
+                        price_sold_audchf = data['AUDCHF_High'].iloc[i]
+                        flag_sell_audchf = False
+                # CADCHF
+                elif data['cad_low'].iloc[i] < -chf_besttime and data['chf_high'].iloc[i] > chf_besttime and flag_buy_cadchf:
+                    if not flag_sell_cadchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_cadchf,data['CADCHF_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_cadchf = data['CADCHF_Low'].iloc[i]
+                        price_sold_cadchf = 0
+                        flag_sell_cadchf = True
+                        flag_buy_cadchf = False
+                    else:
+                        price_bought_cadchf = data['CADCHF_Low'].iloc[i]
+                        flag_buy_cadchf = False
+                elif data['cad_high'].iloc[i] > chf_besttime and data['chf_low'].iloc[i] < -chf_besttime and flag_sell_cadchf:
+                    if not flag_buy_cadchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['CADCHF_High'].iloc[i],price_bought_cadchf)
+                        list_backtest.append(balance_backtest)
+                        price_sold_cadchf = data['CADCHF_High'].iloc[i]
+                        price_bought_cadchf = 0
+                        flag_buy_cadchf = True
+                        flag_sell_cadchf = False
+                    else:
+                        price_sold_cadchf = data['CADCHF_High'].iloc[i]
+                        flag_sell_cadchf = False
+                # NZDCHF
+                elif data['nzd_low'].iloc[i] < -chf_besttime and data['chf_high'].iloc[i] > chf_besttime and flag_buy_nzdchf:
+                    if not flag_sell_nzdchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_nzdchf,data['NZDCHF_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_nzdchf = data['NZDCHF_Low'].iloc[i]
+                        price_sold_nzdchf = 0
+                        flag_sell_nzdchf = True
+                        flag_buy_nzdchf = False
+                    else:
+                        price_bought_nzdchf = data['NZDCHF_Low'].iloc[i]
+                        flag_buy_nzdchf = False
+                elif data['nzd_high'].iloc[i] > chf_besttime and data['chf_low'].iloc[i] < -chf_besttime and flag_sell_nzdchf:
+                    if not flag_buy_nzdchf:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['NZDCHF_High'].iloc[i],price_bought_nzdchf)
+                        list_backtest.append(balance_backtest)
+                        price_sold_nzdchf = data['NZDCHF_High'].iloc[i]
+                        price_bought_nzdchf = 0
+                        flag_buy_nzdchf = True
+                        flag_sell_nzdchf = False
+                    else:
+                        price_sold_nzdchf = data['NZDCHF_High'].iloc[i]
+                        flag_sell_nzdchf = False
+                        # NZD
+                # AUDNZD
+                elif data['aud_low'].iloc[i] < -nzd_best_time and data['nzd_high'].iloc[i] > nzd_best_time and flag_buy_audnzd:
+                    if not flag_sell_audnzd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_audnzd,data['AUDNZD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_audnzd = data['AUDNZD_Low'].iloc[i]
+                        price_sold_audnzd = 0
+                        flag_sell_audnzd = True
+                        flag_buy_audnzd = False
+                    else:
+                        price_bought_audnzd = data['AUDNZD_Low'].iloc[i]
+                        flag_buy_audnzd = False
+                elif data['aud_high'].iloc[i] > nzd_best_time and data['nzd_low'].iloc[i] < -nzd_best_time and flag_sell_audnzd:
+                    if not flag_buy_audnzd:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['AUDNZD_High'].iloc[i],price_bought_audnzd)
+                        list_backtest.append(balance_backtest)
+                        price_sold_audnzd = data['AUDNZD_High'].iloc[i]
+                        price_bought_audnzd = 0
+                        flag_buy_audnzd = True
+                        flag_sell_audnzd = False
+                    else:
+                        price_sold_audnzd = data['AUDNZD_High'].iloc[i]
+                        flag_sell_audnzd= False
+                # NZDCAD
+                elif data['nzd_low'].iloc[i] < -nzd_best_time and data['cad_high'].iloc[i] > nzd_best_time and flag_buy_nzdcad:
+                    if not flag_sell_nzdcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_nzdcad,data['NZDCAD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_nzdcad = data['NZDCAD_Low'].iloc[i]
+                        price_sold_nzdcad = 0
+                        flag_sell_nzdcad = True
+                        flag_buy_nzdcad = False
+                    else:
+                        price_bought_nzdcad = data['NZDCAD_Low'].iloc[i]
+                        flag_buy_nzdcad = False
+                elif data['nzd_high'].iloc[i] > nzd_best_time and data['cad_low'].iloc[i] < -nzd_best_time and flag_sell_nzdcad:
+                    if not flag_buy_nzdcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['NZDCAD_High'].iloc[i],price_bought_nzdcad)
+                        list_backtest.append(balance_backtest)
+                        price_sold_nzdcad = data['NZDCAD_High'].iloc[i]
+                        price_bought_nzdcad = 0
+                        flag_buy_nzdcad = True
+                        flag_sell_nzdcad = False
+                    else:
+                        price_sold_nzdcad = data['NZDCAD_High'].iloc[i]
+                        flag_sell_nzdcad = False
+                        # AUD
+                # AUDCAD
+                elif data['aud_low'].iloc[i] < -aud_best_time and data['cad_high'].iloc[i] > aud_best_time and flag_buy_audcad:
+                    if not flag_sell_audcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,price_sold_audcad,data['AUDCAD_Low'].iloc[i])
+                        list_backtest.append(balance_backtest)
+                        price_bought_audcad = data['AUDCAD_Low'].iloc[i]
+                        price_sold_audcad = 0
+                        flag_sell_audcad = True
+                        flag_buy_audcad = False
+                    else:
+                        price_bought_audcad = data['AUDCAD_Low'].iloc[i]
+                        flag_buy_audcad = False
+                elif data['aud_high'].iloc[i] > aud_best_time and data['cad_low'].iloc[i] < -aud_best_time and flag_sell_audcad:
+                    if not flag_buy_audcad:
+                        balance_backtest = account_balance(balance_backtest,risk,leverage,data['AUDCAD_High'].iloc[i],price_bought_audcad)
+                        list_backtest.append(balance_backtest)
+                        price_sold_audcad = data['AUDCAD_High'].iloc[i]
+                        price_bought_audcad = 0
+                        flag_buy_audcad = True
+                        flag_sell_audcad = False
+                    else:
+                        price_sold_audcad = data['AUDCAD_High'].iloc[i]
+                        flag_sell_audcad = False
+
+            if balance_backtest > best_result:
+                best_result = balance_backtest
+                balance_bests_results[f'{k}_{j}'] = pd.Series(list_backtest)
+            if j == final-1 and k == 21:
+                mt5.shutdown()
+                return balance_bests_results
+
+            list_backtest.clear()
